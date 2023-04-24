@@ -1,5 +1,5 @@
 import array as np
-
+import pandas as pd
 
 print('Velkommen til Python-versjonen av Lærermod!')
 
