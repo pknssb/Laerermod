@@ -12,6 +12,9 @@ trimmed_contents = [str(i) for i in contents.split()]
 print(contents)
 print(trimmed_contents)
 
+df = pd.DataFrame()
+
+
 
 
 """
