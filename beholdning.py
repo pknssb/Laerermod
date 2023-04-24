@@ -6,10 +6,16 @@ print('Velkommen til Python-versjonen av Lærermod!')
 
 tabse_syss = open("inndata/syssutd2021.txt", "r")
 
+
 contents = tabse_syss.readline()
 trimmed_contents = [str(i) for i in contents.split()]
 print(contents)
 print(trimmed_contents)
+
+df = pd.DataFrame()
+
+
+
 
 """
 stud = trimmed_contents[0]
