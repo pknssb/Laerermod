@@ -1,7 +1,7 @@
 import array as np
 
 
-print('Detta er fett!')
+print('Velkommen til Python-versjonen av Lærermod!')
 
 
 tabse_syss = open("inndata/syssutd2021.txt", "r")
