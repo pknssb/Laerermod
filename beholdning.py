@@ -11,13 +11,14 @@ trimmed_contents = [str(i) for i in contents.split()]
 print(contents)
 print(trimmed_contents)
 
+"""
 stud = trimmed_contents[0]
 print(stud)
 tabse_syss.close()
 
 arr = np.array(["1", "2", "3"])
 
-
+"""
 
 
 """
