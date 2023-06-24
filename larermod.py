@@ -1,17 +1,26 @@
+import beholdning
+
+print('Velkommen til Python-versjonen av Lærermod!')
+print()
+
+print()
+print('/********************************************************************/')
+print('/********************************************************************/')
+print('/* Modellen LÆRERMOD beregner tilbud av og etterspørsel etter       */')
+print('/* følgende 5 grupper av undervisningspersonell.                    */')
+print('/*                                                                  */')
+print('/* ba:Barnehagelærere    gr:Grunnskolelærere                        */')
+print('/* fa:Faglærere          ph:PPU Universitet og høyskole             */')
+print('/* py:PPU Yrkesfag                                                  */')
+print('/********************************************************************/')
+print('/********************************************************************/')
+print()
+
+beholdning.lag_tabse_syss()
+beholdning.lag_o1_syss()
+
 
 """
-
-/********************************************************************/
-/********************************************************************/
-/* Modellen LAERERMOD beregner tilbud av og etterspørsel etter      */
-/* følgende 5 grupper av undervisningspersonell.                    */
-/*                                                                  */
-/* ba:Barnehagelærere    gr:Grunnskolelærere                        */
-/* fa:Faglærere          ph:PPU Universitet og hoyskole             */
-/* py:PPU Yrkesfag                                                  */
-/********************************************************************/
-/********************************************************************/
-
 /* Deklarasjon av globale variable */
 %global basaar simslutt subst subaarst subaarsl vakaar befvekst arbtid estudpln
 priobarn priofosk priogrsk priovisk priouhsk prioansk prioutsk yrke
@@ -24,15 +33,16 @@ oekslba oekslgr oekslvi oekslun oekslan oekslut;
 
 %LET subst = 0;   /* Det skal gjøres beregning med forutsetning om  */
                   /* substitusjon mellom grupper                    */
+"""
+basaar = 2020
+simslutt = 2040
 
-%let basaar = 2020;
-%let simslutt = 2040;
+subaarst = 2020
+subaarsl = 2020
 
-%let subaarst = 2020;
-%let subaarsl = 2020;
+vakaar = 2020
 
-%let vakaar = 2020;
-
+"""
 filename innb     '/ssb/stamme02/laermod/wk48/g2021/inndata/mmmm_2022.txt';
 filename dem3     '/ssb/stamme02/laermod/wk48/g2021/inndata/antall_elever_videregaende.txt';
 filename dem4     '/ssb/stamme02/laermod/wk48/g2021/inndata/antall_studenter_hoyereutdanning.txt';
@@ -1249,4 +1259,5 @@ filename o1       "/ssb/stamme02/laermod/wk48/g2021/resultater/referanseba
 run;
 """
 
+print()
 print('Lærermod er nå ferdig.')

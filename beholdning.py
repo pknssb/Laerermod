@@ -1,6 +1,3 @@
-import pandas as pd
-
-print('Velkommen til Python-versjonen av Lærermod!')
 
 i1_syss = 'inndata/syssutd2021.txt'
 
@@ -11,68 +8,69 @@ o1 = '/ssb/stamme02/laermod/wk48/g2021/inndata/aarsverk.dat'
 o2 = '/ssb/stamme02/laermod/wk48/g2021/inndata/beholdning.dat'
 ut = '/ssb/stamme02/laermod/wk48/g2021/inndata/nye_studenter.dat'
 
-columns = ['stud', 'sekt', 'syssm', 'syssk', 'gaavma', 'gaavka', 'aavma',
-           'aavka']
 
-df = pd.DataFrame()
+import pandas as pd
 
-df = pd.read_csv(i1_syss, header=None, delimiter=r"\s+",
-                 names=columns,
-                 dtype={'stud': 'string', 'sekt': 'int', 'syssm': 'int',
-                        'syssk': 'int', 'gaavma': 'float', 'gaavka': 'float',
-                        'aavma': 'float', 'aavka': 'float'})
 
-print(df)
+tabse_syss = pd.DataFrame()
+o1_syss = pd.DataFrame()
+
+
+def lag_tabse_syss():
+
+    columns = ['studium', 'sektor', 'syssm', 'syssk', 'gaavma', 'gaavka']
+    
+    global tabse_syss
+    
+    tabse_syss = pd.read_csv(i1_syss,
+                             header=None,
+                             delimiter=r"\s+",
+                             names=columns,
+                             usecols=[i for i in range(6)],
+                             dtype={'studium': 'string',
+                                    'sektor': 'int',
+                                    'syssm': 'int',
+                                    'syssk': 'int',
+                                    'gaavma': 'float',
+                                    'gaavka': 'float'})
+
+    tabse_syss['studium'].replace(to_replace="4", value="ba", inplace=True)
+    tabse_syss['studium'].replace(to_replace="2", value="gr", inplace=True)
+    tabse_syss['studium'].replace(to_replace="3", value="fa", inplace=True)
+    tabse_syss['studium'].replace(to_replace="1", value="ps", inplace=True)
+    tabse_syss['studium'].replace(to_replace="5", value="an", inplace=True)
+    tabse_syss['studium'].replace(to_replace="6", value="sp", inplace=True)
+    tabse_syss['studium'].replace(to_replace="7", value="st", inplace=True)
+    tabse_syss['studium'].replace(to_replace="a", value="ph", inplace=True)
+    tabse_syss['studium'].replace(to_replace="b", value="py", inplace=True)
+
+    tabse_syss['sektor'] -= 1
+    tabse_syss['sektor'].replace(to_replace=0, value=6, inplace=True)
+
+    tabse_syss.loc[tabse_syss['syssm'] < 0, ['syssm']] = 0
+    tabse_syss.loc[tabse_syss['syssk'] < 0, ['syssk']] = 0
+    tabse_syss.loc[tabse_syss['gaavma'] < 0, ['gaavma']] = 0
+    tabse_syss.loc[tabse_syss['gaavka'] < 0, ['gaavka']] = 0
+
+    tabse_syss['aavma'] = tabse_syss.apply(lambda row: row['syssm'] *
+                                           row['gaavma'], axis=1)
+    tabse_syss['aavka'] = tabse_syss.apply(lambda row: row['syssk'] *
+                                           row['gaavka'], axis=1)
+
+    tabse_syss.sort_values(by=['studium', 'sektor'], inplace=True)
+    
+    print(tabse_syss)
+
+    
+def lag_o1_syss():
+    
+    o1_syss = tabse_syss.copy()
+    
+    o1_syss.drop(['gaavma', 'gaavka'], axis=1, inplace = True)
+    
+    print(o1_syss)
 
 """
-
-DATA tabse_syss(KEEP = studium sekt syssm syssk aavma aavka);
-    INFILE i1_syss;
-    INPUT stud $ 1-2 sekt 4 @6(syssm syssk)(10.) @26(gaavma gaavka)(10.5);
-  
-    IF stud = '4' THEN 
-	    studium = 'ba';
-    ELSE IF stud = '2' THEN 
-	    studium = 'gr';
-    ELSE IF stud = '3' THEN 
-	    studium = 'fa';
-    ELSE IF stud = '1' THEN 
-	    studium = 'ps';
-    ELSE IF stud = '5' THEN 
-	    studium = 'an';
-    ELSE IF stud = '6' THEN 
-	    studium = 'sp';
-    ELSE IF stud = '7' THEN 
-	    studium  ='st';
-	ELSE IF stud = 'a' THEN
-	    studium = 'ph';
-	ELSE IF stud = 'b' THEN
-	    studium = 'py';
-  
-    sekt = sekt - 1;
-    IF sekt = 0 THEN 
-	    sekt = 6;
-		
-    IF syssm < 0 THEN 
-	    syssm = 0;
-    IF syssk < 0 THEN 
-	    syssk = 0;
-    IF gaavma < 0 THEN 
-	    gaavma = 0;
-    IF gaavka < 0 THEN 
-	    gaavka = 0;
-  
-    aavma = syssm * gaavma;
-    aavka = syssk * gaavka;
-
-PROC SORT DATA = tabse_syss;
-    BY studium sekt;
-
-DATA o1_syss(KEEP = studium sekt syssm syssk aavm aavk);
-	SET tabse_syss;
-	
-	aavm = aavma;
-	aavk = aavka;
 
 DATA tabse_utd(KEEP = studium kj alder best syss yp tp tpa);
     INFILE i1_utd;
@@ -608,5 +606,3 @@ FILE ut;
 run;
 
 """
-
-print ('Beholdningen er nå innlest')
