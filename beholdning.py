@@ -1,42 +1,30 @@
-import array as np
 import pandas as pd
 
 print('Velkommen til Python-versjonen av Lærermod!')
 
+i1_syss = 'inndata/syssutd2021.txt'
 
-tabse_syss = open("inndata/syssutd2021.txt", "r")
+i1_utd = '/ssb/stamme02/laermod/wk48/g2021/inndata/utd2021_dat.txt'
+st = '/ssb/stamme02/laermod/wk48/g2021/inndata/nye_studenter.txt'
 
+o1 = '/ssb/stamme02/laermod/wk48/g2021/inndata/aarsverk.dat'
+o2 = '/ssb/stamme02/laermod/wk48/g2021/inndata/beholdning.dat'
+ut = '/ssb/stamme02/laermod/wk48/g2021/inndata/nye_studenter.dat'
 
-contents = tabse_syss.readline()
-trimmed_contents = [str(i) for i in contents.split()]
-print(contents)
-print(trimmed_contents)
+columns = ['stud', 'sekt', 'syssm', 'syssk', 'gaavma', 'gaavka', 'aavma',
+           'aavka']
 
 df = pd.DataFrame()
 
+df = pd.read_csv(i1_syss, header=None, delimiter=r"\s+",
+                 names=columns,
+                 dtype={'stud': 'string', 'sekt': 'int', 'syssm': 'int',
+                        'syssk': 'int', 'gaavma': 'float', 'gaavka': 'float',
+                        'aavma': 'float', 'aavka': 'float'})
 
-
-
-"""
-stud = trimmed_contents[0]
-print(stud)
-tabse_syss.close()
-
-arr = np.array(["1", "2", "3"])
+print(df)
 
 """
-
-
-"""
-
-filename i1_syss   '/ssb/stamme02/laermod/wk48/g2021/inndata/syssutd2021txt';
-filename i1_utd    '/ssb/stamme02/laermod/wk48/g2021/inndata/utd2021_dat.txt';
-filename st        '/ssb/stamme02/laermod/wk48/g2021/inndata/nye_studenter.txt';
-
-filename o1        '/ssb/stamme02/laermod/wk48/g2021/inndata/aarsverk.dat';
-filename o2        '/ssb/stamme02/laermod/wk48/g2021/inndata/beholdning.dat';
-filename ut        '/ssb/stamme02/laermod/wk48/g2021/inndata/nye_studenter.dat';
-
 
 DATA tabse_syss(KEEP = studium sekt syssm syssk aavma aavka);
     INFILE i1_syss;
@@ -620,3 +608,5 @@ FILE ut;
 run;
 
 """
+
+print ('Beholdningen er nå innlest')
