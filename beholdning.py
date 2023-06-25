@@ -1,16 +1,13 @@
 import pandas as pd
 
 i1_syss = 'inndata/syssutd2021.txt'
+i1_utd = 'inndata/utd2021_dat.txt'
+st = 'inndata/nye_studenter.txt'
 
-i1_utd = '/ssb/stamme02/laermod/wk48/g2021/inndata/utd2021_dat.txt'
-st = '/ssb/stamme02/laermod/wk48/g2021/inndata/nye_studenter.txt'
+o1 = 'inndata/aarsverk.dat'
+o2 = 'inndata/beholdning.dat'
+ut = 'inndata/nye_studenter.dat'
 
-o1 = '/ssb/stamme02/laermod/wk48/g2021/inndata/aarsverk.dat'
-o2 = '/ssb/stamme02/laermod/wk48/g2021/inndata/beholdning.dat'
-ut = '/ssb/stamme02/laermod/wk48/g2021/inndata/nye_studenter.dat'
-
-tabse_syss = pd.DataFrame()
-o1_syss = pd.DataFrame()
 
 """
 def lag_tabse_syss():
@@ -19,17 +16,19 @@ columns = ['studium', 'sektor', 'syssm', 'syssk', 'gaavma', 'gaavka']
 """
 global tabse_syss
 """
+tabse_syss = pd.DataFrame()
+
 tabse_syss = pd.read_csv(i1_syss,
-                             header=None,
-                             delimiter=r"\s+",
-                             names=columns,
-                             usecols=[i for i in range(6)],
-                             dtype={'studium': 'string',
-                                    'sektor': 'int',
-                                    'syssm': 'int',
-                                    'syssk': 'int',
-                                    'gaavma': 'float',
-                                    'gaavka': 'float'})
+                         header=None,
+                         delimiter=r"\s+",
+                         names=['studium', 'sektor', 'syssm', 'syssk', 'gaavma', 'gaavka'],
+                         usecols=[i for i in range(6)],
+                         dtype={'studium': 'string',
+                                'sektor': 'int',
+                                'syssm': 'int',
+                                'syssk': 'int',
+                                'gaavma': 'float',
+                                'gaavka': 'float'})
 
 tabse_syss['studium'].replace(to_replace="4", value="ba", inplace=True)
 tabse_syss['studium'].replace(to_replace="2", value="gr", inplace=True)
@@ -61,11 +60,33 @@ print(tabse_syss)
 """
 def lag_o1_syss():
 """
+o1_syss = pd.DataFrame()
+
 o1_syss = tabse_syss.copy()
 
 o1_syss.drop(['gaavma', 'gaavka'], axis=1, inplace=True)
 
 print(o1_syss)
+
+
+tabse_utd = pd.DataFrame()
+
+tabse_utd = pd.read_csv(i1_utd,
+                         header=None,
+                         delimiter=r"\s+",
+                         na_values={'.', ' .'},
+                         names=['studium', 'kjonn', 'alder', 'bestand', 'sysselsatte', 'yp', 'tpa', 'tp'],
+                         usecols=[i for i in range(8)],
+                         dtype={'studium': 'string',
+                                'kjonn': 'int',
+                                'alder': 'int',
+                                'bestand': 'int',
+                                'sysselsatte': 'int',
+                                'yp': 'float',
+                                'tpa': 'float',
+                                'tp': 'float'})
+
+print(tabse_utd)
 
 """
 
