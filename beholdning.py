@@ -8,14 +8,10 @@ o1 = 'inndata/aarsverk.dat'
 o2 = 'inndata/beholdning.dat'
 ut = 'inndata/nye_studenter.dat'
 
+# ********************
+# Innlesing av i1_syss
+# ********************
 
-"""
-def lag_tabse_syss():
-"""
-columns = ['studium', 'sektor', 'syssm', 'syssk', 'gaavma', 'gaavka']
-"""
-global tabse_syss
-"""
 tabse_syss = pd.DataFrame()
 
 tabse_syss = pd.read_csv(i1_syss,
@@ -55,19 +51,21 @@ tabse_syss['aavka'] = tabse_syss.apply(lambda row: row['syssk'] *
 
 tabse_syss.sort_values(by=['studium', 'sektor'], inplace=True)
 
-print(tabse_syss)
+# **********************
+# Opprettelse av o1_syss
+# **********************
 
-"""
-def lag_o1_syss():
-"""
 o1_syss = pd.DataFrame()
 
 o1_syss = tabse_syss.copy()
 
 o1_syss.drop(['gaavma', 'gaavka'], axis=1, inplace=True)
 
-print(o1_syss)
+o1_syss.rename(columns={"aavma": "aavm", "aavka": "aavk"}, inplace=True)
 
+# *******************
+# Innlesing av i1_utd
+# *******************
 
 tabse_utd = pd.DataFrame()
 
@@ -86,87 +84,94 @@ tabse_utd = pd.read_csv(i1_utd,
                                 'tpa': 'float',
                                 'tp': 'float'})
 
-print(tabse_utd)
+tabse_utd['studium'].replace(to_replace="4", value="ba", inplace=True)
+tabse_utd['studium'].replace(to_replace="2", value="gr", inplace=True)
+tabse_utd['studium'].replace(to_replace="3", value="fa", inplace=True)
+tabse_utd['studium'].replace(to_replace="1", value="ps", inplace=True)
+tabse_utd['studium'].replace(to_replace="5", value="an", inplace=True)
+tabse_utd['studium'].replace(to_replace="6", value="sp", inplace=True)
+tabse_utd['studium'].replace(to_replace="7", value="st", inplace=True)
+tabse_utd['studium'].replace(to_replace="a", value="ph", inplace=True)
+tabse_utd['studium'].replace(to_replace="b", value="py", inplace=True)
+
+tabse_utd['yp'] = tabse_utd.apply(lambda row: row['sysselsatte'] / row['bestand'] if row ['bestand'] > 0 else 0, axis=1)
+                                  
+tabse_utd = tabse_utd[tabse_utd['alder'] >= 17]
+tabse_utd = tabse_utd[tabse_utd['alder'] <= 74]
+
+tabse_utd.sort_values(by=['studium', 'kjonn', 'alder'], inplace=True)
+
+# *********************
+# Opprettelse av o1_utd
+# *********************
+
+o1_utd = pd.DataFrame()
+
+o1_utd = tabse_utd.copy()
+
+# ********************
+# Opprettelse av tabet
+# ********************
+
+tabet = pd.DataFrame()
+
+tabet = o1_syss.copy()
+
+tabet['sysst'] = tabet.apply(lambda row: row['syssm'] + row['syssk'] if row ['syssm'] >= 0
+                             and row['syssk'] >= 0 else row['syssm'] if row['syssm'] >= 0
+                             else row['syssk'], axis=1)
+
+tabet['aavt'] = tabet.apply(lambda row: row['aavm'] + row['aavk'] if row ['aavm'] >= 0
+                             and row['aavk'] >= 0 else row['aavm'] if row['aavm'] >= 0
+                             else row['aavk'], axis=1)
+
+tabet.sort_values(by=['studium', 'sektor'], inplace=True)
+
+# *******************
+# Opprettelse av tabe
+# *******************
+
+tabe = pd.DataFrame()
+
+tabe = tabet.copy()
+
+tabe['studium'].replace(to_replace="ba", value="1", inplace=True)
+tabe['studium'].replace(to_replace="gr", value="2", inplace=True)
+tabe['studium'].replace(to_replace="fa", value="3", inplace=True)
+tabe['studium'].replace(to_replace="ph", value="4", inplace=True)
+tabe['studium'].replace(to_replace="py", value="5", inplace=True)
+tabe['studium'].replace(to_replace=["an", "st", "sp"], value="6", inplace=True)
+
+tabe.rename(columns={"studium": "gruppe"}, inplace=True)
+
+tabe["gruppe"] = pd.to_numeric(tabe["gruppe"])
+
+tabe = tabe[tabe['gruppe'] >= 1]
+tabe = tabe[tabe['gruppe'] <= 5]
+
+tabe.sort_values(by=['gruppe', 'sektor'], inplace=True)
+
+# ********************
+# Opprettelse av taber
+# ********************
+
+taber = pd.DataFrame()
+
+taber = tabet.copy()
+
+taber = taber[taber['studium'] == 'an']
+
+taber.drop(['studium'], axis=1, inplace=True)
+
+# *********************
+# Proc Summary på tabet
+# *********************
+
+tabet = tabet.groupby(['studium', 'sektor']).agg(['sum'])
+
+print (tabet)
 
 """
-
-DATA tabse_utd(KEEP = studium kj alder best syss yp tp tpa);
-    INFILE i1_utd;
-	INPUT stud $ 1-2 kj 4 alder 6-8 best 10-19 syss 20-29 @30(yp tpa tp)(10.5);
-  
-    IF stud = '4' THEN 
-	    studium = 'ba';
-    ELSE IF stud = '2' THEN 
-	    studium = 'gr';
-    ELSE IF stud = '3' THEN 
-	    studium = 'fa';
-    ELSE IF stud = '1' THEN 
-	    studium = 'ps';
-    ELSE IF stud = '5' THEN 
-	    studium = 'an';
-    ELSE IF stud = '6' THEN 
-	    studium = 'sp';
-    ELSE IF stud = '7' THEN 
-	    studium = 'st';
-    ELSE IF stud = 'a' THEN
-	    studium = 'ph';
-	ELSE IF stud = 'b' THEN
-	    studium = 'py';
-    
-    IF best GT 0 THEN 
-	    yp = syss / best;
-    ELSE 
-	    yp = 0;
-  
-    IF alder GE 17 AND alder LE 74;
-	
-PROC SORT DATA = tabse_utd;
-    BY studium kj alder;
-
-DATA o1_utd (KEEP = studium kj alder best syss yp tpa tp);
-	SET tabse_utd;
-
-DATA tabet(KEEP=studium sekt syssm syssk sysst aavm aavk aavt)
-     tabe(KEEP=gr sekt syssm syssk sysst aavm aavk aavt)
-     taber(KEEP=sekt syssm syssk sysst aavm aavk aavt);
-	SET o1_syss;
-  
-    IF syssm GE 0 AND syssk GE 0 THEN 
-	    sysst = syssm + syssk;
-    ELSE IF syssm GE 0 THEN 
-	    sysst = syssm;
-    ELSE IF syssk GE 0 THEN 
-	    sysst = syssk;
-  
-    IF aavm GE 0 AND aavk GE 0 THEN 
-	    aavt = aavm + aavk;
-    ELSE IF aavm GE 0 THEN 
-	    aavt = aavm;
-    ELSE IF aavk GE 0 THEN 
-	    aavt = aavk;
-  
-    OUTPUT tabet;
-  
-    IF studium = 'ba' THEN 
-	    gr = 1;
-    ELSE IF studium = 'gr' THEN 
-	    gr = 2;
-    ELSE IF studium = 'fa' THEN 
-	    gr = 3;
-    ELSE IF studium = 'ph' THEN 
-	    gr = 4;
-	ELSE IF studium = 'py' THEN
-	    gr = 5;
-    ELSE IF studium = 'an' THEN 
-	    gr = 6;
-  
-    IF gr GE 1 AND gr LE 5 THEN 
-	    OUTPUT tabe;
-    ELSE IF gr = 6 THEN 
-	    OUTPUT taber;
-
-PROC SORT DATA = tabet;
-    BY studium sekt;
 
 PROC SUMMARY DATA = tabet;
     CLASS studium sekt;
@@ -176,9 +181,18 @@ PROC SUMMARY DATA = tabet;
 DATA tabet(KEEP = studium sekt syssm syssk sysst aavm aavk aavt);
     SET tabet;
     IF studium GT '  ' OR (studium = '  ' AND sekt = .);
+"""
 
-PROC SORT DATA = tabe;
-    BY gr sekt;
+# ********************
+# Proc Summary på tabe
+# ********************
+
+tabe = tabe.groupby(['gruppe', 'sektor']).agg(['sum'])
+
+print (tabe)
+
+
+"""
 
 PROC SUMMARY DATA = tabe;
     CLASS gr sekt;
