@@ -1,3 +1,4 @@
+import pandas as pd
 
 i1_syss = 'inndata/syssutd2021.txt'
 
@@ -8,21 +9,17 @@ o1 = '/ssb/stamme02/laermod/wk48/g2021/inndata/aarsverk.dat'
 o2 = '/ssb/stamme02/laermod/wk48/g2021/inndata/beholdning.dat'
 ut = '/ssb/stamme02/laermod/wk48/g2021/inndata/nye_studenter.dat'
 
-
-import pandas as pd
-
-
 tabse_syss = pd.DataFrame()
 o1_syss = pd.DataFrame()
 
-
+"""
 def lag_tabse_syss():
-
-    columns = ['studium', 'sektor', 'syssm', 'syssk', 'gaavma', 'gaavka']
-    
-    global tabse_syss
-    
-    tabse_syss = pd.read_csv(i1_syss,
+"""
+columns = ['studium', 'sektor', 'syssm', 'syssk', 'gaavma', 'gaavka']
+"""
+global tabse_syss
+"""
+tabse_syss = pd.read_csv(i1_syss,
                              header=None,
                              delimiter=r"\s+",
                              names=columns,
@@ -34,41 +31,41 @@ def lag_tabse_syss():
                                     'gaavma': 'float',
                                     'gaavka': 'float'})
 
-    tabse_syss['studium'].replace(to_replace="4", value="ba", inplace=True)
-    tabse_syss['studium'].replace(to_replace="2", value="gr", inplace=True)
-    tabse_syss['studium'].replace(to_replace="3", value="fa", inplace=True)
-    tabse_syss['studium'].replace(to_replace="1", value="ps", inplace=True)
-    tabse_syss['studium'].replace(to_replace="5", value="an", inplace=True)
-    tabse_syss['studium'].replace(to_replace="6", value="sp", inplace=True)
-    tabse_syss['studium'].replace(to_replace="7", value="st", inplace=True)
-    tabse_syss['studium'].replace(to_replace="a", value="ph", inplace=True)
-    tabse_syss['studium'].replace(to_replace="b", value="py", inplace=True)
+tabse_syss['studium'].replace(to_replace="4", value="ba", inplace=True)
+tabse_syss['studium'].replace(to_replace="2", value="gr", inplace=True)
+tabse_syss['studium'].replace(to_replace="3", value="fa", inplace=True)
+tabse_syss['studium'].replace(to_replace="1", value="ps", inplace=True)
+tabse_syss['studium'].replace(to_replace="5", value="an", inplace=True)
+tabse_syss['studium'].replace(to_replace="6", value="sp", inplace=True)
+tabse_syss['studium'].replace(to_replace="7", value="st", inplace=True)
+tabse_syss['studium'].replace(to_replace="a", value="ph", inplace=True)
+tabse_syss['studium'].replace(to_replace="b", value="py", inplace=True)
 
-    tabse_syss['sektor'] -= 1
-    tabse_syss['sektor'].replace(to_replace=0, value=6, inplace=True)
+tabse_syss['sektor'] -= 1
+tabse_syss['sektor'].replace(to_replace=0, value=6, inplace=True)
 
-    tabse_syss.loc[tabse_syss['syssm'] < 0, ['syssm']] = 0
-    tabse_syss.loc[tabse_syss['syssk'] < 0, ['syssk']] = 0
-    tabse_syss.loc[tabse_syss['gaavma'] < 0, ['gaavma']] = 0
-    tabse_syss.loc[tabse_syss['gaavka'] < 0, ['gaavka']] = 0
+tabse_syss.loc[tabse_syss['syssm'] < 0, ['syssm']] = 0
+tabse_syss.loc[tabse_syss['syssk'] < 0, ['syssk']] = 0
+tabse_syss.loc[tabse_syss['gaavma'] < 0, ['gaavma']] = 0
+tabse_syss.loc[tabse_syss['gaavka'] < 0, ['gaavka']] = 0
 
-    tabse_syss['aavma'] = tabse_syss.apply(lambda row: row['syssm'] *
-                                           row['gaavma'], axis=1)
-    tabse_syss['aavka'] = tabse_syss.apply(lambda row: row['syssk'] *
-                                           row['gaavka'], axis=1)
+tabse_syss['aavma'] = tabse_syss.apply(lambda row: row['syssm'] *
+                                       row['gaavma'], axis=1)
+tabse_syss['aavka'] = tabse_syss.apply(lambda row: row['syssk'] *
+                                       row['gaavka'], axis=1)
 
-    tabse_syss.sort_values(by=['studium', 'sektor'], inplace=True)
-    
-    print(tabse_syss)
+tabse_syss.sort_values(by=['studium', 'sektor'], inplace=True)
 
-    
+print(tabse_syss)
+
+"""
 def lag_o1_syss():
-    
-    o1_syss = tabse_syss.copy()
-    
-    o1_syss.drop(['gaavma', 'gaavka'], axis=1, inplace = True)
-    
-    print(o1_syss)
+"""
+o1_syss = tabse_syss.copy()
+
+o1_syss.drop(['gaavma', 'gaavka'], axis=1, inplace=True)
+
+print(o1_syss)
 
 """
 

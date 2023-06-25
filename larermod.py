@@ -1,5 +1,4 @@
-import beholdning
-
+print()
 print('Velkommen til Python-versjonen av Lærermod!')
 print()
 
@@ -16,9 +15,12 @@ print('/********************************************************************/')
 print('/********************************************************************/')
 print()
 
+import beholdning
+
+"""
 beholdning.lag_tabse_syss()
 beholdning.lag_o1_syss()
-
+"""
 
 """
 /* Deklarasjon av globale variable */
