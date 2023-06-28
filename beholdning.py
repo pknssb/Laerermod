@@ -17,8 +17,13 @@ tabse_syss = pd.DataFrame()
 tabse_syss = pd.read_csv(i1_syss,
                          header=None,
                          delimiter=r"\s+",
-                         names=['studium', 'sektor', 'syssm', 'syssk', 'gaavma', 'gaavka'],
-                         usecols=[i for i in range(6)],
+                         names=['studium',
+                                'sektor',
+                                'syssm',
+                                'syssk',
+                                'gaavma',
+                                'gaavka'],
+                         usecols=list(range(6)),
                          dtype={'studium': 'string',
                                 'sektor': 'int',
                                 'syssm': 'int',
@@ -70,11 +75,18 @@ o1_syss.rename(columns={"aavma": "aavm", "aavka": "aavk"}, inplace=True)
 tabse_utd = pd.DataFrame()
 
 tabse_utd = pd.read_csv(i1_utd,
-                         header=None,
-                         delimiter=r"\s+",
-                         na_values={'.', ' .'},
-                         names=['studium', 'kjonn', 'alder', 'bestand', 'sysselsatte', 'yp', 'tpa', 'tp'],
-                         usecols=[i for i in range(8)],
+                        header=None,
+                        delimiter=r"\s+",
+                        na_values={'.', ' .'},
+                        names=['studium',
+                               'kjonn',
+                               'alder',
+                               'bestand',
+                               'sysselsatte',
+                               'yp',
+                               'tpa',
+                               'tp'],
+                         usecols=list(range(8)),
                          dtype={'studium': 'string',
                                 'kjonn': 'int',
                                 'alder': 'int',
@@ -94,8 +106,11 @@ tabse_utd['studium'].replace(to_replace="7", value="st", inplace=True)
 tabse_utd['studium'].replace(to_replace="a", value="ph", inplace=True)
 tabse_utd['studium'].replace(to_replace="b", value="py", inplace=True)
 
-tabse_utd['yp'] = tabse_utd.apply(lambda row: row['sysselsatte'] / row['bestand'] if row ['bestand'] > 0 else 0, axis=1)
-                                  
+tabse_utd['yp'] = tabse_utd.apply(lambda row: row['sysselsatte'] /
+                                  row['bestand']
+                                  if row ['bestand'] > 0
+                                  else 0, axis=1)
+
 tabse_utd = tabse_utd[tabse_utd['alder'] >= 17]
 tabse_utd = tabse_utd[tabse_utd['alder'] <= 74]
 
@@ -169,7 +184,7 @@ taber.drop(['studium'], axis=1, inplace=True)
 
 tabet = tabet.groupby(['studium', 'sektor']).agg(['sum'])
 
-print (tabet)
+print(tabet)
 
 """
 
@@ -187,9 +202,16 @@ DATA tabet(KEEP = studium sekt syssm syssk sysst aavm aavk aavt);
 # Proc Summary på tabe
 # ********************
 
-tabe = tabe.groupby(['gruppe', 'sektor']).agg(['sum'])
-
-print (tabe)
+tabe = tabe.groupby(['gruppe', 'sektor']).syssm.sum()# .agg(['sum'])
+tabe_gruppe = tabe.groupby(['gruppe']).agg(['sum'])
+tabe_sektor = tabe.groupby(['sektor']).agg(['sum'])
+tabe_total = tabe.agg("sum", axis="rows")
+#subtotals = tabe.groupby(['gruppe']).agg({'syssm': ['sum']})
+#tabe = tabe.append(tabe_gruppe, ignore_index=True)
+print(tabe)
+print(tabe_gruppe)
+print(tabe_sektor)
+print(tabe_total)
 
 
 """
