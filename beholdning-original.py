@@ -108,7 +108,7 @@ tabse_utd['studium'].replace(to_replace="b", value="py", inplace=True)
 
 tabse_utd['yp'] = tabse_utd.apply(lambda row: row['sysselsatte'] /
                                   row['bestand']
-                                  if row['bestand'] > 0
+                                  if row ['bestand'] > 0
                                   else 0, axis=1)
 
 tabse_utd = tabse_utd[tabse_utd['alder'] >= 17]
@@ -184,74 +184,69 @@ taber.drop(['studium'], axis=1, inplace=True)
 
 tabet = tabet.groupby(['studium', 'sektor']).agg(['sum'])
 
+# print(tabet)
+
+"""
+
+PROC SUMMARY DATA = tabet;
+    CLASS studium sekt;
+    VAR syssm syssk sysst aavm aavk aavt;
+    OUTPUT OUT = tabet SUM = syssm syssk sysst aavm aavk aavt;
+
+DATA tabet(KEEP = studium sekt syssm syssk sysst aavm aavk aavt);
+    SET tabet;
+    IF studium GT '  ' OR (studium = '  ' AND sekt = .);
+"""
+
 # ********************
 # Proc Summary på tabe
 # ********************
+"""
+tabe = tabe.groupby(['gruppe', 'sektor']).syssm.sum()# .agg(['sum'])
+tabe_gruppe = tabe.groupby(['gruppe']).agg(['sum'])
+tabe_sektor = tabe.groupby(['sektor']).agg(['sum'])
+tabe_total = tabe.agg("sum", axis="rows")
+#subtotals = tabe.groupby(['gruppe']).agg({'syssm': ['sum']})
+#tabe = tabe.append(tabe_gruppe, ignore_index=True)
+print(tabe)
+print(tabe_gruppe)
+print(tabe_sektor)
+print(tabe_total)
+"""
 
 tabe = tabe.groupby(['gruppe', 'sektor']).agg(['sum'])
 
-# ********************
-# Opprettelse av tabes
-# ********************
-
-tabes = pd.DataFrame()
-
-tabes = tabe.copy()
-
-tabes = tabes.groupby(['sektor']).agg(['sum'])
-
-tabes.rename(columns={"syssm": "syssms"}, inplace=True)
-tabes.rename(columns={"syssk": "syssks"}, inplace=True)
-tabes.rename(columns={"aavm": "aavms"}, inplace=True)
-tabes.rename(columns={"aavk": "aavks"}, inplace=True)
-
-# ********************
-# Opprettelse av tabeg
-# ********************
-
-tabeg = pd.DataFrame()
-
-tabeg = tabe.copy()
-
-tabeg = tabeg.groupby(['gruppe']).agg(['sum'])
-
-# *********************
-# Opprettelse av tabesg
-# *********************
-
-tabesg = pd.DataFrame()
-
-tabesg = tabe.copy()
-
-tabesg = tabesg.groupby(['sektor', 'gruppe']).agg(['sum'])
+print(tabe)
 
 """
+
+PROC SUMMARY DATA = tabe;
+    CLASS gr sekt;
+    VAR syssm syssk sysst aavm aavk aavt;
+    OUTPUT OUT = tabe SUM = syssm syssk sysst aavm aavk aavt;
+
+DATA tabe(KEEP = gr sekt syssm syssk sysst aavm aavk aavt)
+     tabes(KEEP = sekt syssm syssk sysst aavm aavk aavt)
+     tabeg(KEEP = gr syssm syssk sysst aavm aavk aavt)
+     tabesg(KEEP = sekt gr syssm syssk sysst aavm aavk aavt);
+    SET tabe;
+  
+    IF gr GT 0 AND sekt GT 0 THEN 
+	    OUTPUT tabe;
+    ELSE IF gr GT 0 THEN 
+	    OUTPUT tabeg;
+    ELSE IF sekt GT 0 THEN 
+	    OUTPUT tabes;
+    ELSE OUTPUT 
+	    tabesg;
+
+DATA tabes;
+    SET tabes;
+    RENAME syssm = syssms syssk = syssks aavm = aavms aavk = aavks;
 
 PROC SORT DATA = tabe;
     BY sekt gr;
-"""
 
-# **************************************
-# Slår sammen tabe og tabes og får tabea
-# **************************************
-
-tabea = pd.DataFrame()
-
-#tabea = tabe.merge(tabes, how='inner', on='sektor')
-print(tabe)
-print(tabes)
-
-tabea['andms1'] = tabe.syssm
-
-
-
-#tabea['andms1'] = tabes.syssms
-#assign(andms1=lambda x: tabe.loc[tabe['syssm']])# / tabes.syssms)
-
-
-print(tabea.set_index('sektor').transpose())
-
-"""
 DATA tabea(KEEP = sekt andms1 - andms5 andks1 - andks5 andmt1 - andmt5 andkt1 - andkt5);
     MERGE tabe tabes;
     BY sekt;
