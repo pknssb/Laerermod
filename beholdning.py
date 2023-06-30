@@ -225,82 +225,139 @@ tabesg = tabe.copy()
 
 tabesg = tabesg.groupby(['sektor', 'gruppe']).agg(['sum'])
 
-"""
-
-PROC SORT DATA = tabe;
-    BY sekt gr;
-"""
-
 # **************************************
 # Slår sammen tabe og tabes og får tabea
 # **************************************
 
 tabea = pd.DataFrame()
 
-#tabea = tabe.merge(tabes, how='inner', on='sektor')
-print(tabe)
-print(tabes)
+tabes.rename(columns={"syssms": "syssm"}, inplace=True)
+tabes.rename(columns={"syssks": "syssk"}, inplace=True)
+tabes.rename(columns={"aavms": "aavm"}, inplace=True)
+tabes.rename(columns={"aavks": "aavk"}, inplace=True)
+tabes.rename(columns={"syssms": "syssm"}, inplace=True)
+tabes.rename(columns={"syssms": "syssm"}, inplace=True)
 
-tabea['andms1'] = tabe.syssm
+kolonnenavn = ['andms', 'andks', 'andmt', 'andkt']
 
+for x in range(5):
+    tabea.insert(loc=x, column=kolonnenavn[3]+str(x+1),
+                 value=[(tabe.iloc[0 + x * 6, 3] / tabes.iloc[0, 3]),
+                        (tabe.iloc[1 + x * 6, 3] / tabes.iloc[1, 3]),
+                        (tabe.iloc[2 + x * 6, 3] / tabes.iloc[2, 3]),
+                        (tabe.iloc[3 + x * 6, 3] / tabes.iloc[3, 3]),
+                        (tabe.iloc[4 + x * 6, 3] / tabes.iloc[4, 3]),
+                        (tabe.iloc[5 + x * 6, 3] / tabes.iloc[5, 3])])
 
+for x in range(5):
+    tabea.insert(loc=x, column=kolonnenavn[2]+str(x+1),
+                 value=[(tabe.iloc[0 + x * 6, 2] / tabes.iloc[0, 2]),
+                        (tabe.iloc[1 + x * 6, 2] / tabes.iloc[1, 2]),
+                        (tabe.iloc[2 + x * 6, 2] / tabes.iloc[2, 2]),
+                        (tabe.iloc[3 + x * 6, 2] / tabes.iloc[3, 2]),
+                        (tabe.iloc[4 + x * 6, 2] / tabes.iloc[4, 2]),
+                        (tabe.iloc[5 + x * 6, 2] / tabes.iloc[5, 2])])
 
-#tabea['andms1'] = tabes.syssms
-#assign(andms1=lambda x: tabe.loc[tabe['syssm']])# / tabes.syssms)
+for x in range(5):
+    tabea.insert(loc=x, column=kolonnenavn[1]+str(x+1),
+                 value=[(tabe.iloc[0 + x * 6, 1] / tabes.iloc[0, 1]),
+                        (tabe.iloc[1 + x * 6, 1] / tabes.iloc[1, 1]),
+                        (tabe.iloc[2 + x * 6, 1] / tabes.iloc[2, 1]),
+                        (tabe.iloc[3 + x * 6, 1] / tabes.iloc[3, 1]),
+                        (tabe.iloc[4 + x * 6, 1] / tabes.iloc[4, 1]),
+                        (tabe.iloc[5 + x * 6, 1] / tabes.iloc[5, 1])])
 
+for x in range(5):
+    tabea.insert(loc=x, column=kolonnenavn[0]+str(x+1),
+                 value=[(tabe.iloc[0 + x * 6, 0] / tabes.iloc[0, 0]),
+                        (tabe.iloc[1 + x * 6, 0] / tabes.iloc[1, 0]),
+                        (tabe.iloc[2 + x * 6, 0] / tabes.iloc[2, 0]),
+                        (tabe.iloc[3 + x * 6, 0] / tabes.iloc[3, 0]),
+                        (tabe.iloc[4 + x * 6, 0] / tabes.iloc[4, 0]),
+                        (tabe.iloc[5 + x * 6, 0] / tabes.iloc[5, 0])])
 
-print(tabea.set_index('sektor').transpose())
+# **********************
+# Opprettelse av taberg1
+# **********************
+
+taber = taber.reset_index()
+
+taberg1 = pd.DataFrame()
+
+taberg1["syssma1"] = tabea.andms1 * taber.syssm
+taberg1["syssma2"] = tabea.andms2 * taber.syssm
+taberg1["syssma3"] = tabea.andms3 * taber.syssm
+taberg1["syssma4"] = tabea.andms4 * taber.syssm
+taberg1["syssma5"] = tabea.andms5 * taber.syssm
+
+taberg1["sysska1"] = tabea.andks1 * taber.syssk
+taberg1["sysska2"] = tabea.andks2 * taber.syssk
+taberg1["sysska3"] = tabea.andks3 * taber.syssk
+taberg1["sysska4"] = tabea.andks4 * taber.syssk
+taberg1["sysska5"] = tabea.andks5 * taber.syssk
+
+taberg1["aavma1"] = tabea.andmt1 * taber.aavm
+taberg1["aavma2"] = tabea.andmt2 * taber.aavm
+taberg1["aavma3"] = tabea.andmt3 * taber.aavm
+taberg1["aavma4"] = tabea.andmt4 * taber.aavm
+taberg1["aavma5"] = tabea.andmt5 * taber.aavm
+
+taberg1["aavka1"] = tabea.andkt1 * taber.aavk
+taberg1["aavka2"] = tabea.andkt2 * taber.aavk
+taberg1["aavka3"] = tabea.andkt3 * taber.aavk
+taberg1["aavka4"] = tabea.andkt4 * taber.aavk
+taberg1["aavka5"] = tabea.andkt5 * taber.aavk
+
+# *********************
+# Opprettelse av taberg
+# *********************
+
+taberg = pd.DataFrame()
+
+for aaa in range(29):
+    taberg["sektor"] = aaa
+    
+taberg["syssmr"] = pd.concat([taberg1.syssma1,
+                              taberg1.syssma2,
+                              taberg1.syssma3,
+                              taberg1.syssma4,
+                              taberg1.syssma5],
+                             ignore_index=True,
+                             sort=False)
+
+taberg["sysskr"] = pd.concat([taberg1.sysska1,
+                              taberg1.sysska2,
+                              taberg1.sysska3,
+                              taberg1.sysska4,
+                              taberg1.sysska5],
+                             ignore_index=True,
+                             sort=False)
+
+taberg["aavmr"] = pd.concat([taberg1.aavma1,
+                             taberg1.aavma2,
+                             taberg1.aavma3,
+                             taberg1.aavma4,
+                             taberg1.aavma5],
+                            ignore_index=True,
+                            sort=False)
+
+taberg["aavkr"] = pd.concat([taberg1.aavka1,
+                             taberg1.aavka2,
+                             taberg1.aavka3,
+                             taberg1.aavka4,
+                             taberg1.aavka5],
+                            ignore_index=True,
+                            sort=False)
+
+taberg["sysstr"] = taberg.syssmr + taberg.sysskr
+
+taberg["aavtr"] = taberg.aavmr + taberg.aavkr
+
+taberg["sektor"] = pd.DataFrame({'sektor': range(0, 40)})
+
+print(taberg.to_string())
 
 """
-DATA tabea(KEEP = sekt andms1 - andms5 andks1 - andks5 andmt1 - andmt5 andkt1 - andkt5);
-    MERGE tabe tabes;
-    BY sekt;
-  
-    ARRAY andms(5) andms1 - andms5;
-    ARRAY andks(5) andks1 - andks5;
-    ARRAY andmt(5) andmt1 - andmt5;
-    ARRAY andkt(5) andkt1 - andkt5;
-    RETAIN andms1 - andms5 andks1 - andks5 andmt1 - andmt5 andkt1 - andkt5 0;
-  
-    andms(gr) = syssm / syssms;
-    andks(gr) = syssk / syssks;
-    andmt(gr) = aavm / aavms;
-    andkt(gr) = aavk / aavks;
-  
-    IF gr = 5 THEN 
-	    OUTPUT tabea;
-
-PROC SORT DATA = taber;
-    BY sekt;
-
-DATA taberg1(KEEP = sekt sysma1 - sysma5 syska1 - syska5 aavma1 - aavma5 aavka1 - aavka5);
-    MERGE tabea (IN = A) taber (IN = B);
-    BY sekt;
-    IF A AND B;
-  
-    ARRAY andms(5) andms1 - andms5;
-    ARRAY andks(5) andks1 - andks5;
-    ARRAY andmt(5) andmt1 - andmt5;
-    ARRAY andkt(5) andkt1 - andkt5;
-    ARRAY sysma(5) sysma1 - sysma5;
-    ARRAY syska(5) syska1 - syska5;
-    ARRAY aavma(5) aavma1 - aavma5;
-    ARRAY aavka(5) aavka1 - aavka5;
-  
-    sysmt = 0;
-    syskt = 0;
-    sysms = 0;
-    sysks = 0;
-  
-    DO i = 1 TO 5;
-        aavma(i) = aavm * andmt(i);
-        aavka(i) = aavk * andkt(i);
-        sysma(i) = syssm * andms(i);
-        syska(i) = syssk * andks(i);
-        sysmt + sysma(i);
-        syskt + syska(i);
-    END;
-
 DATA taberg(KEEP = sekt gr syssmr sysskr sysstr aavmr aavkr aavtr);
     SET taberg1;
     ARRAY sysma(5) sysma1 - sysma5;
