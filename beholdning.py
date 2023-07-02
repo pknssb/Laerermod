@@ -546,8 +546,6 @@ taberak = pd.DataFrame()
 
 taberak = (tabera.T)
 
-print(taberak)
-
 """
 DATA taberak(KEEP = kj alder ands1 - ands5 andt1 - andt5);
     SET tabera;
@@ -579,7 +577,27 @@ DATA taberak(KEEP = kj alder ands1 - ands5 andt1 - andt5);
 	
 PROC SORT DATA = taberak;
     BY kj alder;
+"""
 
+# ******************
+# Opprettelse av tab
+# ******************
+
+tab = pd.DataFrame()
+
+tab = o1_utd
+
+# ******************
+# Opprettelse av tab
+# ******************
+
+tabs = pd.DataFrame()
+
+tab['aavs'] = (tab.sysselsatte * tab.tpa)
+
+tabs = tab.groupby(["studium"]).sum()
+
+"""
 DATA tab;
 	SET o1_utd;  
     
@@ -595,6 +613,19 @@ PROC SUMMARY DATA = tab;
 
 DATA tabs(KEEP = studium bests sysss aavs);
     SET tabs;
+"""
+
+# ****************************
+# Opprettelse av tabap og tabg
+# ****************************
+
+tabap = pd.DataFrame()
+tabg = pd.DataFrame()
+
+tabap = tab
+tabg = tab
+
+"""
 
 DATA tabap(KEEP = studium kj alder best syss aav)
      tabg(KEEP = studium kj alder best syss aav yp);
@@ -608,7 +639,17 @@ DATA tabap(KEEP = studium kj alder best syss aav)
 
 PROC SORT DATA = tabg;
     BY studium;
+"""
 
+# ********************
+# Opprettelse av tabgs
+# ********************
+
+tabgs = pd.DataFrame()
+
+tabgs = tab.groupby(["studium"]).sum()
+
+"""
 PROC SUMMARY DATA = tabg;
     CLASS studium;
     VAR best syss aav;
@@ -617,6 +658,14 @@ PROC SUMMARY DATA = tabg;
 DATA tabgs(KEEP = studium bests sysss aavs);
     SET tabgs;
 
+"""
+
+# *********************
+# Opprettelse av tabaps
+# *********************
+
+
+"""
 PROC SUMMARY DATA = tabap;
     CLASS studium;
     VAR best syss aav;
@@ -625,6 +674,31 @@ PROC SUMMARY DATA = tabap;
 DATA tabaps(KEEP = studium bests sysss aavs);
     SET tabaps;
 
+"""
+
+# ********************
+# Opprettelse av tabgg
+# ********************
+
+tabgg = pd.DataFrame()
+
+tabgg = tabg
+
+tabgg['studium'].replace(to_replace="ba", value="1", inplace=True)
+tabgg['studium'].replace(to_replace="gr", value="2", inplace=True)
+tabgg['studium'].replace(to_replace="fa", value="3", inplace=True)
+tabgg['studium'].replace(to_replace="ph", value="4", inplace=True)
+tabgg['studium'].replace(to_replace="py", value="5", inplace=True)
+
+tabgg.rename(columns={"studium": "gruppe"}, inplace=True)
+
+tabgg = tabgg[tabgg['gruppe'] != "an"]
+tabgg = tabgg[tabgg['gruppe'] != "sp"]
+tabgg = tabgg[tabgg['gruppe'] != "st"]
+
+print(tabgg.to_string())
+
+"""
 DATA tabgg(KEEP = gr kj alder best syss aav);
     SET tabg;
   
@@ -638,7 +712,11 @@ DATA tabgg(KEEP = gr kj alder best syss aav);
 	    gr = 4;
 	ELSE IF studium = 'py' THEN
 	    gr = 5;
+"""
 
+
+
+"""
 DATA taberk1(KEEP = kj alder besa1 - besa5 sysa1 - sysa5 aava1 - aava5 syss syst);
     MERGE tabap(IN = A) taberak(IN = B);
     BY kj alder;
