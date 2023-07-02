@@ -209,13 +209,13 @@ taber.set_index('sektor', inplace=True)
 # Proc Summary på tabet
 # *********************
 
-tabet = tabet.groupby(['studium', 'sektor']).agg(['sum'])
+tabet = tabet.groupby(['studium', 'sektor']).sum()
 
 # ********************
 # Proc Summary på tabe
 # ********************
 
-tabe = tabe.groupby(['gruppe', 'sektor']).agg(['sum'])
+tabe = tabe.groupby(['gruppe', 'sektor']).sum()
 
 # ********************
 # Opprettelse av tabes
@@ -225,7 +225,7 @@ tabes = pd.DataFrame()
 
 tabes = tabe.copy()
 
-tabes = tabes.groupby(['sektor']).agg(['sum'])
+tabes = tabes.groupby(['sektor']).sum()
 
 tabes.rename(columns={"syssm": "syssms"}, inplace=True)
 tabes.rename(columns={"syssk": "syssks"}, inplace=True)
@@ -240,7 +240,7 @@ tabeg = pd.DataFrame()
 
 tabeg = tabe.copy()
 
-tabeg = tabeg.groupby(['gruppe']).agg(['sum'])
+tabeg = tabeg.groupby(['gruppe']).sum()
 
 # *********************
 # Opprettelse av tabesg
@@ -250,7 +250,7 @@ tabesg = pd.DataFrame()
 
 tabesg = tabe.copy()
 
-tabesg = tabesg.groupby(['sektor', 'gruppe']).agg(['sum'])
+tabesg = tabesg.groupby(['sektor', 'gruppe']).sum()
 
 # **************************************
 # Slår sammen tabe og tabes og får tabea
@@ -266,16 +266,15 @@ tabes.rename(columns={"syssms": "syssm"}, inplace=True)
 tabes.rename(columns={"syssms": "syssm"}, inplace=True)
 
 kolonnenavn = ['andms', 'andks', 'andmt', 'andkt']
-
+"""
 fett = (pd.concat([tabes]*5, keys=grupper))
 fett.index.names = ['gruppe', 'sektor']
 
-rs = pd.np.divide(tabe, fett)
+
+rs = pd.np.divide(tabe.T, fett.T)
 print(rs)
-
 """
-print (fett.syssm / tabe.syssm)
-
+"""
 
 df3 = fett.merge(fett, how='left', left_on=['gruppe', 'sektor'], right_on=['gruppe', 'sektor'])
 df3['syssm'] = df3['syssm'].str[1:].astype(int) * df3['syssm']
@@ -317,7 +316,7 @@ for x in range(5):
                         (tabe.iloc[3 + x * 6, 0] / tabes.iloc[3, 0]),
                         (tabe.iloc[4 + x * 6, 0] / tabes.iloc[4, 0]),
                         (tabe.iloc[5 + x * 6, 0] / tabes.iloc[5, 0])])
-print(tabea)
+
 # **********************
 # Opprettelse av taberg1
 # **********************
@@ -402,61 +401,26 @@ taberg["sysstr"] = taberg.syssmr + taberg.sysskr
 
 taberg["aavtr"] = taberg.aavmr + taberg.aavkr
 
+taberg.sort_values(by=['gruppe', 'sektor'], inplace=True)
+taberg = taberg.reset_index()
+taberg.drop(['index'], axis=1, inplace=True)
+
+taberg = taberg.set_index(['gruppe', 'sektor'])
+
 # **********************
 # Opprettelse av tabetot
 # **********************
 
 tabetot = pd.DataFrame()
 
-#tabe = tabe.reset_index()
-#taberg = taberg.reset_index()
-
-#taberg["sektor"] = sektorliste * 5
-#taberg["gruppe"] = gruppeliste
-
-fett = taberg['syssmr'].tolist()
-fett2 = tabe['syssm']
-
-
-df = tabe
-
-
+tabetot['syssm'] = tabe.syssm + taberg.syssmr;
+tabetot['syssk'] = tabe.syssk + taberg.sysskr;
+tabetot['sysst'] = tabe.sysst + taberg.sysstr;
+tabetot['aavm'] = tabe.aavm + taberg.aavmr;
+tabetot['aavk'] = tabe.aavk + taberg.aavkr;
+tabetot['aavt'] = tabe.aavt + taberg.aavtr;
 
 """
-for x in range(5):
-    tabetot.insert(loc=x, 'syssm',
-                 value=[(tabe.iloc[0 + x * 6, 0] / taberg.iloc[0, 0]),
-                        (tabe.iloc[1 + x * 6, 0] / taberg.iloc[1, 0]),
-                        (tabe.iloc[2 + x * 6, 0] / taberg.iloc[2, 0]),
-                        (tabe.iloc[3 + x * 6, 0] / taberg.iloc[3, 0]),
-                        (tabe.iloc[4 + x * 6, 0] / taberg.iloc[4, 0]),
-                        (tabe.iloc[5 + x * 6, 0] / taberg.iloc[5, 0])])
-"""
-
-"""
-tabetot = tabetot.reset_index(names=['gruppe', 'sektor'])
-print(tabe)
-print(taberg)
-tabetot["syssma"] = tabe.syssm + taberg.syssmr
-
-print(tabetot)
-"""
-"""
-
-DATA tabetot(KEEP = sekt gr syssm syssk sysst aavm aavk aavt);
-    MERGE tabe taberg;
-    BY sekt gr;
-  
-    aavm = aavm + aavmr;
-    aavk = aavk + aavkr;
-    aavt = aavt + aavtr;
-    syssm = syssm + syssmr;
-    syssk = syssk + sysskr;
-    sysst = sysst + sysstr;
-
-PROC SORT DATA = tabetot;
-    BY gr sekt;
-
 PROC SUMMARY DATA = tabetot;
     CLASS gr;
     VAR syssm syssk sysst aavm aavk aavt;
@@ -464,7 +428,18 @@ PROC SUMMARY DATA = tabetot;
 
 DATA tabetots(KEEP = gr syssm syssk sysst aavm aavk aavt);
     SET tabetots;
+"""
 
+# *********************
+# Opprettelse av tabeut
+# *********************
+
+tabeut = pd.DataFrame()
+
+tabeut = tabetot.aavt.groupby(['gruppe', 'sektor']).sum()
+
+
+"""
 DATA tabeut(KEEP = studium aav1 - aav6);
     SET tabetot;
   
@@ -489,14 +464,26 @@ DATA tabeut(KEEP = studium aav1 - aav6);
         OUTPUT tabeut;
         PUT @1(studium)($CHAR2.) @3(aav1 - aav6)(6.);
 	END;
-	
-PROC SORT DATA = taberg;
-    BY gr;
+"""
 
-PROC SUMMARY DATA = taberg;
-    CLASS gr;
-    VAR syssmr sysskr aavmr aavkr;
-    OUTPUT OUT = tabergs SUM=syssmr sysskr aavmr aavkr;
+# **********************
+# Opprettelse av tabergs
+# **********************
+
+tabergs = pd.DataFrame()
+
+tabergs = taberg.groupby(['gruppe']).sum()
+
+# *********************
+# Opprettelse av tabers
+# *********************
+
+tabers = pd.DataFrame()
+
+tabers = tabergs.sum()
+
+
+"""
 
 DATA tabergs(KEEP = a gr syssmr sysskr sysstr aavmr aavkr aavtr)
      tabers(KEEP = a syssmrs sysskrs sysstrs aavmrs aavkrs aavtrs);
@@ -518,7 +505,20 @@ DATA tabergs(KEEP = a gr syssmr sysskr sysstr aavmr aavkr aavtr)
       
 	    OUTPUT tabers;
     END;
+"""
 
+# *********************
+# Opprettelse av tabera
+# *********************
+
+tabera = pd.DataFrame()
+
+tabera['andms'] = (tabergs.syssmr / tabers.syssmr)
+tabera['andks'] = (tabergs.sysskr / tabers.sysskr)
+tabera['andmt'] = (tabergs.aavmr / tabers.aavmr)
+tabera['andkt'] = (tabergs.aavkr / tabers.aavkr)
+
+"""
 DATA tabera(KEEP = a andms1 - andms5 andks1 - andks5 andmt1 - andmt5 andkt1 - andkt5);
     MERGE tabergs tabers;
     BY a;
@@ -536,7 +536,19 @@ DATA tabera(KEEP = a andms1 - andms5 andks1 - andks5 andmt1 - andmt5 andkt1 - an
   
     IF gr = 5 THEN 
 	    OUTPUT tabera;
-		
+"""
+
+# **********************
+# Opprettelse av taberak
+# **********************
+
+taberak = pd.DataFrame()
+
+taberak = (tabera.T)
+
+print(taberak)
+
+"""
 DATA taberak(KEEP = kj alder ands1 - ands5 andt1 - andt5);
     SET tabera;
 
