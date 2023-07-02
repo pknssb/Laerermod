@@ -12,12 +12,19 @@ ut = 'inndata/nye_studenter.dat'
 # Konstanter
 # **********
 
+sektorer = [1, 2, 3, 4, 5, 6]
+grupper = [1, 2, 3, 4, 5]
+
 sektorliste = [1, 2, 3, 4, 5, 6]
 gruppeliste = [1, 1, 1, 1, 1, 1,
                2, 2, 2, 2, 2, 2,
                3, 3, 3, 3, 3, 3,
                4, 4, 4, 4, 4, 4,
                5, 5, 5, 5, 5, 5]
+
+indeks = pd.MultiIndex.from_product([['1', '2', '3', '4', '5'],
+                                    ['1', '2', '3', '4', '5', '6']],
+                                    names=['gruppe', 'sektor'])
 
 # ********************
 # Innlesing av i1_syss
@@ -181,7 +188,8 @@ tabe.drop(indexAge , inplace=True)
 tabe.sort_values(by=['gruppe', 'sektor'], inplace=True)
 tabe = tabe.reset_index()
 tabe.drop(['index'], axis=1, inplace=True)
-print(tabe)
+
+tabe = tabe.set_index(['gruppe', 'sektor'])
 
 # ********************
 # Opprettelse av taber
@@ -194,6 +202,8 @@ taber = tabet.copy()
 taber = taber[taber['studium'] == 'an']
 
 taber.drop(['studium'], axis=1, inplace=True)
+
+taber.set_index('sektor', inplace=True)
 
 # *********************
 # Proc Summary på tabet
@@ -257,6 +267,21 @@ tabes.rename(columns={"syssms": "syssm"}, inplace=True)
 
 kolonnenavn = ['andms', 'andks', 'andmt', 'andkt']
 
+fett = (pd.concat([tabes]*5, keys=grupper))
+fett.index.names = ['gruppe', 'sektor']
+
+rs = pd.np.divide(tabe, fett)
+print(rs)
+
+"""
+print (fett.syssm / tabe.syssm)
+
+
+df3 = fett.merge(fett, how='left', left_on=['gruppe', 'sektor'], right_on=['gruppe', 'sektor'])
+df3['syssm'] = df3['syssm'].str[1:].astype(int) * df3['syssm']
+print(df3)
+"""
+
 for x in range(5):
     tabea.insert(loc=x, column=kolonnenavn[3]+str(x+1),
                  value=[(tabe.iloc[0 + x * 6, 3] / tabes.iloc[0, 3]),
@@ -292,7 +317,7 @@ for x in range(5):
                         (tabe.iloc[3 + x * 6, 0] / tabes.iloc[3, 0]),
                         (tabe.iloc[4 + x * 6, 0] / tabes.iloc[4, 0]),
                         (tabe.iloc[5 + x * 6, 0] / tabes.iloc[5, 0])])
-
+print(tabea)
 # **********************
 # Opprettelse av taberg1
 # **********************
@@ -330,6 +355,13 @@ taberg1["aavka5"] = tabea.andkt5 * taber.aavk
 # *********************
 
 taberg = pd.DataFrame()
+
+idx = pd.MultiIndex.from_product([['1', '2', '3', '4', '5'],
+                                  ['1', '2', '3', '4', '5', '6']],
+                                 names=['gruppe', 'sektor'])
+col = ['syssmr', 'sysskr', 'aavmr', 'aavkr']
+
+df = pd.DataFrame('-', idx, col)
 
 taberg["sektor"] = sektorliste * 5
 taberg["gruppe"] = gruppeliste
@@ -369,8 +401,6 @@ taberg["aavkr"] = pd.concat([taberg1.aavka1,
 taberg["sysstr"] = taberg.syssmr + taberg.sysskr
 
 taberg["aavtr"] = taberg.aavmr + taberg.aavkr
-print('Dette er taberg')
-print(taberg)
 
 # **********************
 # Opprettelse av tabetot
@@ -383,11 +413,15 @@ tabetot = pd.DataFrame()
 
 #taberg["sektor"] = sektorliste * 5
 #taberg["gruppe"] = gruppeliste
-print(taberg.info())
-print(tabe.info())
+
 fett = taberg['syssmr'].tolist()
 fett2 = tabe['syssm']
-print(fett + fett2)
+
+
+df = tabe
+
+
+
 """
 for x in range(5):
     tabetot.insert(loc=x, 'syssm',
