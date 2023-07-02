@@ -8,6 +8,17 @@ o1 = 'inndata/aarsverk.dat'
 o2 = 'inndata/beholdning.dat'
 ut = 'inndata/nye_studenter.dat'
 
+# **********
+# Konstanter
+# **********
+
+sektorliste = [1, 2, 3, 4, 5, 6]
+gruppeliste = [1, 1, 1, 1, 1, 1,
+               2, 2, 2, 2, 2, 2,
+               3, 3, 3, 3, 3, 3,
+               4, 4, 4, 4, 4, 4,
+               5, 5, 5, 5, 5, 5]
+
 # ********************
 # Innlesing av i1_syss
 # ********************
@@ -161,10 +172,16 @@ tabe.rename(columns={"studium": "gruppe"}, inplace=True)
 
 tabe["gruppe"] = pd.to_numeric(tabe["gruppe"])
 
-tabe = tabe[tabe['gruppe'] >= 1]
-tabe = tabe[tabe['gruppe'] <= 5]
+indexAge = tabe[(tabe['gruppe'] > 5)].index
+tabe.drop(indexAge , inplace=True)
+
+#tabe = tabe[tabe['gruppe'] >= 1]
+#tabe = tabe[tabe['gruppe'] <= 5]
 
 tabe.sort_values(by=['gruppe', 'sektor'], inplace=True)
+tabe = tabe.reset_index()
+tabe.drop(['index'], axis=1, inplace=True)
+print(tabe)
 
 # ********************
 # Opprettelse av taber
@@ -314,9 +331,9 @@ taberg1["aavka5"] = tabea.andkt5 * taber.aavk
 
 taberg = pd.DataFrame()
 
-for aaa in range(29):
-    taberg["sektor"] = aaa
-    
+taberg["sektor"] = sektorliste * 5
+taberg["gruppe"] = gruppeliste
+
 taberg["syssmr"] = pd.concat([taberg1.syssma1,
                               taberg1.syssma2,
                               taberg1.syssma3,
@@ -352,29 +369,45 @@ taberg["aavkr"] = pd.concat([taberg1.aavka1,
 taberg["sysstr"] = taberg.syssmr + taberg.sysskr
 
 taberg["aavtr"] = taberg.aavmr + taberg.aavkr
+print('Dette er taberg')
+print(taberg)
 
-taberg["sektor"] = pd.DataFrame({'sektor': range(0, 40)})
+# **********************
+# Opprettelse av tabetot
+# **********************
 
-print(taberg.to_string())
+tabetot = pd.DataFrame()
+
+#tabe = tabe.reset_index()
+#taberg = taberg.reset_index()
+
+#taberg["sektor"] = sektorliste * 5
+#taberg["gruppe"] = gruppeliste
+print(taberg.info())
+print(tabe.info())
+fett = taberg['syssmr'].tolist()
+fett2 = tabe['syssm']
+print(fett + fett2)
+"""
+for x in range(5):
+    tabetot.insert(loc=x, 'syssm',
+                 value=[(tabe.iloc[0 + x * 6, 0] / taberg.iloc[0, 0]),
+                        (tabe.iloc[1 + x * 6, 0] / taberg.iloc[1, 0]),
+                        (tabe.iloc[2 + x * 6, 0] / taberg.iloc[2, 0]),
+                        (tabe.iloc[3 + x * 6, 0] / taberg.iloc[3, 0]),
+                        (tabe.iloc[4 + x * 6, 0] / taberg.iloc[4, 0]),
+                        (tabe.iloc[5 + x * 6, 0] / taberg.iloc[5, 0])])
+"""
 
 """
-DATA taberg(KEEP = sekt gr syssmr sysskr sysstr aavmr aavkr aavtr);
-    SET taberg1;
-    ARRAY sysma(5) sysma1 - sysma5;
-    ARRAY syska(5) syska1 - syska5;
-    ARRAY aavma(5) aavma1 - aavma5;
-    ARRAY aavka(5) aavka1 - aavka5;
-  
-    DO gr = 1 TO 5;
-        syssmr = sysma(gr);
-        sysskr = syska(gr);
-        aavmr = aavma(gr);
-        aavkr = aavka(gr); 
-        sysstr = syssmr + sysskr;
-        aavtr = aavmr + aavkr;
-     
-	    OUTPUT taberg;
-    END;
+tabetot = tabetot.reset_index(names=['gruppe', 'sektor'])
+print(tabe)
+print(taberg)
+tabetot["syssma"] = tabe.syssm + taberg.syssmr
+
+print(tabetot)
+"""
+"""
 
 DATA tabetot(KEEP = sekt gr syssm syssk sysst aavm aavk aavt);
     MERGE tabe taberg;
