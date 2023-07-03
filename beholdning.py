@@ -4,9 +4,9 @@ i1_syss = 'inndata/syssutd2021.txt'
 i1_utd = 'inndata/utd2021_dat.txt'
 st = 'inndata/nye_studenter.txt'
 
-o1 = 'inndata/aarsverk.dat'
-o2 = 'inndata/beholdning.dat'
-ut = 'inndata/nye_studenter.dat'
+o1 = 'utdata/aarsverk.dat'
+o2 = 'utdata/beholdning.dat'
+ut = 'utdata/nye_studenter.dat'
 
 # **********
 # Konstanter
@@ -205,15 +205,11 @@ taber.drop(['studium'], axis=1, inplace=True)
 
 taber.set_index('sektor', inplace=True)
 
-# *********************
-# Proc Summary på tabet
-# *********************
+# *****************************
+# Proc Summary på tabet og tabe
+# *****************************
 
 tabet = tabet.groupby(['studium', 'sektor']).sum()
-
-# ********************
-# Proc Summary på tabe
-# ********************
 
 tabe = tabe.groupby(['gruppe', 'sektor']).sum()
 
@@ -266,20 +262,6 @@ tabes.rename(columns={"syssms": "syssm"}, inplace=True)
 tabes.rename(columns={"syssms": "syssm"}, inplace=True)
 
 kolonnenavn = ['andms', 'andks', 'andmt', 'andkt']
-"""
-fett = (pd.concat([tabes]*5, keys=grupper))
-fett.index.names = ['gruppe', 'sektor']
-
-
-rs = pd.np.divide(tabe.T, fett.T)
-print(rs)
-"""
-"""
-
-df3 = fett.merge(fett, how='left', left_on=['gruppe', 'sektor'], right_on=['gruppe', 'sektor'])
-df3['syssm'] = df3['syssm'].str[1:].astype(int) * df3['syssm']
-print(df3)
-"""
 
 for x in range(5):
     tabea.insert(loc=x, column=kolonnenavn[3]+str(x+1),
@@ -420,16 +402,6 @@ tabetot['aavm'] = tabe.aavm + taberg.aavmr;
 tabetot['aavk'] = tabe.aavk + taberg.aavkr;
 tabetot['aavt'] = tabe.aavt + taberg.aavtr;
 
-"""
-PROC SUMMARY DATA = tabetot;
-    CLASS gr;
-    VAR syssm syssk sysst aavm aavk aavt;
-    OUTPUT OUT = tabetots SUM = syssm syssk sysst aavm aavk aavt;
-
-DATA tabetots(KEEP = gr syssm syssk sysst aavm aavk aavt);
-    SET tabetots;
-"""
-
 # *********************
 # Opprettelse av tabeut
 # *********************
@@ -438,33 +410,33 @@ tabeut = pd.DataFrame()
 
 tabeut = tabetot.aavt.groupby(['gruppe', 'sektor']).sum()
 
+# *****************************
+# Skriver ut fil med årsverkene
+# *****************************
 
-"""
-DATA tabeut(KEEP = studium aav1 - aav6);
-    SET tabetot;
-  
-    ARRAY aav(sekt) aav1 - aav6;
-    RETAIN aav1 - aav6 0;
-  
-    IF gr = 1 THEN 
-	    studium = 'ba';
-    ELSE IF gr = 2 THEN 
-	    studium = 'gr';
-    ELSE IF gr = 3 THEN 
-	    studium = 'fa';
-    ELSE IF gr = 4 THEN 
-	    studium = 'ph';
-	ELSE IF gr = 5 THEN
-	    studium = 'py';
-  
-    aav = aavt;
-  
-    FILE o1;
-    IF sekt = 6 THEN DO;
-        OUTPUT tabeut;
-        PUT @1(studium)($CHAR2.) @3(aav1 - aav6)(6.);
-	END;
-"""
+with open(o1, 'w') as f:
+    f.write("ba")
+    serie = tabeut.loc[1]
+    for x in range(6):
+        f.write(str(round(serie[x+1])).rjust(6))
+    f.write('\ngr')
+    serie = tabeut.loc[2]
+    for x in range(6):
+        f.write(str(round(serie[x+1])).rjust(6))
+    f.write('\nfa')
+    serie = tabeut.loc[3]
+    for x in range(6):
+        f.write(str(round(serie[x+1])).rjust(6))
+    f.write('\nph')
+    serie = tabeut.loc[4]
+    for x in range(6):
+        f.write(str(round(serie[x+1])).rjust(6))
+    f.write('\npy')
+    serie = tabeut.loc[5]
+    for x in range(6):
+        f.write(str(round(serie[x+1])).rjust(6))
+
+    f.close()
 
 # **********************
 # Opprettelse av tabergs
@@ -481,7 +453,6 @@ tabergs = taberg.groupby(['gruppe']).sum()
 tabers = pd.DataFrame()
 
 tabers = tabergs.sum()
-
 
 """
 
@@ -696,8 +667,6 @@ tabgg = tabgg[tabgg['gruppe'] != "an"]
 tabgg = tabgg[tabgg['gruppe'] != "sp"]
 tabgg = tabgg[tabgg['gruppe'] != "st"]
 
-print(tabgg.to_string())
-
 """
 DATA tabgg(KEEP = gr kj alder best syss aav);
     SET tabg;
@@ -759,13 +728,31 @@ PROC SUMMARY DATA = taberk;
     CLASS gr;
     VAR bestr syssr aavr;
     OUTPUT OUT = taberks SUM = bestr syssr aavr;
+"""
 
-PROC SORT DATA = tabgg;
-    BY gr kj alder;
+# *********************
+# Opprettelse av tabtot
+# *********************
 
-PROC SORT DATA = taberk;
-    BY gr kj alder;
+tabtot = pd.DataFrame()
 
+tabtot = tabgg
+
+tabtot['gruppe'].replace(to_replace="1", value="ba", inplace=True)
+tabtot['gruppe'].replace(to_replace="2", value="gr", inplace=True)
+tabtot['gruppe'].replace(to_replace="3", value="fa", inplace=True)
+tabtot['gruppe'].replace(to_replace="4", value="ph", inplace=True)
+tabtot['gruppe'].replace(to_replace="5", value="py", inplace=True)
+#print(tabtot.to_string())
+
+# *******************************
+# Skriver ut fil med beholdningen
+# *******************************
+
+tabtot.to_csv(o2, float_format='%.5f', sep=' ', header=False, index=False)
+
+
+"""
 DATA tabtot(KEEP = gr kj alder bests sysss aavs yp tp);
     MERGE tabgg taberk;
     BY gr kj alder;
@@ -801,9 +788,6 @@ DATA tabtot(KEEP = gr kj alder bests sysss aavs yp tp);
     ELSE 
 	    tp = aavs / sysss;
 
-PROC SORT DATA = tabtot;
-    BY gr;
-
 PROC SUMMARY DATA = tabtot;
     CLASS gr;
     VAR bests sysss aavs;
@@ -825,31 +809,90 @@ DATA tabut(KEEP = studium kj alder bests sysss yp tp aavs);
   
 FILE o2;
     PUT @1(studium)($CHAR2.) kj 4 alder 6-7 @8(bests sysss)(10.3) @28(yp tp aavs)(10.5);
+"""
 
-DATA studa;
-    INFILE st;
-    INPUT stud $ 1-2 alder 9-10 bs 18-22 bm 26-30 bk 34-38;
-	    
-	IF stud = 'ba' THEN
-	    teller = 1;
-    ELSE IF stud = 'gr' THEN
-	    teller = 2;
-    ELSE IF stud = 'fa' THEN
-	    teller = 3;
-    ELSE IF stud = 'ph' THEN
-	    teller = 4;
-	ELSE IF stud = 'py' THEN
-        teller = 5;
-	ELSE IF stud = 'sp' THEN
-	    teller = 6;
+# **************************
+# Innlesing av nye studenter
+# **************************
 
-PROC SORT DATA = studa;
-    BY teller;
+studa = pd.DataFrame()
 
-PROC SUMMARY DATA = studa;
-    CLASS teller;
-    VAR bs;
-    OUTPUT OUT = studs SUM = bss;
+studa = pd.read_csv(st,
+                        header=None,
+                        delimiter=r"\s+",
+                        na_values={'.', ' .'},
+                        names=['studium',
+                               'alder',
+                               'bs',
+                               'bm',
+                               'bk'],
+                         usecols=list(range(5)),
+                         dtype={'studium': 'string',
+                                'alder': 'int',
+                                'bs': 'int',
+                                'bm': 'int',
+                                'bk': 'int'})
+
+studa['studium'].replace(to_replace="ba", value="1", inplace=True)
+studa['studium'].replace(to_replace="gr", value="2", inplace=True)
+studa['studium'].replace(to_replace="fa", value="3", inplace=True)
+studa['studium'].replace(to_replace="ph", value="4", inplace=True)
+studa['studium'].replace(to_replace="py", value="5", inplace=True)
+studa['studium'].replace(to_replace="sp", value="6", inplace=True)
+
+studa = studa.set_index(['studium'])
+
+# ********************
+# Opprettelse av studs
+# ********************
+
+studs = pd.DataFrame()
+
+studs = studa.groupby(["studium"]).sum()
+
+studs.rename(columns={"bs": "bss"}, inplace=True)
+
+studs.drop(['alder'], axis=1, inplace=True)
+studs.drop(['bk'], axis=1, inplace=True)
+studs.drop(['bm'], axis=1, inplace=True)
+
+# *******************
+# Opprettelse av taba
+# *******************
+
+taba = pd.DataFrame()
+
+taba = studa
+
+taba = taba.merge(studs, how='outer', on='studium')
+
+taba.bs = taba.bs / taba.bss
+taba.bm = taba.bm / taba.bss
+taba.bk = taba.bk / taba.bss
+
+taba.drop(['bss'], axis=1, inplace=True)
+
+taba.sort_values(by=['studium', 'alder'], inplace=True)
+
+taba.rename(columns={"bs": "bss"}, inplace=True)
+
+taba = taba.reset_index()
+
+taba['studium'].replace(to_replace="1", value="ba", inplace=True)
+taba['studium'].replace(to_replace="2", value="gr", inplace=True)
+taba['studium'].replace(to_replace="3", value="fa", inplace=True)
+taba['studium'].replace(to_replace="4", value="ph", inplace=True)
+taba['studium'].replace(to_replace="5", value="py", inplace=True)
+taba['studium'].replace(to_replace="6", value="sp", inplace=True)
+
+# ********************************
+# Skriver ut fil med nye studenter
+# ********************************
+
+taba.to_csv(ut, float_format='%.4f', sep = ' ', header=False, index=False)
+
+
+"""
 
 DATA studs(KEEP = teller bss);
     SET studs;
