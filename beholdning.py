@@ -180,10 +180,7 @@ tabe.rename(columns={"studium": "gruppe"}, inplace=True)
 tabe["gruppe"] = pd.to_numeric(tabe["gruppe"])
 
 indexAge = tabe[(tabe['gruppe'] > 5)].index
-tabe.drop(indexAge , inplace=True)
-
-#tabe = tabe[tabe['gruppe'] >= 1]
-#tabe = tabe[tabe['gruppe'] <= 5]
+tabe.drop(indexAge, inplace=True)
 
 tabe.sort_values(by=['gruppe', 'sektor'], inplace=True)
 tabe = tabe.reset_index()
@@ -395,12 +392,12 @@ taberg = taberg.set_index(['gruppe', 'sektor'])
 
 tabetot = pd.DataFrame()
 
-tabetot['syssm'] = tabe.syssm + taberg.syssmr;
-tabetot['syssk'] = tabe.syssk + taberg.sysskr;
-tabetot['sysst'] = tabe.sysst + taberg.sysstr;
-tabetot['aavm'] = tabe.aavm + taberg.aavmr;
-tabetot['aavk'] = tabe.aavk + taberg.aavkr;
-tabetot['aavt'] = tabe.aavt + taberg.aavtr;
+tabetot['syssm'] = tabe.syssm + taberg.syssmr
+tabetot['syssk'] = tabe.syssk + taberg.sysskr
+tabetot['sysst'] = tabe.sysst + taberg.sysstr
+tabetot['aavm'] = tabe.aavm + taberg.aavmr
+tabetot['aavk'] = tabe.aavk + taberg.aavkr
+tabetot['aavt'] = tabe.aavt + taberg.aavtr
 
 # *********************
 # Opprettelse av tabeut
@@ -454,60 +451,16 @@ tabers = pd.DataFrame()
 
 tabers = tabergs.sum()
 
-"""
-
-DATA tabergs(KEEP = a gr syssmr sysskr sysstr aavmr aavkr aavtr)
-     tabers(KEEP = a syssmrs sysskrs sysstrs aavmrs aavkrs aavtrs);
-    SET tabergs;
-
-    a = 0;
-    sysstr = syssmr + sysskr;
-    aavtr = aavmr + aavkr;
-  
-    IF gr GT 0 THEN 
-	    OUTPUT tabergs;
-    ELSE DO;
-        syssmrs = syssmr;
-        sysskrs = sysskr;
-        aavmrs = aavmr;
-        aavkrs = aavkr;
-        sysstrs = syssmrs + sysskrs;
-        aavtrs = aavmrs + aavkrs;
-      
-	    OUTPUT tabers;
-    END;
-"""
-
 # *********************
 # Opprettelse av tabera
 # *********************
 
 tabera = pd.DataFrame()
 
-tabera['andms'] = (tabergs.syssmr / tabers.syssmr)
-tabera['andks'] = (tabergs.sysskr / tabers.sysskr)
-tabera['andmt'] = (tabergs.aavmr / tabers.aavmr)
-tabera['andkt'] = (tabergs.aavkr / tabers.aavkr)
-
-"""
-DATA tabera(KEEP = a andms1 - andms5 andks1 - andks5 andmt1 - andmt5 andkt1 - andkt5);
-    MERGE tabergs tabers;
-    BY a;
-
-    ARRAY andms(5) andms1 - andms5;
-    ARRAY andks(5) andks1 - andks5;
-    ARRAY andmt(5) andmt1 - andmt5;
-    ARRAY andkt(5) andkt1 - andkt5;
-    RETAIN andms1 - andms5 andks1 - andks5 andmt1 - andmt5 andkt1 - andkt5 0;
-  
-    andms(gr) = syssmr / syssmrs;
-    andks(gr) = sysskr / sysskrs;
-    andmt(gr) = aavmr / aavmrs;
-    andkt(gr) = aavkr / aavkrs;
-  
-    IF gr = 5 THEN 
-	    OUTPUT tabera;
-"""
+tabera['andms'] = tabergs.syssmr / tabers.syssmr
+tabera['andks'] = tabergs.sysskr / tabers.sysskr
+tabera['andmt'] = tabergs.aavmr / tabers.aavmr
+tabera['andkt'] = tabergs.aavkr / tabers.aavkr
 
 # **********************
 # Opprettelse av taberak
@@ -516,39 +469,6 @@ DATA tabera(KEEP = a andms1 - andms5 andks1 - andks5 andmt1 - andmt5 andkt1 - an
 taberak = pd.DataFrame()
 
 taberak = (tabera.T)
-
-"""
-DATA taberak(KEEP = kj alder ands1 - ands5 andt1 - andt5);
-    SET tabera;
-
-    ARRAY andms(5) andms1 - andms5;
-    ARRAY andks(5) andks1 - andks5;
-    ARRAY andmt(5) andmt1 - andmt5;
-    ARRAY andkt(5) andkt1 - andkt5;
-    ARRAY ands(5) ands1 - ands5;
-    ARRAY andt(5) andt1 - andt5;
-
-    DO alder = 20 TO 74;
-        DO kj = 1 TO 2;
-            DO gr = 1 TO 5;
-                IF kj = 1 THEN 
-				    ands(gr) = andms(gr);
-                ELSE 
-				    ands(gr) = andks(gr);
-          
-		        IF kj = 1 THEN 
-				    andt(gr) = andmt(gr);
-                ELSE 
-				    andt(gr) = andkt(gr);
-            END;
-       
-	        OUTPUT taberak;
-        END;
-    END;
-	
-PROC SORT DATA = taberak;
-    BY kj alder;
-"""
 
 # ******************
 # Opprettelse av tab
@@ -564,27 +484,9 @@ tab = o1_utd
 
 tabs = pd.DataFrame()
 
-tab['aavs'] = (tab.sysselsatte * tab.tpa)
+tab['aavs'] = tab.sysselsatte * tab.tpa
 
 tabs = tab.groupby(["studium"]).sum()
-
-"""
-DATA tab;
-	SET o1_utd;  
-    
-	IF syss GT 0 AND tpa GT 0 THEN 
-	    aav = syss * tpa;
-    ELSE 
-	    aav = 0;
-
-PROC SUMMARY DATA = tab;
-    CLASS studium;
-    VAR best syss aav;
-    OUTPUT OUT = tabs SUM = bests sysss aavs;
-
-DATA tabs(KEEP = studium bests sysss aavs);
-    SET tabs;
-"""
 
 # ****************************
 # Opprettelse av tabap og tabg
@@ -596,22 +498,6 @@ tabg = pd.DataFrame()
 tabap = tab
 tabg = tab
 
-"""
-
-DATA tabap(KEEP = studium kj alder best syss aav)
-     tabg(KEEP = studium kj alder best syss aav yp);
-    SET tab;
-    IF studium NE 'st' AND studium NE 'sp';
- 
-    IF studium = 'an' THEN 
-	    OUTPUT tabap;
-    ELSE 
-	    OUTPUT tabg;
-
-PROC SORT DATA = tabg;
-    BY studium;
-"""
-
 # ********************
 # Opprettelse av tabgs
 # ********************
@@ -619,33 +505,6 @@ PROC SORT DATA = tabg;
 tabgs = pd.DataFrame()
 
 tabgs = tab.groupby(["studium"]).sum()
-
-"""
-PROC SUMMARY DATA = tabg;
-    CLASS studium;
-    VAR best syss aav;
-    OUTPUT OUT = tabgs SUM = bests sysss aavs;
-
-DATA tabgs(KEEP = studium bests sysss aavs);
-    SET tabgs;
-
-"""
-
-# *********************
-# Opprettelse av tabaps
-# *********************
-
-
-"""
-PROC SUMMARY DATA = tabap;
-    CLASS studium;
-    VAR best syss aav;
-    OUTPUT OUT = tabaps SUM = bests sysss aavs;
-
-DATA tabaps(KEEP = studium bests sysss aavs);
-    SET tabaps;
-
-"""
 
 # ********************
 # Opprettelse av tabgg
@@ -667,69 +526,6 @@ tabgg = tabgg[tabgg['gruppe'] != "an"]
 tabgg = tabgg[tabgg['gruppe'] != "sp"]
 tabgg = tabgg[tabgg['gruppe'] != "st"]
 
-"""
-DATA tabgg(KEEP = gr kj alder best syss aav);
-    SET tabg;
-  
-    IF studium = 'ba' THEN 
-	    gr = 1;
-    ELSE IF studium = 'gr' THEN 
-	    gr = 2;
-    ELSE IF studium = 'fa' THEN 
-	    gr = 3;
-    ELSE IF studium = 'ph' THEN 
-	    gr = 4;
-	ELSE IF studium = 'py' THEN
-	    gr = 5;
-"""
-
-
-
-"""
-DATA taberk1(KEEP = kj alder besa1 - besa5 sysa1 - sysa5 aava1 - aava5 syss syst);
-    MERGE tabap(IN = A) taberak(IN = B);
-    BY kj alder;
-    IF A;
-
-    ARRAY ands(5) ands1 - ands5;
-    ARRAY andt(5) andt1 - andt5;
-    ARRAY besa(5) besa1 - besa5;
-    ARRAY sysa(5) sysa1 - sysa5;
-    ARRAY aava(5) aava1 - aava5;
-  
-    bestt = 0;
-    syst = 0;
-    anstst = 0;
-    
-	DO i = 1 TO 5;
-        aava(i) = aav * andt(i);
-        sysa(i) = syss * ands(i);
-        besa(i) = best * ands(i);
-        syst + sysa(i);
-        bestt + besa(i);
-    END;
-	
-DATA taberk(KEEP = gr kj alder bestr syssr aavr);
-    SET taberk1;
-  
-    ARRAY besa(5) besa1 - besa5;
-    ARRAY sysa(5) sysa1 - sysa5;
-    ARRAY aava(5) aava1 - aava5;
-	
-    DO gr = 1 TO 5;
-        bestr = besa(gr);
-        syssr = sysa(gr);
-        aavr = aava(gr);
-     
-	    OUTPUT taberk;
-    END;
-
-PROC SUMMARY DATA = taberk;
-    CLASS gr;
-    VAR bestr syssr aavr;
-    OUTPUT OUT = taberks SUM = bestr syssr aavr;
-"""
-
 # *********************
 # Opprettelse av tabtot
 # *********************
@@ -743,73 +539,12 @@ tabtot['gruppe'].replace(to_replace="2", value="gr", inplace=True)
 tabtot['gruppe'].replace(to_replace="3", value="fa", inplace=True)
 tabtot['gruppe'].replace(to_replace="4", value="ph", inplace=True)
 tabtot['gruppe'].replace(to_replace="5", value="py", inplace=True)
-#print(tabtot.to_string())
 
 # *******************************
 # Skriver ut fil med beholdningen
 # *******************************
 
 tabtot.to_csv(o2, float_format='%.5f', sep=' ', header=False, index=False)
-
-
-"""
-DATA tabtot(KEEP = gr kj alder bests sysss aavs yp tp);
-    MERGE tabgg taberk;
-    BY gr kj alder;
-  
-    IF best = . THEN 
-	    bests = bestr;
-    ELSE IF bestr = . THEN 
-	    bests = best;
-    ELSE 
-	    bests = best + bestr;
-  
-    IF aav = . THEN 
-	    aavs = aavr;
-    ELSE IF aavr = . THEN 
-	    aavs = aav;
-    ELSE 
-	    aavs = aav + aavr;
-  
-    IF syss = . THEN 
-	    sysss = syssr;
-    ELSE IF syssr = . THEN 
-	    sysss = syss;
-    ELSE 
-	    sysss = syss + syssr;
-  
-    IF bests = 0 THEN 
-	    yp = 0;
-    ELSE 
-	    yp = sysss / bests;
-  
-    IF sysss = 0 THEN 
-	    tp = 0;
-    ELSE 
-	    tp = aavs / sysss;
-
-PROC SUMMARY DATA = tabtot;
-    CLASS gr;
-    VAR bests sysss aavs;
-    OUTPUT OUT = tabtots SUM = bests sysss aavs;
-
-DATA tabut(KEEP = studium kj alder bests sysss yp tp aavs);
-    SET tabtot;
-  
-    IF gr = 1 THEN 
-	    studium = 'ba';
-    ELSE IF gr = 2 THEN 
-	    studium = 'gr';
-    ELSE IF gr = 3 THEN 
-	    studium = 'fa';
-    ELSE IF gr = 4 THEN 
-	    studium = 'ph';
-	ELSE IF gr = 5 THEN
-	    studium = 'py';
-  
-FILE o2;
-    PUT @1(studium)($CHAR2.) kj 4 alder 6-7 @8(bests sysss)(10.3) @28(yp tp aavs)(10.5);
-"""
 
 # **************************
 # Innlesing av nye studenter
@@ -889,40 +624,4 @@ taba['studium'].replace(to_replace="6", value="sp", inplace=True)
 # Skriver ut fil med nye studenter
 # ********************************
 
-taba.to_csv(ut, float_format='%.4f', sep = ' ', header=False, index=False)
-
-
-"""
-
-DATA studs(KEEP = teller bss);
-    SET studs;
-    IF teller > 0;
-
-DATA taba;
-    MERGE studa studs;
-    BY teller;
-	
-    bs = bs / bss;
-    bm = bm / bss;
-    bk = bk / bss;
-  
-    IF teller = 1 THEN
-	    studium = 'ba';
-    ELSE IF teller = 2 THEN
-	    studium = 'gr';
-    ELSE IF teller = 3 THEN
-	    studium = 'fa';
-    ELSE IF teller = 4 THEN
-	    studium = 'ph';
-	ELSE IF teller = 5 THEN
-		studium = 'py';
-    ELSE IF teller = 6 THEN
-		studium = 'sp';
-	
-FILE ut;
-    PUT @1(studium)($CHAR2.) alder 9-10 @15(bs bm bk)(8.4);
-	
-	
-run;
-
-"""
+taba.to_csv(ut, float_format='%.4f', sep=' ', header=False, index=False)
