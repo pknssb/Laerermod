@@ -7,11 +7,20 @@ b1 = 'inndata/barnehage.dat'
 e1 = 'inndata/grunnskole.dat'
 e2 = 'inndata/andre_skoler.dat'
 
+bef1 = pd.DataFrame()
+bef2 = pd.DataFrame()
+bef3 = pd.DataFrame()
+bef4 = pd.DataFrame()
+
+befs1 = pd.DataFrame()
+befs2 = pd.DataFrame()
+befs3 = pd.DataFrame()
+befs4 = pd.DataFrame()
 
 def les_barn():
 
-    bef1 = pd.DataFrame()
-
+    global bef1
+    
     bef1 = pd.read_csv(i1,
                        header=None,
                        delimiter=" ",
@@ -22,7 +31,7 @@ def les_barn():
                        skiprows=range(2, 200),
                        usecols=[1, 2, 43, 44])
 
-    bef2 = pd.DataFrame()
+    global bef2
 
     bef2 = pd.read_csv(i1,
                        header=None,
@@ -39,7 +48,7 @@ def les_barn():
     bef2 = bef2.reset_index()
     bef2.drop(['index'], axis=1, inplace=True)
 
-    bef3 = pd.DataFrame()
+    global bef3
 
     bef3 = pd.read_csv(i1,
                        header=None,
@@ -56,7 +65,7 @@ def les_barn():
     bef3 = bef3.reset_index()
     bef3.drop(['index'], axis=1, inplace=True)
 
-    bef4 = pd.DataFrame()
+    global bef4
 
     bef4 = pd.read_csv(i1,
                        header=None,
@@ -89,49 +98,37 @@ def les_barn():
                                  'ba6'],
                           usecols=list(range(9)))
 
-    print(barnhin)
-    
     barn1 = pd.DataFrame()
-    
+
+    barn1["b2021"] = barnhin.ba1
+    barn1["tim"] = barnhin.ti1 + ((barnhin.ti2 - barnhin.ti1) / 2)
+    barn1["ald1"] = 0
+    barn1["ald2"] = 0
+
+    barn2 = pd.DataFrame()
+
+    barn2["b2021"] = barnhin.ba2 + barnhin.ba3
+    barn2["tim"] = barnhin.ti1 + ((barnhin.ti2 - barnhin.ti1) / 2)
+    barn2["ald1"] = 1
+    barn2["ald2"] = 2
+
+    barn3 = pd.DataFrame()
+
+    barn3["b2021"] = barnhin.ba4
+    barn3["tim"] = barnhin.ti1 + ((barnhin.ti2 - barnhin.ti1) / 2)
+    barn3["ald1"] = 3
+    barn3["ald2"] = 3
+
+    barn4 = pd.DataFrame()
+
+    barn4["b2021"] = barnhin.ba5 + barnhin.ba6
+    barn4["tim"] = barnhin.ti1 + ((barnhin.ti2 - barnhin.ti1) / 2)
+    barn4["ald1"] = 4
+    barn4["ald2"] = 5
+
 
 """
 %MACRO les_barn;
-
-
-    DATA barn1(KEEP = tim ald1 ald2 b2021)
-         barn2(KEEP = tim ald1 ald2 b2021)
-         barn3(KEEP = tim ald1 ald2 b2021)
-         barn4(KEEP = tim ald1 ald2 b2021);
-        SET barnhin;
-        
-		RETAIN akk b2021 0;
-  
-        tim = ti1 + (ti2 - ti1) / 2;
-        akk + 1;
-		
-        ald1 = 0;
-        ald2 = 0;
-        b2021 = ba1;
-  
-        OUTPUT barn1;
-  
-        ald1 = 1;
-        ald2 = 2;
-        b2021 = ba2 + ba3;
-  
-        OUTPUT barn2;
-  
-        ald1 = 3;
-        ald2 = 3;
-        b2021 = ba4;
-  
-        OUTPUT barn3;
-  
-        ald1 = 4;
-        ald2 = 5;
-        b2021 = ba5 + ba6;
-  
-        OUTPUT barn4;
 
     DATA barnut(KEEP = ald1 ald2 bu bri);
         ald1 = 0;
@@ -149,8 +146,21 @@ def les_barn():
   
         IF ald1 > 0;
 
-%MEND les_barn;
+%MEND les_barn
+"""
 
+
+def summer_barn(inn, ut):
+
+    ut = pd.DataFrame()
+
+    ut = inn.groupby(['a2020', 'a2021']).sum()
+
+    ut.sort_values(by=['alder', 'kjonn'], inplace=True)
+
+    print(ut)
+    
+"""
 
 %MACRO summer_barn(n);
 
@@ -344,11 +354,12 @@ def les_barn():
 
 les_barn()
 
+summer_barn(bef1, befs1)
+summer_barn(bef2, befs2)
+summer_barn(bef3, befs3)
+summer_barn(bef4, befs4)
+
 """
-%summer_barn(1)
-%summer_barn(2)
-%summer_barn(3)
-%summer_barn(4)
 %skriv_barn
 
 %les_elev
