@@ -16,6 +16,7 @@ print('/********************************************************************/')
 print()
 
 import beholdning
+import demografi
 
 """
 beholdning.lag_tabse_syss()

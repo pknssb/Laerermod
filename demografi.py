@@ -1,38 +1,102 @@
+import pandas as pd
+
+i1 = 'inndata/mmmm_2022.txt'
+i2 = 'inndata/antall_barn_barnehager.txt'
+
+b1 = 'inndata/barnehage.dat'
+e1 = 'inndata/grunnskole.dat'
+e2 = 'inndata/andre_skoler.dat'
+
+
+def les_barn():
+
+    bef1 = pd.DataFrame()
+
+    bef1 = pd.read_csv(i1,
+                       header=None,
+                       delimiter=" ",
+                       names=['alder',
+                              'kjonn',
+                              'a2020',
+                              'a2021'],
+                       skiprows=range(2, 200),
+                       usecols=[1, 2, 43, 44])
+
+    bef2 = pd.DataFrame()
+
+    bef2 = pd.read_csv(i1,
+                       header=None,
+                       delimiter=" ",
+                       names=['alder',
+                              'kjonn',
+                              'a2020',
+                              'a2021'],
+                       skiprows=range(6, 200),
+                       usecols=[1, 2, 43, 44])
+
+    bef2 = bef2.drop([0, 1])
+
+    bef2 = bef2.reset_index()
+    bef2.drop(['index'], axis=1, inplace=True)
+
+    bef3 = pd.DataFrame()
+
+    bef3 = pd.read_csv(i1,
+                       header=None,
+                       delimiter=" ",
+                       names=['alder',
+                              'kjonn',
+                              'a2020',
+                              'a2021'],
+                       skiprows=range(8, 200),
+                       usecols=[1, 2, 43, 44])
+
+    bef3.drop(bef3.index[:6], inplace=True)
+
+    bef3 = bef3.reset_index()
+    bef3.drop(['index'], axis=1, inplace=True)
+
+    bef4 = pd.DataFrame()
+
+    bef4 = pd.read_csv(i1,
+                       header=None,
+                       delimiter=" ",
+                       names=['alder',
+                              'kjonn',
+                              'a2020',
+                              'a2021'],
+                       skiprows=range(12, 200),
+                       usecols=[1, 2, 43, 44])
+
+    bef4.drop(bef4.index[:8], inplace=True)
+
+    bef4 = bef4.reset_index()
+    bef4.drop(['index'], axis=1, inplace=True)
+
+    barnhin = pd.DataFrame()
+
+    barnhin = pd.read_csv(i2,
+                          header=None,
+                          delimiter=" ",
+                          names=['aar',
+                                 'ti1',
+                                 'ti2',
+                                 'ba1',
+                                 'ba2',
+                                 'ba3',
+                                 'ba4',
+                                 'ba5',
+                                 'ba6'],
+                          usecols=list(range(9)))
+
+    print(barnhin)
+    
+    barn1 = pd.DataFrame()
+    
+
 """
-
-filename i1 '/ssb/stamme02/laermod/wk48/new/inndata/mmmm_2022.txt';
-filename i2 '/ssb/stamme02/laermod/wk48/new/inndata/antall_barn_barnehager.txt';
-
-filename b1 '/ssb/stamme02/laermod/wk48/g2021/inndata/barnehage.dat';
-filename e1 '/ssb/stamme02/laermod/wk48/g2021/inndata/grunnskole.dat';
-filename e2 '/ssb/stamme02/laermod/wk48/g2021/inndata/andre_skoler.dat';
-
-
 %MACRO les_barn;
 
-    DATA bef1(KEEP = alder kj a2020 a2021)
-         bef2(KEEP = alder kj a2020 a2021)
-         bef3(KEEP = alder kj a2020 a2021)
-         bef4(KEEP = alder kj a2020 a2021);
-        INFILE i1 lrecl = 430;
-        INPUT alder 1-2 kj 4 @5(a1980 - a2040)(6.);
-  
-        IF alder = 0 THEN
-		    OUTPUT bef1;
-        ELSE IF alder < 3 THEN 
-		    OUTPUT bef2;
-        ELSE IF alder < 4 THEN 
-		    OUTPUT bef3;
-        ELSE IF alder < 6 THEN 
-		    OUTPUT bef4;
-
-    DATA barnhin;
-        INFILE i2;
-        INPUT aar 1-4 ti1 6-7 ti2 9-10 @11(ba1 - ba6)(8.);
-		IF aar EQ 2021;
-
-    PROC SORT DATA = barnhin;
-        BY ti1;
 
     DATA barn1(KEEP = tim ald1 ald2 b2021)
          barn2(KEEP = tim ald1 ald2 b2021)
@@ -276,9 +340,11 @@ filename e2 '/ssb/stamme02/laermod/wk48/g2021/inndata/andre_skoler.dat';
         PUT ald1 1-2 ald2 4-5 @7(agr2021)(8.) (bri)(8.4) antaar 24;
 
 %MEND skriv_elev;
+"""
 
+les_barn()
 
-%les_barn
+"""
 %summer_barn(1)
 %summer_barn(2)
 %summer_barn(3)
