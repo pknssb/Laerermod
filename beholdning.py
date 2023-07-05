@@ -150,11 +150,11 @@ tabet = pd.DataFrame()
 
 tabet = o1_syss.copy()
 
-tabet['sysst'] = tabet.apply(lambda row: row['syssm'] + row['syssk'] if row ['syssm'] >= 0
+tabet['sysst'] = tabet.apply(lambda row: row['syssm'] + row['syssk'] if row['syssm'] >= 0
                              and row['syssk'] >= 0 else row['syssm'] if row['syssm'] >= 0
                              else row['syssk'], axis=1)
 
-tabet['aavt'] = tabet.apply(lambda row: row['aavm'] + row['aavk'] if row ['aavm'] >= 0
+tabet['aavt'] = tabet.apply(lambda row: row['aavm'] + row['aavk'] if row['aavm'] >= 0
                              and row['aavk'] >= 0 else row['aavm'] if row['aavm'] >= 0
                              else row['aavk'], axis=1)
 

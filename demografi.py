@@ -3,9 +3,9 @@ import pandas as pd
 i1 = 'inndata/mmmm_2022.txt'
 i2 = 'inndata/antall_barn_barnehager.txt'
 
-b1 = 'inndata/barnehage.dat'
-e1 = 'inndata/grunnskole.dat'
-e2 = 'inndata/andre_skoler.dat'
+b1 = 'utdata/barnehage.dat'
+e1 = 'utdata/grunnskole.dat'
+e2 = 'utdata/andre_skoler.dat'
 
 # ****************************************
 # Innlesing av folkemengden i alder 0-5 år
@@ -122,28 +122,6 @@ barn4["tim"] = barnhin.ti1 + ((barnhin.ti2 - barnhin.ti1) / 2)
 barn4["ald1"] = 4
 barn4["ald2"] = 5
 
-"""
-%MACRO les_barn;
-
-    DATA barnut(KEEP = ald1 ald2 bu bri);
-        ald1 = 0;
-        ald2 = 0;
-        bu = 0;
-        bri = 1.000000;
-  
-        IF ald1 > 0;
-
-    DATA befut(KEEP = ald1 ald2 agr2020 agr2021);
-        ald1 = 0;
-        ald2 = 0;
-        agr2020 = 0;
-        agr2021 = 0;
-  
-        IF ald1 > 0;
-
-%MEND les_barn
-"""
-
 # ************************************
 # Oppretter noen oppsummeringstabeller
 # ************************************
@@ -192,183 +170,119 @@ barna4 = pd.DataFrame({'ald1': 4,
                        'bri': (1 * barn4.b2021.mul(barn4.tim.values).sum()) /
                               (barn4.b2021.sum() * 42.5)}, index=[0])
 
+# ********************
+# Slår sammen tabeller
+# ********************
 
-"""
+barnr = pd.DataFrame
 
-    DATA barna&n(KEEP = ald1 ald2 bu bri);
-        SET barn&n;
-        
-		ARRAY bs(6) bs1 - bs6;
-        ARRAY b(6) b1 - b6;
-        
-		RETAIN akk bs1 - bs6 b1 - b6 0;
-  
-        akk + 1;
-        bs(akk) = b2021 * tim;
-        b(akk) = b2021;
+barnr = pd.concat([befs1, befs2, befs3, befs4], ignore_index=True)
+barnar = pd.concat([barna1, barna2, barna3, barna4], ignore_index=True)
 
-        IF akk = 6 THEN DO;
-            bsu = 0;
-            bu = 0;
-     
-	        DO i = 1 TO 6;
-                bsu = bsu + bs(i);
-                bu = bu + b(i);
-            END;
-     
-	        IF &n < 3 THEN 
-			    bi = 2;
-            ELSE IF &n < 4 THEN 
-			    bi = 1.5;
-            ELSE 
-			    bi = 1;
-     
-	        bri = bi * (bsu / (bu * 42.5));
-     
-	        OUTPUT barna&n;
-        END;
-		
-    DATA barnut;
-        SET barnut barna&n;
+barnr["bu"] = barnar.bu
+barnr["bri"] = barnar.bri
 
-    DATA befut;
-        SET befut befs&n;
+barnr["ans1"] = barnr.bu / barnr.agr2021
+barnr["ans2"] = 1.12 * barnr.ans1
 
+barnr['ans2'] = barnr.apply(lambda row: 1.05 * row['ans1']
+                            if row['ald1'] == 0
+                            else row['ans2'], axis=1)
 
-%MACRO skriv_barn;
+barnr['ans2'] = barnr.apply(lambda row: 0.97
+                            if row['ans2'] > 0.95
+                            else row['ans2'], axis=1)
 
-    DATA barnr(KEEP = ald1 ald2 bri bu ans1 - ans2 antaar agr2020 agr2021);
-        MERGE befut barnut;
-        BY ald1;
-        
-		ARRAY ans(2) ans1 - ans2;
-  
-        antaar = 2;
-        ans(1) = bu / agr2021;
-  
-        IF ald1 = 0 THEN 
-		    ans(2) = 1.05 * ans(1);
-        ELSE IF ald1 = 1 THEN 
-		    ans(2) = 1.12 * ans(1);
-        ELSE IF ald1 = 3 THEN 
-		    ans(2) = 1.12 * ans(1);
-        ELSE IF ald1 = 4 THEN 
-		    ans(2) = 1.12 * ans(1);
-		
-        IF ans(2) GT 0.95 THEN 
-		    ans(2) = 0.97;
-		
-    DATA barnu;
-        SET barnr;
-        FILE b1;
-  
-        PUT ald1 1-2 ald2 4-5 @7(bu)(8.) (bri)(8.4) antaar 24 @25(ans1 - ans2)(7.4);
+barnr["antaar"] = 2
 
-%MEND skriv_barn;
+# ***********************************
+# Skriver ut fil med barn i barnehage
+# ***********************************
 
+barnr.to_csv(b1,
+             columns=['ald1',
+                      'ald2',
+                      'agr2020',
+                      'agr2021',
+                      'bu',
+                      'bri',
+                      'ans1',
+                      'ans2',
+                      'antaar'],
+             float_format='%.10f',
+             sep=' ',
+             header=False,
+             index=False)
 
-%MACRO les_elev;
+# ******************************************************
+# Innlesing av folkemengden i grunnskole og andre skoler
+# ******************************************************
 
-    DATA bef1(KEEP = alder kj a2021)
-         bef2(KEEP = alder kj a2021)
-         bef3(KEEP = alder kj a2021)
-         bef4(KEEP = alder kj a2021)
-         bef5(KEEP = alder kj a2021)
-         bef6(KEEP = alder kj a2021);
-        INFILE i1 lrecl = 430;
-        INPUT alder 1-2 kj 4 @5(a1980 - a2040)(6.);
-  
-        OUTPUT bef6;
-  
-        IF alder = 0 THEN 
-		    OUTPUT bef1;
-        ELSE IF alder < 3 THEN
-		    OUTPUT bef2;
-        ELSE IF alder < 4 THEN 
-		    OUTPUT bef3;
-        ELSE IF alder < 6 THEN 
-		    OUTPUT bef4;
-        ELSE IF alder < 16 THEN 
-		    OUTPUT bef5;
-			
-%MEND les_elev;
+kolonneposisjoner = [(0, 2), (3, 4), (245, 250), (251, 256)]
+kolonnenavn = ['alder', 'kjonn', 'a2020', 'a2021']
 
+fwf = pd.DataFrame()
 
-%MACRO summer_elev(n);
+fwf = pd.read_fwf(i1, colspecs=kolonneposisjoner, header=None)
+fwf.columns = kolonnenavn
 
-    PROC SUMMARY DATA = bef&n;
-        VAR a2021;
-        
-		OUTPUT OUT = befs&n SUM = agr2021;
+bef5 = pd.DataFrame()
 
-    DATA befs&n(KEEP = ald1 ald2 agr2021);
-        SET befs&n;
-  
-        IF &n = 1 THEN 
-		    ald1 = 0;
-        ELSE IF &n = 2 THEN 
-		    ald1 = 1;
-        ELSE IF &n = 3 THEN 
-		    ald1 = 3;
-        ELSE IF &n = 4 THEN 
-		    ald1 = 4;
-        ELSE IF &n = 5 THEN 
-		    ald1 = 6;
-        ELSE IF &n = 6 THEN 
-		    ald1 = 0;
-  
-        IF &n = 1 THEN 
-		    ald2 = 0;
-        ELSE IF &n = 2 THEN 
-		    ald2 = 2;
-        ELSE IF &n = 3 THEN 
-		    ald2 = 3;
-        ELSE IF &n = 4 THEN 
-		    ald2 = 5;
-        ELSE IF &n = 5 THEN 
-		    ald2 = 15;
-        ELSE IF &n = 6 THEN 
-		    ald2 = 99;
-				
-%MEND summer_elev;
+bef5 = fwf[fwf['alder'] >= 6]
+bef5 = bef5[bef5['alder'] <= 15]
 
+bef5 = bef5.reset_index()
+bef5.drop(['index'], axis=1, inplace=True)
 
-%MACRO skriv_elev;
+bef6 = pd.DataFrame()
+bef6 = fwf
 
-    DATA befs5;
-        SET befs5;
-  
-        bri = 1.000000;
-        antaar = 0;
-  
-        FILE e1;
-        PUT ald1 1-2 ald2 4-5 @7(agr2021)(8.) (bri)(8.4) antaar 24;
+# *************************************
+# Oppretter flere oppsummeringstabeller
+# *************************************
 
-    DATA befs6;
-        SET befs6;
-  
-        bri = 1.000000;
-        antaar = 0;
-		
-        FILE e2;
-        PUT ald1 1-2 ald2 4-5 @7(agr2021)(8.) (bri)(8.4) antaar 24;
+befs5 = pd.DataFrame({'agr2020': bef5.a2020.sum(),
+                      'agr2021': bef5.a2021.sum(),
+                      'ald1': 6,
+                      'ald2': 15,
+                      'bri': 1,
+                      'antaar': 0}, index=[0])
 
-%MEND skriv_elev;
+befs6 = pd.DataFrame({'agr2020': bef6.a2020.sum(),
+                      'agr2021': bef6.a2021.sum(),
+                      'ald1': 0,
+                      'ald2': 99,
+                      'bri': 1,
+                      'antaar': 0}, index=[0])
 
+# **************************************
+# Skriver ut fil med elever i grunnskole
+# **************************************
 
-les_barn()
+befs5.to_csv(e1,
+             columns=['ald1',
+                      'ald2',
+                      'agr2020',
+                      'agr2021',
+                      'bri',
+                      'antaar'],
+             float_format='%.10f',
+             sep=' ',
+             header=False,
+             index=False)
 
-summer_barn(bef1, befs1, barna1)
-summer_barn(bef2, befs2, barna2)
-summer_barn(bef3, befs3, barna3)
-summer_barn(bef4, befs4, barna4)
+# ****************************************
+# Skriver ut fil med elever i andre skoler
+# ****************************************
 
-
-%skriv_barn
-
-%les_elev
-%summer_elev(5)
-%summer_elev(6)
-%skriv_elev
-
-"""
+befs6.to_csv(e2,
+             columns=['ald1',
+                      'ald2',
+                      'agr2020',
+                      'agr2021',
+                      'bri',
+                      'antaar'],
+             float_format='%.10f',
+             sep=' ',
+             header=False,
+             index=False)
