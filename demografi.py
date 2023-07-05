@@ -7,125 +7,120 @@ b1 = 'inndata/barnehage.dat'
 e1 = 'inndata/grunnskole.dat'
 e2 = 'inndata/andre_skoler.dat'
 
+# ****************************************
+# Innlesing av folkemengden i alder 0-5 år
+# ****************************************
+
 bef1 = pd.DataFrame()
+
+bef1 = pd.read_csv(i1,
+                   header=None,
+                   delimiter=" ",
+                   names=['alder',
+                          'kjonn',
+                          'a2020',
+                          'a2021'],
+                   skiprows=range(2, 200),
+                   usecols=[1, 2, 43, 44])
+
 bef2 = pd.DataFrame()
+
+bef2 = pd.read_csv(i1,
+                   header=None,
+                   delimiter=" ",
+                   names=['alder',
+                          'kjonn',
+                          'a2020',
+                          'a2021'],
+                   skiprows=range(6, 200),
+                   usecols=[1, 2, 43, 44])
+
+bef2 = bef2.drop([0, 1])
+
+bef2 = bef2.reset_index()
+bef2.drop(['index'], axis=1, inplace=True)
+
 bef3 = pd.DataFrame()
+
+bef3 = pd.read_csv(i1,
+                   header=None,
+                   delimiter=" ",
+                   names=['alder',
+                          'kjonn',
+                          'a2020',
+                          'a2021'],
+                   skiprows=range(8, 200),
+                   usecols=[1, 2, 43, 44])
+
+bef3.drop(bef3.index[:6], inplace=True)
+
+bef3 = bef3.reset_index()
+bef3.drop(['index'], axis=1, inplace=True)
+
 bef4 = pd.DataFrame()
 
-befs1 = pd.DataFrame()
-befs2 = pd.DataFrame()
-befs3 = pd.DataFrame()
-befs4 = pd.DataFrame()
+bef4 = pd.read_csv(i1,
+                   header=None,
+                   delimiter=" ",
+                   names=['alder',
+                          'kjonn',
+                          'a2020',
+                          'a2021'],
+                   skiprows=range(12, 200),
+                   usecols=[1, 2, 43, 44])
 
-def les_barn():
+bef4.drop(bef4.index[:8], inplace=True)
 
-    global bef1
-    
-    bef1 = pd.read_csv(i1,
-                       header=None,
-                       delimiter=" ",
-                       names=['alder',
-                              'kjonn',
-                              'a2020',
-                              'a2021'],
-                       skiprows=range(2, 200),
-                       usecols=[1, 2, 43, 44])
+bef4 = bef4.reset_index()
+bef4.drop(['index'], axis=1, inplace=True)
 
-    global bef2
+# ************************************
+# Innlesing av antall barn i barnehage
+# ************************************
 
-    bef2 = pd.read_csv(i1,
-                       header=None,
-                       delimiter=" ",
-                       names=['alder',
-                              'kjonn',
-                              'a2020',
-                              'a2021'],
-                       skiprows=range(6, 200),
-                       usecols=[1, 2, 43, 44])
+barnhin = pd.DataFrame()
 
-    bef2 = bef2.drop([0, 1])
+barnhin = pd.read_csv(i2,
+                      header=None,
+                      delimiter=" ",
+                      names=['aar',
+                             'ti1',
+                             'ti2',
+                             'ba1',
+                             'ba2',
+                             'ba3',
+                             'ba4',
+                             'ba5',
+                             'ba6'],
+                      usecols=list(range(9)))
 
-    bef2 = bef2.reset_index()
-    bef2.drop(['index'], axis=1, inplace=True)
+barn1 = pd.DataFrame()
 
-    global bef3
+barn1["b2021"] = barnhin.ba1
+barn1["tim"] = barnhin.ti1 + ((barnhin.ti2 - barnhin.ti1) / 2)
+barn1["ald1"] = 0
+barn1["ald2"] = 0
 
-    bef3 = pd.read_csv(i1,
-                       header=None,
-                       delimiter=" ",
-                       names=['alder',
-                              'kjonn',
-                              'a2020',
-                              'a2021'],
-                       skiprows=range(8, 200),
-                       usecols=[1, 2, 43, 44])
+barn2 = pd.DataFrame()
 
-    bef3.drop(bef3.index[:6], inplace=True)
+barn2["b2021"] = barnhin.ba2 + barnhin.ba3
+barn2["tim"] = barnhin.ti1 + ((barnhin.ti2 - barnhin.ti1) / 2)
+barn2["ald1"] = 1
+barn2["ald2"] = 2
 
-    bef3 = bef3.reset_index()
-    bef3.drop(['index'], axis=1, inplace=True)
+barn3 = pd.DataFrame()
 
-    global bef4
+barn3["b2021"] = barnhin.ba4
+barn3["tim"] = barnhin.ti1 + ((barnhin.ti2 - barnhin.ti1) / 2)
+barn3["ald1"] = 3
+barn3["ald2"] = 3
 
-    bef4 = pd.read_csv(i1,
-                       header=None,
-                       delimiter=" ",
-                       names=['alder',
-                              'kjonn',
-                              'a2020',
-                              'a2021'],
-                       skiprows=range(12, 200),
-                       usecols=[1, 2, 43, 44])
+barn4 = pd.DataFrame()
 
-    bef4.drop(bef4.index[:8], inplace=True)
-
-    bef4 = bef4.reset_index()
-    bef4.drop(['index'], axis=1, inplace=True)
-
-    barnhin = pd.DataFrame()
-
-    barnhin = pd.read_csv(i2,
-                          header=None,
-                          delimiter=" ",
-                          names=['aar',
-                                 'ti1',
-                                 'ti2',
-                                 'ba1',
-                                 'ba2',
-                                 'ba3',
-                                 'ba4',
-                                 'ba5',
-                                 'ba6'],
-                          usecols=list(range(9)))
-
-    barn1 = pd.DataFrame()
-
-    barn1["b2021"] = barnhin.ba1
-    barn1["tim"] = barnhin.ti1 + ((barnhin.ti2 - barnhin.ti1) / 2)
-    barn1["ald1"] = 0
-    barn1["ald2"] = 0
-
-    barn2 = pd.DataFrame()
-
-    barn2["b2021"] = barnhin.ba2 + barnhin.ba3
-    barn2["tim"] = barnhin.ti1 + ((barnhin.ti2 - barnhin.ti1) / 2)
-    barn2["ald1"] = 1
-    barn2["ald2"] = 2
-
-    barn3 = pd.DataFrame()
-
-    barn3["b2021"] = barnhin.ba4
-    barn3["tim"] = barnhin.ti1 + ((barnhin.ti2 - barnhin.ti1) / 2)
-    barn3["ald1"] = 3
-    barn3["ald2"] = 3
-
-    barn4 = pd.DataFrame()
-
-    barn4["b2021"] = barnhin.ba5 + barnhin.ba6
-    barn4["tim"] = barnhin.ti1 + ((barnhin.ti2 - barnhin.ti1) / 2)
-    barn4["ald1"] = 4
-    barn4["ald2"] = 5
-
+barn4["b2021"] = barnhin.ba5 + barnhin.ba6
+barn4["tim"] = barnhin.ti1 + ((barnhin.ti2 - barnhin.ti1) / 2)
+barn4["ald1"] = 4
+barn4["ald2"] = 5
 
 """
 %MACRO les_barn;
@@ -149,45 +144,56 @@ def les_barn():
 %MEND les_barn
 """
 
+# ************************************
+# Oppretter noen oppsummeringstabeller
+# ************************************
 
-def summer_barn(inn, ut):
+befs1 = pd.DataFrame({'agr2020': bef1.a2020.sum(),
+                      'agr2021': bef1.a2021.sum(),
+                      'ald1': 0,
+                      'ald2': 0}, index=[0])
 
-    ut = pd.DataFrame()
+befs2 = pd.DataFrame({'agr2020': bef2.a2020.sum(),
+                      'agr2021': bef2.a2021.sum(),
+                      'ald1': 1,
+                      'ald2': 2}, index=[0])
 
-    ut = inn.groupby(['a2020', 'a2021']).sum()
+befs3 = pd.DataFrame({'agr2020': bef3.a2020.sum(),
+                      'agr2021': bef3.a2021.sum(),
+                      'ald1': 3,
+                      'ald2': 3}, index=[0])
 
-    ut.sort_values(by=['alder', 'kjonn'], inplace=True)
+befs4 = pd.DataFrame({'agr2020': bef4.a2020.sum(),
+                      'agr2021': bef4.a2021.sum(),
+                      'ald1': 4,
+                      'ald2': 5}, index=[0])
 
-    print(ut)
-    
+barna1 = pd.DataFrame({'ald1': 0,
+                       'ald2': 0,
+                       'bu': barn1.b2021.sum(),
+                       'bri': (2 * barn1.b2021.mul(barn1.tim.values).sum()) /
+                              (barn1.b2021.sum() * 42.5)}, index=[0])
+
+barna2 = pd.DataFrame({'ald1': 1,
+                       'ald2': 2,
+                       'bu': barn2.b2021.sum(),
+                       'bri': (2 * barn2.b2021.mul(barn2.tim.values).sum()) /
+                              (barn2.b2021.sum() * 42.5)}, index=[0])
+
+barna3 = pd.DataFrame({'ald1': 3,
+                       'ald2': 3,
+                       'bu': barn3.b2021.sum(),
+                       'bri': (1.5 * barn3.b2021.mul(barn3.tim.values).sum()) /
+                              (barn3.b2021.sum() * 42.5)}, index=[0])
+
+barna4 = pd.DataFrame({'ald1': 4,
+                       'ald2': 5,
+                       'bu': barn4.b2021.sum(),
+                       'bri': (1 * barn4.b2021.mul(barn4.tim.values).sum()) /
+                              (barn4.b2021.sum() * 42.5)}, index=[0])
+
+
 """
-
-%MACRO summer_barn(n);
-
-    PROC SUMMARY DATA = bef&n;
-        VAR a2020 a2021;
-        OUTPUT OUT = befs&n SUM = agr2020 agr2021;
-
-    DATA befs&n(KEEP = ald1 ald2 agr2020 agr2021);
-        SET befs&n;
-  
-        IF &n = 1 THEN 
-		    ald1 = 0;
-        ELSE IF &n = 2 THEN 
-		    ald1 = 1;
-        ELSE IF &n = 3 THEN 
-		    ald1 = 3;
-        ELSE IF &n = 4 THEN 
-		    ald1 = 4;
-  
-        IF &n = 1 THEN 
-		    ald2 = 0;
-        ELSE IF &n = 2 THEN 
-		    ald2 = 2;
-        ELSE IF &n = 3 THEN 
-		    ald2 = 3;
-        ELSE IF &n = 4 THEN 
-		    ald2 = 5;
 
     DATA barna&n(KEEP = ald1 ald2 bu bri);
         SET barn&n;
@@ -227,8 +233,6 @@ def summer_barn(inn, ut):
 
     DATA befut;
         SET befut befs&n;
-	
-%MEND summer_barn;
 
 
 %MACRO skriv_barn;
@@ -350,23 +354,21 @@ def summer_barn(inn, ut):
         PUT ald1 1-2 ald2 4-5 @7(agr2021)(8.) (bri)(8.4) antaar 24;
 
 %MEND skriv_elev;
-"""
+
 
 les_barn()
 
-summer_barn(bef1, befs1)
-summer_barn(bef2, befs2)
-summer_barn(bef3, befs3)
-summer_barn(bef4, befs4)
+summer_barn(bef1, befs1, barna1)
+summer_barn(bef2, befs2, barna2)
+summer_barn(bef3, befs3, barna3)
+summer_barn(bef4, befs4, barna4)
 
-"""
+
 %skriv_barn
 
 %les_elev
 %summer_elev(5)
 %summer_elev(6)
 %skriv_elev
-
-run;
 
 """
