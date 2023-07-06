@@ -15,6 +15,8 @@ print('/********************************************************************/')
 print('/********************************************************************/')
 print()
 
+import pandas as pd
+
 import beholdning
 import demografi
 
@@ -45,33 +47,31 @@ subaarsl = 2020
 
 vakaar = 2020
 
+
+innb = 'inndata/mmmm_2022.txt'
+stkap = 'inndata/fullforingsgrader.txt'
+oppta = 'inndata/opptak.txt'
+
+dem3 = 'inndata/antall_elever_videregaende.txt'
+dem4 = 'inndata/antall_studenter_hoyereutdanning.txt'
+
+innpr = 'inndata/standard.txt'
+inplu = 'inndata/endring_timeverk.txt'
+
+# Filer produsert av beholdning.sas
+bhl = 'utdata/beholdning.dat'
+aarsv = 'utdata/aarsverk.dat'
+nystu = 'utdata/nye_studenter.dat'
+
+# Filer produsert av demografi.sas
+#filename dem1     '/ssb/stamme02/laermod/wk48/g2021/inndata/barnehage.dat';
+#filename dem2     '/ssb/stamme02/laermod/wk48/g2021/inndata/grunnskole.dat';
+#filename dem5     '/ssb/stamme02/laermod/wk48/g2021/inndata/andre_skoler.dat';
+#filename dem6     '/ssb/stamme02/laermod/wk48/g2021/inndata/andre_skoler.dat';
+
+
+
 """
-filename innb     '/ssb/stamme02/laermod/wk48/g2021/inndata/mmmm_2022.txt';
-filename dem3     '/ssb/stamme02/laermod/wk48/g2021/inndata/antall_elever_videregaende.txt';
-filename dem4     '/ssb/stamme02/laermod/wk48/g2021/inndata/antall_studenter_hoyereutdanning.txt';
-filename vak      '/ssb/stamme02/laermod/prog/vakanse.txt';
-filename oppta    '/ssb/stamme02/laermod/wk48/g2021/inndata/opptak.txt';
-filename inbnp    '/ssb/stamme02/laermod/prog/g2021/referansebane/bnp.txt';
-filename innpr    '/ssb/stamme02/laermod/prog/g2021/referansebane/standard.txt';
-filename inplu    '/ssb/stamme02/laermod/prog/g2021/referansebane/endring_timeverk.txt';
-filename stkap    '/ssb/stamme02/laermod/wk48/g2017/inndata/fullforingsgrader.txt';
-
-/* Spesifikasjon av substitusjon. */
-filename subi     '/ssb/stamme02/laermod/prog/g2021/referansebane/substind.dat';
-filename subst    '/ssb/stamme02/laermod/prog/g2021/referansebane/substst.dat';
-filename subsl    '/ssb/stamme02/laermod/prog/g2021/referansebane/substsl.dat';
-
-/* Filer produsert av beholdning.sas */
-filename bhl      '/ssb/stamme02/laermod/wk48/g2021/inndata/beholdning.dat';
-filename aarsv    '/ssb/stamme02/laermod/wk48/g2021/inndata/aarsverk.dat';
-filename nystu    '/ssb/stamme02/laermod/wk48/g2021/inndata/nye_studenter.dat';
-
-/* Filer produsert av demografi.sas */
-filename dem1     '/ssb/stamme02/laermod/wk48/g2021/inndata/barnehage.dat';
-filename dem2     '/ssb/stamme02/laermod/wk48/g2021/inndata/grunnskole.dat';
-filename dem5     '/ssb/stamme02/laermod/wk48/g2021/inndata/andre_skoler.dat';
-filename dem6     '/ssb/stamme02/laermod/wk48/g2021/inndata/andre_skoler.dat';
-
 /********************************************************************/
 
 filename resultba "/ssb/stamme02/laermod/wk48/g2021/resultater/referansebane/ba";
@@ -113,106 +113,79 @@ filename o1       "/ssb/stamme02/laermod/wk48/g2021/resultater/referanseba
 %LET oekslun = 2020;
 %LET oekslan = 2020;
 %LET oekslut = 2020;
+"""
 
+
+def lesinn():
+
+    kolonnenavn = ["alder"] + ["kjonn"]
+
+    for x in range(1980, 2051):
+        kolonnenavn = kolonnenavn + ["a" + str(x)]
+
+    bef = pd.DataFrame()
+
+    bef = pd.read_fwf(innb,
+                      header=None,
+                      delimiter=" ",
+                      col_names=kolonnenavn)
+
+    bef.columns = kolonnenavn
+
+    gjfoer = pd.DataFrame()
+
+    gjfoer = pd.read_fwf(stkap,
+                         header=None,
+                         delimiter=" ",
+                         names=["yrka", "norm", "fullfor", "fullfob"])
+
+    opptak = pd.DataFrame()
+
+    opptak = pd.read_fwf(oppta,
+                         header=None,
+                         delimiter=" ",
+                         names=["aar", "ba", "gr", "fa", "ph", "py", "sp"])
+
+    plussakt = pd.DataFrame()
+
+    plussakt = pd.read_fwf(inplu,
+                           header=None,
+                           delimiter=" ",
+                           names=["alder", "plussm", "plussk"])
+    
+    nystud = pd.read_fwf(nystu,
+                         header=None,
+                         delimiter=" ",
+                         names=["yrka", "alder", "st", "stm", "stk"])
+    
+    beholdning = pd.DataFrame()
+    beholdning = pd.read_csv(bhl,
+                         header=None,
+                         delimiter=r";",
+                         names=['yrke',
+                                'kjonn',
+                                'alder',
+                                'pers',
+                                'syss',
+                                'yp',
+                                'tpa',
+                                'tp',
+                                'aavs'],
+                         usecols=list(range(9)),
+                         dtype={'yrke': 'string',
+                                'kjonn': 'int',
+                                'alder': 'int',
+                                'pers': 'int',
+                                'syss': 'int',
+                                'yp': 'float',
+                                'tpa': 'float',
+                                'tp': 'float',
+                                'aavs': 'float'})
+
+
+    """
 %MACRO lesinn;
 
-    DATA bef;
-        INFILE innb lrecl = 430;
-        INPUT alder 1-2 kj 4 @5(a1980 - a2050)(6.);
-
-    /* LESER inn fullføringsgrader */
-    DATA gjfoer;
-        INFILE stkap;
-        INPUT (stj)($CHAR1.)@;
-        IF substr(stj, 1, 1) NE '*';
-        INPUT yrka $ 1-2  norm 15 @24(fullfor fullfob)(5.2);
-
-    PROC SORT DATA = gjfoer;
-        BY yrka;
-
-    /* LESER inn indeks for tidsserie opptak     */
-    DATA opptak(KEEP = yrka aar oppfag);
-        INFILE oppta;
-        INPUT (stj)($CHAR1.)@;
-        IF substr(stj, 1, 1) NE '*';
-        INPUT aar 1-4 @5(oppt1 - oppt5)(8.);
-
-                    ARRAY oppt (i) oppt1 - oppt5;
-
-                    DO i = 1 TO 5;
-            IF i = 1 THEN
-                                                   yrka = 'ba';
-            ELSE IF i = 2 THEN
-                                                   yrka = 'gr';
-            ELSE IF i = 3 THEN
-                                                   yrka = 'fa';
-            ELSE IF i = 4 THEN
-                                                   yrka = 'ph';
-                                               ELSE IF i = 5 THEN
-                                                   yrka = 'py';
-
-                        oppfag = oppt;
-
-                        OUTPUT opptak;
-        END;
-
-    PROC SORT DATA = opptak;
-        BY yrka aar;
-
-    /* Prosentvis endring i gjennomsnittlig timeverkstilbud. Denne merges med   */
-    /* begynnerstudentenes aldersfordeling forå få alle alderstrinn med på fil. */
-    DATA plussakt(KEEP = kj alder pluss);
-        INFILE inplu;
-        INPUT alder 1-2 plussm 4-6 plussk 8-10;
-        IF alder GE 17 AND alder LE 74;
-
-        kj = 1;
-        pluss = plussm;
-
-        OUTPUT plussakt;
-
-        kj = 2;
-        pluss = plussk;
-
-        OUTPUT plussakt;
-
-    DATA plussakt(KEEP = yrka kj alder pluss);
-        SET plussakt;
-
-        DO i = 1 TO 5;
-            IF i = 1 THEN
-                                                   yrka = 'ba';
-            ELSE IF i = 2 THEN
-                                                   yrka = 'gr';
-            ELSE IF i = 3 THEN
-                                                   yrka = 'fa';
-            ELSE IF i = 4 THEN
-                                                   yrka = 'ph';
-                                               ELSE IF i = 5 THEN
-                                                   yrka = 'py';
-
-                        OUTPUT plussakt;
-        END;
-
-    /* Nye studenter fordelt på kjønn og alder ifølge opplysninger fra utdanningsregisteret. */
-    DATA nystud(KEEP = yrka kj alder st_ald);
-        INFILE nystu;
-        INPUT (stj)($CHAR1.)@;
-
-        IF substr(stj, 1, 1) NE '*';
-        INPUT yrka $ 1-2 alder 9-10  @23(stm stk)(8.0);
-
-        kj = 1;
-        st_ald = stm;
-
-        OUTPUT nystud;
-        kj = 2;
-        st_ald = stk;
-
-        OUTPUT nystud;
-
-    PROC SORT DATA = nystud;
-        BY yrka kj alder;
 
     DATA beh_pers(KEEP=yrka aar kj alder pers arsv)
          beh_syss(KEEP=yrka kj alder syss_and garsv);
@@ -246,23 +219,6 @@ filename o1       "/ssb/stamme02/laermod/wk48/g2021/resultater/referanseba
     PROC SORT DATA = vakesp;
         BY yrka;
 
-    /* Opplysninger om substitusjon               */
-    DATA substi;
-        INFILE subi;
-        INPUT sk 1-2 @3(sigr1 - sigr4)(3.);
-
-    DATA substst;
-        INFILE subst;
-        INPUT sk 1-2 @3(stgr1 - stgr4)(6.2);
-
-    DATA substsl;
-        INFILE subsl;
-        INPUT sk 1-2 @3(slgr1 - slgr4)(6.2);
-
-    /* Referansebane for BNP-utvikling i MODAG.   */
-    DATA rf(KEEP = aar bnpvekst);
-        INFILE inbnp;
-        INPUT aar 1-4 @9(bnpvekst)(4.1);
 
     /*   PROSENTVIS ENDRING I ANTALL ELEVER pr. 1000 INNBYGGERE      */
     /*   ved de ulike aktivitetsområdene over simuleringsperioden    */
@@ -1124,8 +1080,11 @@ filename o1       "/ssb/stamme02/laermod/wk48/g2021/resultater/referanseba
        END;
 
 %MEND samle_samle;
+"""
+lesinn()
 
-%lesinn
+
+"""
 %styr_les
 
 %aggre(1)

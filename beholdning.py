@@ -540,11 +540,18 @@ tabtot['gruppe'].replace(to_replace="3", value="fa", inplace=True)
 tabtot['gruppe'].replace(to_replace="4", value="ph", inplace=True)
 tabtot['gruppe'].replace(to_replace="5", value="py", inplace=True)
 
+tabtot = tabtot.fillna('')
+
+tabtot['yp'] = pd.to_numeric(tabtot['yp'])
+tabtot['tpa'] = pd.to_numeric(tabtot['tpa'])
+tabtot['tp'] = pd.to_numeric(tabtot['tp'])
+tabtot['aavs'] = pd.to_numeric(tabtot['aavs'])
+
 # *******************************
 # Skriver ut fil med beholdningen
 # *******************************
 
-tabtot.to_csv(o2, float_format='%.5f', sep=' ', header=False, index=False)
+tabtot.to_csv(o2, float_format='%.5f', sep=';', header=False, index=False)
 
 # **************************
 # Innlesing av nye studenter
