@@ -51,6 +51,7 @@ vakaar = 2020
 innb = 'inndata/mmmm_2022.txt'
 stkap = 'inndata/fullforingsgrader.txt'
 oppta = 'inndata/opptak.txt'
+vak = 'inndata/vakanse.txt'
 
 dem3 = 'inndata/antall_elever_videregaende.txt'
 dem4 = 'inndata/antall_studenter_hoyereutdanning.txt'
@@ -64,11 +65,10 @@ aarsv = 'utdata/aarsverk.dat'
 nystu = 'utdata/nye_studenter.dat'
 
 # Filer produsert av demografi.sas
-#filename dem1     '/ssb/stamme02/laermod/wk48/g2021/inndata/barnehage.dat';
-#filename dem2     '/ssb/stamme02/laermod/wk48/g2021/inndata/grunnskole.dat';
-#filename dem5     '/ssb/stamme02/laermod/wk48/g2021/inndata/andre_skoler.dat';
-#filename dem6     '/ssb/stamme02/laermod/wk48/g2021/inndata/andre_skoler.dat';
-
+dem1 = 'utdata/barnehage.dat';
+dem2 = 'utdata/grunnskole.dat';
+dem5 = 'utdata/andre_skoler.dat';
+dem6 = 'utdata/andre_skoler.dat';
 
 
 """
@@ -182,6 +182,9 @@ def lesinn():
                                 'tp': 'float',
                                 'aavs': 'float'})
 
+    beh_pers = pd.DataFrame()
+    beh_syss = pd.DataFrame()
+
 
     """
 %MACRO lesinn;
@@ -204,35 +207,109 @@ def lesinn():
 
         arsv = pers * syss_and * garsv;
         aar = &basaar;
+"""
+    arsvesp = pd.DataFrame()
+    
+    arsvesp = pd.read_fwf(aarsv,
+                          header=None,
+                          delimiter=" ",
+                          names=["yrka", "ar1", "ar2", "ar3", "ar4", "ar5", "ar6"])
 
-    DATA arsvesp;
-        INFILE aarsv;
-        INPUT yrka $ 1-2 @3(ar1 - ar6)(6.);
+    vakesp = pd.DataFrame()
+    
+    vakesp = pd.read_fwf(vak,
+                         header=None,
+                         delimiter=" ",
+                         names=["yrka", "vak1", "vak2", "vak3", "vak4", "vak5", "vak6"])
 
-    PROC SORT DATA=arsvesp;
-        BY yrka;
+    # ********************************************************
+    # PROSENTVIS ENDRING I ANTALL ELEVER pr. 1000 INNBYGGERE
+    # ved de ulike aktivitetsområdene over simuleringsperioden
+    # tallet 1.01 tolkes som 1 prosent økt elevtall pr. 1000
+    # ********************************************************
 
-    DATA vakesp;
-        INFILE vak;
-        INPUT yrka $ 1-2 @3(vaks1 - vaks6)(6.);
+    stand = pd.DataFrame()
 
-    PROC SORT DATA = vakesp;
-        BY yrka;
+    stand = pd.read_fwf(innpr,
+                        header=None,
+                        delimiter=" ",
+                        names=["aar", "barnplus", "grskplus", "viskplus", "uhskplus", "anskplus", "utskplus"])
+
+    stand = stand[stand['aar'] >= basaar]
+    stand = stand[stand['aar'] <= simslutt]
 
 
-    /*   PROSENTVIS ENDRING I ANTALL ELEVER pr. 1000 INNBYGGERE      */
-    /*   ved de ulike aktivitetsområdene over simuleringsperioden    */
-    /*   tallet 1.01 tolkes som 1 prosent økt elevtall pr. 1000      */
-    DATA stand;
-        INFILE innpr;
-        INPUT aar 1-4 @5(barnplus grskplus viskplus uhskplus anskplus utskplus)(8.5);
+def styr_les():
 
-        IF aar < &basaar THEN
-                                   delete;
-        IF aar > &simslutt THEN
-                                   delete;
+    filnavn = ['dem1', 'dem2', 'dem3', 'dem4', 'dem5', 'dem6']
+    aldersnavn = ['ald1', 'ald2', 'ald3', 'ald4', 'ald5', 'ald6']
+    
 
-%MEND lesinn;
+    for x in range(4, 5):
+
+        filnavn = 'dem' + str(x)
+        aldnavn = aldersnavn[x-1]
+
+        demonavn = 'demo' + str(x)
+
+        aldnavn = pd.DataFrame()
+
+        aldnavn = pd.read_csv(globals()[filnavn],
+                              engine='python',
+                              header=None,
+                              delimiter=r'[\t:;: ]',
+                              names=['ald1',
+                                     'ald2'],
+                              usecols=[0, 1],
+                              dtype={'ald1': 'int',
+                                     'ald2': 'int'})
+
+        fett = pd.DataFrame(columns=['alder', 'ald2'])
+        print(fett)
+        
+        slutt = aldnavn.ald2[0] - aldnavn.ald1[0]
+        print(slutt)
+        for i in range(0, slutt + 1):
+            nyrad = {'alder': aldnavn.ald2[0], 'ald2': (aldnavn.ald1[0] + i)}
+            fett.loc[len(fett)] = nyrad
+        print(fett)
+        """
+            DATA ald&n(KEEP = alder ald2);
+        SET ald&n;
+
+        DO i = 0 TO (ald2 - ald1);
+            alder = ald1 + i;
+
+                        OUTPUT ald&n;
+        END;
+        """
+
+
+        demonavn = pd.DataFrame()
+
+"""
+        demonavn = pd.read_csv(globals()[filnavn],
+                               engine='python',
+                               header=None,
+                               delimiter=r'[\t:;: ]',
+                               names=['ald1',
+                                      'ald2',
+                                      'bi',
+                                      'bri',
+                                      'antaar'],
+                               usecols=[0, 1, 2, 3, 4],
+                               dtype={'ald1': 'int',
+                                      'ald2': 'int',
+                                      'bi': 'float',
+                                      'bri': 'float',
+                                      'antaar': 'int'})
+
+        print(demonavn)
+
+"""
+    
+"""
+
 
 %MACRO lesd(n);
 
@@ -258,19 +335,23 @@ def lesinn():
     %END;
 
 %MEND styr_les;
+"""
+# ************************************************
+# LAGER ALDERSAGGREGATER av befolkningsfilen etter
+# gruppering i den aktuelle etterspørselsfil
+# ************************************************
 
-* LAGER ALDERSAGGREGATER av befolkningsfilen etter gruppering i *;
-* den aktuelle etterspørselsfil                                 *;
+def aggre():
+    
+    for x in range(1, 7):
+        
+        print(aldersnavn[x])
+        
+        
+        
+"""
 %MACRO aggre(n);
 
-    DATA ald&n(KEEP = alder ald2);
-        SET ald&n;
-
-        DO i = 0 TO (ald2 - ald1);
-            alder = ald1 + i;
-
-                        OUTPUT ald&n;
-        END;
 
     DATA bef&n(keep = ald2 a1980 - a2050);
         MERGE bef(IN = A) ald&n(IN = B);
@@ -716,180 +797,6 @@ def lesinn():
 
 %MEND espbasis;
 
-%MACRO substi;
-
-    %IF &subst = 1 %THEN %DO;
-        DATA substs(KEEP = sk sigr1 - sigr4 stgr1 - stgr4 slgr1 - slgr4 ind skplus skmin );
-            MERGE substi substst substsl;
-            BY sk;
-
-            ARRAY sigr (i) sigr1 - sigr4;
-
-            ind = 0;
-
-            DO i = 1 to 4;
-                IF sigr NE 0 THEN
-                                                                   ind = 1;
-                IF sigr = 1 THEN
-                                                                   skplus = i;
-                IF sigr = -1 THEN
-                                                                   skmin = i;
-            END;
-
-        ***** Snur matrise med sektortall ****************;
-        DATA esp_sk1(KEEP = nr yrka aar sk esek);
-            SET esp_sk0;
-
-            ARRAY ep (sk) ep1 - ep6;
-
-            DO sk = 1 TO 6;
-                nr = (sk - 1) * 2100 + aar;
-                esek = ep;
-
-                            OUTPUT esp_sk1;
-            END;
-
-        PROC SORT DATA = esp_sk1;
-            BY nr yrka;
-
-        DATA esp_sk2(KEEP = sk aar gr1 - gr4);
-            SET esp_sk1;
-            BY nr;
-
-            ARRAY gr(i) gr1 - gr4;
-            RETAIN gr1 - gr4 0;
-
-            IF yrka = 'ba' THEN
-                                                   i = 1;
-            ELSE IF yrka = 'gr' THEN
-                                                   i = 2;
-            ELSE IF yrka = 'fa' THEN
-                                                   i = 3;
-            ELSE IF yrka = 'ps' THEN
-                                                    i = 4;
-
-            gr = esek;
-
-            IF LAST.nr THEN
-                                                   OUTPUT esp_sk2;
-
-        PROC SORT DATA = esp_sk2;
-            BY sk aar;
-
-        ** Her avgjøres om det skal være 99-opplegg eller korrigert opplegg  **;
-        DATA esp_sk3(KEEP = sk aar gr1 - gr4 aar1 aar2 sgr2 stgr2 slgr2
-                            grdiff sugr surest skplus skmin);
-            MERGE esp_sk2 substs;
-            BY sk;
-
-            ARRAY gr(4) gr1 - gr4;
-            ARRAY sigr(4) sigr1 - sigr4;
-            ARRAY stgr(4) stgr1 - stgr4;
-            ARRAY slgr(4) slgr1 - slgr4;
-            ARRAY sgr(4) sgr1 - sgr4;
-
-            IF ind > 0 AND aar GE &subaarst THEN DO;
-                k = skplus;
-                aar1 = %EVAL(&subaarst);
-               aar2 = %EVAL(&subaarsl);
-
-                            IF aar EQ &subaarst THEN
-                                                                   sgr(skplus) = stgr(skplus);
-                ELSE IF aar GT &subaarst AND aar LT &subaarsl THEN
-                    sgr(k) = stgr(k) + ((aar - aar1) * (slgr(k) - stgr(k)) / (aar2 - aar1));
-                ELSE IF aar GE &subaarsl THEN
-                                                                   sgr(skplus) = slgr(skplus);
-
-                ****** her kommer bruk av substitusjonsinformasjonen **********;
-                sugr = 0;
-
-                            IF skmin GT 0 THEN
-                                                                   sugr = gr(skmin) + gr(skplus);
-                ELSE DO;
-                    DO i = 1 TO 4;
-                        sugr + gr(i);
-                    END;
-                END;
-
-                            surest = sugr - gr(skplus);
-                grdiff = gr(skplus) - sugr * sgr(skplus);
-                gr(skplus) = sugr * sgr(skplus);
-
-                            IF skmin > 0 THEN
-                                                                   gr(skmin) = gr(skmin) + grdiff;
-                ELSE DO;
-                    DO i = 1 TO 4;
-                        IF i NE skplus THEN
-                                                                                                  gr(i) = gr(i) + (grdiff * gr(i)) / surest;
-                    END;
-                END;
-            END;
-
-        DATA esp_sk(KEEP = nr aar sk yrka g);
-            SET esp_sk3;
-
-            ARRAY gr(i) gr1 - gr4;
-
-            DO i = 1 TO 4;
-                nr = (i - 1) * 2100 + aar;
-
-                            IF i = 1 THEN
-                                                                   yrka = 'ba';
-                ELSE IF i = 2 THEN
-                                                                   yrka = 'gr';
-                ELSE IF i = 3 THEN
-                                                                   yrka = 'fa';
-                ELSE IF i = 4 THEN
-                                                                   yrka = 'ps';
-
-                            g = gr;
-
-                            OUTPUT esp_sk;
-            END;
-
-        PROC SORT DATA = esp_sk;
-            BY nr sk;
-
-        DATA esp_ny(KEEP = yrka aar espn);
-            SET esp_sk;
-            BY nr;
-
-            ARRAY epn(sk) epn1 - epn6;
-            RETAIN epn1 - epn6 0;
-
-            epn = g;
-
-            IF LAST.nr THEN DO;
-                espn = 0;
-
-                            DO sk = 1 TO 6;
-                    espn + epn;
-                END;
-
-                            OUTPUT esp_ny;
-            END;
-
-        PROC SORT DATA = esp_ny;
-            BY yrka aar;
-
-        ** Disse trinn er laget for å rekonstruere resultat fra gamle program **;
-        DATA t_ep(KEEP = yrka aar diff);
-           MERGE t_e esp_ny;
-            BY yrka aar;
-
-            diff = espn - esp;
-
-        DATA t_e(KEEP = yrka aar espd esp aarsv vakans);
-            MERGE t_e t_ep;
-            BY yrka aar;
-            esp = esp + diff;
-            vakans = aarsv - esp;
-        ****** Ekstratrinn for å videreutvikle det som er gjort i gamle program;
-
-    %END;
-
-%MEND substi;
-
 %MACRO summlaer;
 
     PROC SORT DATA = t_e;
@@ -1082,11 +989,11 @@ def lesinn():
 %MEND samle_samle;
 """
 lesinn()
+styr_les()
+#aggre()
 
 
 """
-%styr_les
-
 %aggre(1)
 %aggre(2)
 %aggre(3)
@@ -1094,14 +1001,12 @@ lesinn()
 %aggre(5)
 %aggre(6)
 %samle_demografi
-%bnpkorr
-%bnp
 
 %nykand
 %nybehold
 %tilbud
 %espbasis
-/* %substi */
+
 %summlaer
 %velgskr
 
