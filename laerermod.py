@@ -115,51 +115,52 @@ filename o1       "/ssb/stamme02/laermod/wk48/g2021/resultater/referanseba
 %LET oekslut = 2020;
 """
 
+# ********************
+# Innlesing av inndata
+# ********************
 
-def lesinn():
+kolonnenavn = ["alder"] + ["kjonn"]
 
-    kolonnenavn = ["alder"] + ["kjonn"]
+for x in range(1980, 2051):
+    kolonnenavn = kolonnenavn + ["a" + str(x)]
 
-    for x in range(1980, 2051):
-        kolonnenavn = kolonnenavn + ["a" + str(x)]
+bef = pd.DataFrame()
 
-    bef = pd.DataFrame()
+bef = pd.read_fwf(innb,
+                  header=None,
+                  delimiter=" ",
+                  col_names=kolonnenavn)
 
-    bef = pd.read_fwf(innb,
-                      header=None,
-                      delimiter=" ",
-                      col_names=kolonnenavn)
+bef.columns = kolonnenavn
 
-    bef.columns = kolonnenavn
+gjfoer = pd.DataFrame()
 
-    gjfoer = pd.DataFrame()
+gjfoer = pd.read_fwf(stkap,
+                     header=None,
+                     delimiter=" ",
+                     names=["yrka", "norm", "fullfor", "fullfob"])
 
-    gjfoer = pd.read_fwf(stkap,
-                         header=None,
-                         delimiter=" ",
-                         names=["yrka", "norm", "fullfor", "fullfob"])
+opptak = pd.DataFrame()
 
-    opptak = pd.DataFrame()
+opptak = pd.read_fwf(oppta,
+                     header=None,
+                     delimiter=" ",
+                     names=["aar", "ba", "gr", "fa", "ph", "py", "sp"])
 
-    opptak = pd.read_fwf(oppta,
-                         header=None,
-                         delimiter=" ",
-                         names=["aar", "ba", "gr", "fa", "ph", "py", "sp"])
+plussakt = pd.DataFrame()
 
-    plussakt = pd.DataFrame()
+plussakt = pd.read_fwf(inplu,
+                       header=None,
+                       delimiter=" ",
+                       names=["alder", "plussm", "plussk"])
 
-    plussakt = pd.read_fwf(inplu,
-                           header=None,
-                           delimiter=" ",
-                           names=["alder", "plussm", "plussk"])
-    
-    nystud = pd.read_fwf(nystu,
-                         header=None,
-                         delimiter=" ",
-                         names=["yrka", "alder", "st", "stm", "stk"])
-    
-    beholdning = pd.DataFrame()
-    beholdning = pd.read_csv(bhl,
+nystud = pd.read_fwf(nystu,
+                     header=None,
+                     delimiter=" ",
+                     names=["yrka", "alder", "st", "stm", "stk"])
+
+beholdning = pd.DataFrame()
+beholdning = pd.read_csv(bhl,
                          header=None,
                          delimiter=r";",
                          names=['yrke',
@@ -182,11 +183,11 @@ def lesinn():
                                 'tp': 'float',
                                 'aavs': 'float'})
 
-    beh_pers = pd.DataFrame()
-    beh_syss = pd.DataFrame()
+beh_pers = pd.DataFrame()
+beh_syss = pd.DataFrame()
 
 
-    """
+"""
 %MACRO lesinn;
 
 
@@ -208,106 +209,130 @@ def lesinn():
         arsv = pers * syss_and * garsv;
         aar = &basaar;
 """
-    arsvesp = pd.DataFrame()
+arsvesp = pd.DataFrame()
+
+arsvesp = pd.read_fwf(aarsv,
+                      header=None,
+                      delimiter=" ",
+                      names=["yrka", "ar1", "ar2", "ar3", "ar4", "ar5", "ar6"])
+
+vakesp = pd.DataFrame()
+
+vakesp = pd.read_fwf(vak,
+                     header=None,
+                     delimiter=" ",
+                     names=["yrka", "vak1", "vak2", "vak3", "vak4", "vak5", "vak6"])
+
+# ********************************************************
+# PROSENTVIS ENDRING I ANTALL ELEVER pr. 1000 INNBYGGERE
+# ved de ulike aktivitetsområdene over simuleringsperioden
+# tallet 1.01 tolkes som 1 prosent økt elevtall pr. 1000
+# ********************************************************
+
+stand = pd.DataFrame()
+
+stand = pd.read_fwf(innpr,
+                    header=None,
+                    delimiter=" ",
+                    names=["aar",
+                           "barnplus",
+                           "grskplus",
+                           "viskplus",
+                           "uhskplus",
+                           "anskplus",
+                           "utskplus"])
+
+stand = stand[stand['aar'] >= basaar]
+stand = stand[stand['aar'] <= simslutt]
+
+# ****************************************
+# Oppretter datasett for senere utfylling.
+# ****************************************
+
+filnavn = ['dem1', 'dem2', 'dem3', 'dem4', 'dem5', 'dem6']
+aldersnavn = ['ald1', 'ald2', 'ald3', 'ald4', 'ald5', 'ald6']
+demografinavn = ['demo1', 'demo2', 'demo3', 'demo4', 'demo5', 'dem6']
+
+ald2 = pd.DataFrame(columns=['ald2', 'alder'])
+
+for x in range(6, 16):
+    nyrad = {'ald2': 15, 'alder': x}
+    ald2.loc[len(ald2)] = nyrad
+
+ald3 = pd.DataFrame(columns=['ald2', 'alder'])
+
+for x in range(0, 16):
+    nyrad = {'ald2': 15, 'alder': x}
+    ald3.loc[len(ald3)] = nyrad
     
-    arsvesp = pd.read_fwf(aarsv,
-                          header=None,
-                          delimiter=" ",
-                          names=["yrka", "ar1", "ar2", "ar3", "ar4", "ar5", "ar6"])
+for x in range(16, 25):
+    nyrad = {'ald2': x, 'alder': x}
+    ald3.loc[len(ald3)] = nyrad
 
-    vakesp = pd.DataFrame()
+for x in range(25, 100):
+    nyrad = {'ald2': 99, 'alder': x}
+    ald3.loc[len(ald3)] = nyrad
+
+ald4 = pd.DataFrame(columns=['ald2', 'alder'])
+
+for x in range(19, 30):
+    nyrad = {'ald2': x, 'alder': x}
+    ald4.loc[len(ald4)] = nyrad
     
-    vakesp = pd.read_fwf(vak,
-                         header=None,
-                         delimiter=" ",
-                         names=["yrka", "vak1", "vak2", "vak3", "vak4", "vak5", "vak6"])
+for x in range(30, 35):
+    nyrad = {'ald2': 34, 'alder': x}
+    ald4.loc[len(ald4)] = nyrad
 
-    # ********************************************************
-    # PROSENTVIS ENDRING I ANTALL ELEVER pr. 1000 INNBYGGERE
-    # ved de ulike aktivitetsområdene over simuleringsperioden
-    # tallet 1.01 tolkes som 1 prosent økt elevtall pr. 1000
-    # ********************************************************
-
-    stand = pd.DataFrame()
-
-    stand = pd.read_fwf(innpr,
-                        header=None,
-                        delimiter=" ",
-                        names=["aar", "barnplus", "grskplus", "viskplus", "uhskplus", "anskplus", "utskplus"])
-
-    stand = stand[stand['aar'] >= basaar]
-    stand = stand[stand['aar'] <= simslutt]
-
-
-def styr_les():
-
-    filnavn = ['dem1', 'dem2', 'dem3', 'dem4', 'dem5', 'dem6']
-    aldersnavn = ['ald1', 'ald2', 'ald3', 'ald4', 'ald5', 'ald6']
+for x in range(35, 40):
+    nyrad = {'ald2': 39, 'alder': x}
+    ald4.loc[len(ald4)] = nyrad
     
+for x in range(40, 45):
+    nyrad = {'ald2': 44, 'alder': x}
+    ald4.loc[len(ald4)] = nyrad
 
-    for x in range(4, 5):
+for x in range(45, 50):
+    nyrad = {'ald2': 49, 'alder': x}
+    ald4.loc[len(ald4)] = nyrad
 
-        filnavn = 'dem' + str(x)
-        aldnavn = aldersnavn[x-1]
+ald5 = pd.DataFrame(columns=['ald2', 'alder'])
 
-        demonavn = 'demo' + str(x)
+for x in range(0, 100):
+    nyrad = {'ald2': 99, 'alder': x}
+    ald5.loc[len(ald5)] = nyrad
 
-        aldnavn = pd.DataFrame()
-
-        aldnavn = pd.read_csv(globals()[filnavn],
-                              engine='python',
-                              header=None,
-                              delimiter=r'[\t:;: ]',
-                              names=['ald1',
-                                     'ald2'],
-                              usecols=[0, 1],
-                              dtype={'ald1': 'int',
-                                     'ald2': 'int'})
-
-        fett = pd.DataFrame(columns=['alder', 'ald2'])
-        print(fett)
-        
-        slutt = aldnavn.ald2[0] - aldnavn.ald1[0]
-        print(slutt)
-        for i in range(0, slutt + 1):
-            nyrad = {'alder': aldnavn.ald2[0], 'ald2': (aldnavn.ald1[0] + i)}
-            fett.loc[len(fett)] = nyrad
-        print(fett)
-        """
-            DATA ald&n(KEEP = alder ald2);
-        SET ald&n;
-
-        DO i = 0 TO (ald2 - ald1);
-            alder = ald1 + i;
-
-                        OUTPUT ald&n;
-        END;
-        """
-
-
-        demonavn = pd.DataFrame()
-
-"""
-        demonavn = pd.read_csv(globals()[filnavn],
-                               engine='python',
-                               header=None,
-                               delimiter=r'[\t:;: ]',
-                               names=['ald1',
-                                      'ald2',
-                                      'bi',
-                                      'bri',
-                                      'antaar'],
-                               usecols=[0, 1, 2, 3, 4],
-                               dtype={'ald1': 'int',
-                                      'ald2': 'int',
-                                      'bi': 'float',
-                                      'bri': 'float',
-                                      'antaar': 'int'})
-
-        print(demonavn)
-
-"""
+ald6 = pd.DataFrame(columns=['ald2', 'alder'])
     
+for x in range(0, 100):
+    nyrad = {'ald2': 99, 'alder': x}
+    ald6.loc[len(ald6)] = nyrad
+
+demo2 = pd.DataFrame()
+
+demo2 = pd.read_csv(dem2,
+                    engine='python',
+                    header=None,
+                    delimiter=r'[\t:;: ]',
+                    names=['ald1',
+                           'ald2',
+                           'br',
+                           'bri',
+                           'antaar'],
+                    usecols=[0, 1, 2, 3, 4],
+                    dtype={'ald1': 'int',
+                           'ald2': 'int',
+                           'br': 'float',
+                           'bri': 'float',
+                           'antaar': 'int'})
+demo3 = pd.DataFrame()
+
+kolonneposisjoner = [(0, 2), (3, 5), (6, 14), (15, 18), (19, 20)]
+kolonnenavn = ['ald1', 'ald2', 'br', 'bri', 'antaar']
+
+demo3 = pd.read_fwf(dem3, colspecs=kolonneposisjoner, header=None)
+demo3.columns = kolonnenavn
+
+
 """
 
 
@@ -340,14 +365,7 @@ def styr_les():
 # LAGER ALDERSAGGREGATER av befolkningsfilen etter
 # gruppering i den aktuelle etterspørselsfil
 # ************************************************
-
-def aggre():
-    
-    for x in range(1, 7):
-        
-        print(aldersnavn[x])
-        
-        
+  
         
 """
 %MACRO aggre(n);
@@ -988,8 +1006,8 @@ def aggre():
 
 %MEND samle_samle;
 """
-lesinn()
-styr_les()
+#lesinn()
+#styr_les()
 #aggre()
 
 
