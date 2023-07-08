@@ -650,26 +650,22 @@ for x in range(2021, 2041):
 # etter tjenester
 # ******************************************************
 
-"""
-%MACRO samle_demografi;
+dmindeks = stand.merge(demaar2, how='inner', on='aar')
+dmindeks = dmindeks.merge(demaar3, how='inner', on='aar')
+dmindeks = dmindeks.merge(demaar4, how='inner', on='aar')
+dmindeks = dmindeks.merge(demaar5, how='inner', on='aar')
+dmindeks = dmindeks.merge(demaar6, how='inner', on='aar')
 
-    DATA dmindeks(KEEP = aar dm1 - dm6 dp1 - dp6 ds1 - ds6 totm);
-        MERGE demaar1 demaar2 demaar3 demaar4 demaar5 demaar6 stand;
-        BY aar;
+dmindeks.rename(columns={"ds2": "grskplus",
+                         "ds3": "viskplus",
+                         "ds4": "uhskplus",
+                         "ds5": "anskplus",
+                         "ds6": "utskplus"},
+                inplace=True)
 
-        ds1 = barnplus;
-        ds2 = grskplus;
-        ds3 = viskplus;
-        ds4 = uhskplus;
-        ds5 = anskplus;
-        ds6 = utskplus;
+dmindeks['totm'] = dmindeks.dem6
 
-        totm = dem6;
-
-    DATA arsv;
-        SET arsv1 arsv2 arsv3 arsv4 arsv5 arsv6;
-
-%MEND samle_demografi;
+arsv = pd.concat([arsv2, arsv3, arsv4, arsv5, arsv6])
 
 /**********************************************************************/
 /*                                                                    */
@@ -1192,12 +1188,7 @@ for x in range(2021, 2041):
 
 
 """
-%aggre(1)
-%aggre(2)
-%aggre(3)
-%aggre(4)
-%aggre(5)
-%aggre(6)
+
 %samle_demografi
 
 %nykand
@@ -1211,7 +1202,6 @@ for x in range(2021, 2041):
 %styr_samle
 %samle_samle
 
-run;
 """
 
 print()
