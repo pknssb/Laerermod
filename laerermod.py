@@ -140,12 +140,36 @@ gjfoer = pd.read_fwf(stkap,
                      delimiter=" ",
                      names=["yrka", "norm", "fullfor", "fullfob"])
 
-opptak = pd.DataFrame()
+innles = pd.DataFrame()
 
-opptak = pd.read_fwf(oppta,
+innles = pd.read_fwf(oppta,
                      header=None,
                      delimiter=" ",
                      names=["aar", "ba", "gr", "fa", "ph", "py", "sp"])
+
+innles = innles.set_index(['aar'])
+
+ba = pd.DataFrame()
+ba['oppfag'] = innles['ba']
+ba.loc[:, 'yrka'] = 'ba'
+
+gr = pd.DataFrame()
+gr['oppfag'] = innles['gr']
+gr.loc[:, 'yrka'] = 'gr'
+
+fa = pd.DataFrame()
+fa['oppfag'] = innles['fa']
+fa.loc[:, 'yrka'] = 'fa'
+
+ph = pd.DataFrame()
+ph['oppfag'] = innles['ph']
+ph.loc[:, 'yrka'] = 'ph'
+
+py = pd.DataFrame()
+py['oppfag'] = innles['py']
+py.loc[:, 'yrka'] = 'py'
+
+opptak = pd.concat([ba, gr, fa, ph, py])
 
 plussakt = pd.DataFrame()
 
@@ -667,11 +691,26 @@ dmindeks['totm'] = dmindeks.dem6
 
 arsv = pd.concat([arsv2, arsv3, arsv4, arsv5, arsv6])
 
-/**********************************************************************/
-/*                                                                    */
-/* NYKAND: Beregner antall uteksaminerte studenter over sim.perioden. */
-/*         Disse fordeles så etter alder og kjønn (for hvert år)      */
-/**********************************************************************/
+# ******************************************************************
+# NYKAND: Beregner antall uteksaminerte studenter over sim.perioden.
+# Disse fordeles så etter alder og kjønn (for hvert år).
+# ******************************************************************
+
+opptak = opptak.reset_index()
+opptak = opptak[opptak['aar'] > basaar]
+
+kandtot = opptak.merge(gjfoer, how='inner', on='yrka')
+
+kandtot["uteks"] = kandtot.oppfag * kandtot.fullfor
+
+#kandtot['uteks'] = kandtot.apply(lambda row: kandtot.oppfag * kandtot.fullfor if row['aar'] == '2030'
+#                             else kandtot.oppfag * kandtot.fullfor, axis=1)
+
+kandtot = kandtot.set_index(['aar', 'yrka'])
+
+print(kandtot.to_string())
+
+"""
 %MACRO nykand;
 
     DATA kandtot(KEEP = yrka aar uteks norm);
@@ -1186,10 +1225,7 @@ arsv = pd.concat([arsv2, arsv3, arsv4, arsv5, arsv6])
 #styr_les()
 #aggre()
 
-
 """
-
-%samle_demografi
 
 %nykand
 %nybehold
