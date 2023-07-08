@@ -67,8 +67,8 @@ nystu = 'utdata/nye_studenter.dat'
 # Filer produsert av demografi.sas
 dem1 = 'utdata/barnehage.dat';
 dem2 = 'inndata/grunnskole.dat';
-dem5 = 'utdata/andre_skoler.dat';
-dem6 = 'utdata/andre_skoler.dat';
+dem5 = 'inndata/andre_skoler.dat';
+dem6 = 'inndata/andre_skoler.dat';
 
 
 """
@@ -356,14 +356,8 @@ demo4 = pd.read_fwf(dem4,
 
 demo5 = pd.DataFrame()
 
-demo5 = pd.read_fwf(dem5,
-                    header=None,
-                    delimiter=" ",
-                    names=["ald1",
-                           "ald2",
-                           "br",
-                           "bri",
-                           "antaar"])
+demo5 = pd.read_fwf(dem5, colspecs=kolonneposisjoner, header=None)
+demo5.columns = kolonnenavn
 
 demo6 = pd.DataFrame()
 
@@ -458,7 +452,7 @@ bef6.drop(['kjonn'], axis=1, inplace=True)
 
 demo2 = demo2.set_index(['ald2'])
 
-for x in range(2021, 2041):
+for x in range(2020, 2041):
     demo2['agr' + str(x)] = bef2['a' + str(x)]
 
 demo2['pg2020'] = demo2.br * demo2.bri
@@ -470,107 +464,193 @@ demo2['mg2020'] = demo2.br * demo2.bri
 
 for x in range(2021, 2041):
     demo2['mg' + str(x)] = demo2['mg' + str(x-1)] * (bef2['a' + str(x)] / bef2['a' + str(x-1)])
- 
+
+demo3 = demo3.set_index(['ald2'])
+
+for x in range(2020, 2041):
+    demo3['agr' + str(x)] = bef3['a' + str(x)]
+
+demo3['pg2020'] = demo3.br * demo3.bri
+
+for x in range(2021, 2041):
+    demo3['pg' + str(x)] = demo3['pg' + str(x-1)] * (bef3['a' + str(x)] / bef3['a' + str(x-1)])
+
+demo3['mg2020'] = demo3.br * demo3.bri
+
+for x in range(2021, 2041):
+    demo3['mg' + str(x)] = demo3['mg' + str(x-1)] * (bef3['a' + str(x)] / bef3['a' + str(x-1)])
+
+demo4 = demo4.set_index(['ald2'])
+
+for x in range(2020, 2041):
+    demo4['agr' + str(x)] = bef4['a' + str(x)]
+
+demo4['pg2020'] = demo4.br * demo4.bri
+
+for x in range(2021, 2041):
+    demo4['pg' + str(x)] = demo4['pg' + str(x-1)] * (bef4['a' + str(x)] / bef4['a' + str(x-1)])
+
+demo4['mg2020'] = demo4.br * demo4.bri
+
+for x in range(2021, 2041):
+    demo4['mg' + str(x)] = demo4['mg' + str(x-1)] * (bef4['a' + str(x)] / bef4['a' + str(x-1)])
+
+demo5 = demo5.set_index(['ald2'])
+
+for x in range(2020, 2041):
+    demo5['agr' + str(x)] = bef5['a' + str(x)]
+
+demo5['pg2020'] = demo5.br * demo5.bri
+
+for x in range(2021, 2041):
+    demo5['pg' + str(x)] = demo5['pg' + str(x-1)] * (bef5['a' + str(x)] / bef5['a' + str(x-1)])
+
+demo5['mg2020'] = demo5.br * demo5.bri
+
+for x in range(2021, 2041):
+    demo5['mg' + str(x)] = demo5['mg' + str(x-1)] * (bef5['a' + str(x)] / bef5['a' + str(x-1)])
+
+demo6 = demo5
+
+demos2 = pd.DataFrame()
+demos3 = pd.DataFrame()
+demos4 = pd.DataFrame()
+demos5 = pd.DataFrame()
+demos6 = pd.DataFrame()
+
+for x in range(2020, 2041):
+    demos2['agrs' + str(x)] = [demo2['agr' + str(x)].sum()]
+    demos2['pgs' + str(x)] = [demo2['pg' + str(x)].sum()]
+    demos2['mgs' + str(x)] = [demo2['mg' + str(x)].sum()]
+
+    demos3['agrs' + str(x)] = [demo3['agr' + str(x)].sum()]
+    demos3['pgs' + str(x)] = [demo3['pg' + str(x)].sum()]
+    demos3['mgs' + str(x)] = [demo3['mg' + str(x)].sum()]
+
+    demos4['agrs' + str(x)] = [demo4['agr' + str(x)].sum()]
+    demos4['pgs' + str(x)] = [demo4['pg' + str(x)].sum()]
+    demos4['mgs' + str(x)] = [demo4['mg' + str(x)].sum()]
+
+    demos5['agrs' + str(x)] = [demo5['agr' + str(x)].sum()]
+    demos5['pgs' + str(x)] = [demo5['pg' + str(x)].sum()]
+    demos5['mgs' + str(x)] = [demo5['mg' + str(x)].sum()]
+
+    demos6['agrs' + str(x)] = [demo6['agr' + str(x)].sum()]
+    demos6['pgs' + str(x)] = [demo6['pg' + str(x)].sum()]
+    demos6['mgs' + str(x)] = [demo6['mg' + str(x)].sum()]
+
+x = demos2.pgs2020.loc[0]
+demy2 = pd.DataFrame({'gruppe': ['ba', 'gr', 'fa', 'ph', 'py'],
+                      'brind': [x, x, x, x, x]})
+
+x = demos3.pgs2020.loc[0]
+demy3 = pd.DataFrame({'gruppe': ['ba', 'gr', 'fa', 'ph', 'py'],
+                      'brind': [x, x, x, x, x]})
+
+x = demos4.pgs2020.loc[0]
+demy4 = pd.DataFrame({'gruppe': ['ba', 'gr', 'fa', 'ph', 'py'],
+                      'brind': [x, x, x, x, x]})
+
+x = demos5.pgs2020.loc[0]
+demy5 = pd.DataFrame({'gruppe': ['ba', 'gr', 'fa', 'ph', 'py'],
+                      'brind': [x, x, x, x, x]})
+
+x = demos6.pgs2020.loc[0]
+demy6 = pd.DataFrame({'gruppe': ['ba', 'gr', 'fa', 'ph', 'py'],
+                      'brind': [x, x, x, x, x]})
+
+arsv2 = pd.DataFrame()
+
+arsv2 = demy2
+
+arsv2['ar'] = arsvesp.ar2
+arsv2['stdrd'] = arsv2['ar'] / arsv2['brind']
+
+arsv3 = pd.DataFrame()
+
+arsv3 = demy3
+
+arsv3['ar'] = arsvesp.ar3
+arsv3['stdrd'] = arsv3['ar'] / arsv3['brind']
+
+arsv4 = pd.DataFrame()
+
+arsv4 = demy4
+
+arsv4['ar'] = arsvesp.ar4
+arsv4['stdrd'] = arsv4['ar'] / arsv4['brind']
+
+arsv5 = pd.DataFrame()
+
+arsv5 = demy5
+
+arsv5['ar'] = arsvesp.ar5
+arsv5['stdrd'] = arsv5['ar'] / arsv5['brind']
+
+arsv6 = pd.DataFrame()
+
+arsv6 = demy6
+
+arsv6['ar'] = arsvesp.ar6
+arsv6['stdrd'] = arsv6['ar'] / arsv6['brind']
+
+demaar2 = pd.DataFrame({"aar": [2020], "dm2": [1], "dp2": [1], "dem2": demos2['agrs2020']})
+
+for x in range(2021, 2041):
+    nyrad = pd.DataFrame({"aar": x,
+                          "dm2": demos2['mgs' + str(x)] / demos2['mgs2020'],
+                          "dp2": (demos2['pgs' + str(x)] / demos2['pgs2020']) / 
+                                 (demos2['mgs' + str(x)] / demos2['mgs2020']),
+                          "dem2": demos2['agrs' + str(x)]})
+    demaar2 = pd.concat([demaar2, nyrad], ignore_index=True)
+
+demaar3 = pd.DataFrame({"aar": [2020], "dm3": [1], "dp3": [1], "dem3": demos3['agrs2020']})
+
+for x in range(2021, 2041):
+    nyrad = pd.DataFrame({"aar": x,
+                          "dm3": demos3['mgs' + str(x)] / demos3['mgs2020'],
+                          "dp3": (demos3['pgs' + str(x)] / demos3['pgs2020']) / 
+                                 (demos3['mgs' + str(x)] / demos3['mgs2020']),
+                          "dem3": demos3['agrs' + str(x)]})
+    demaar3 = pd.concat([demaar3, nyrad], ignore_index=True)
+
+demaar4 = pd.DataFrame({"aar": [2020], "dm4": [1], "dp4": [1], "dem4": demos4['agrs2020']})
+
+for x in range(2021, 2041):
+    nyrad = pd.DataFrame({"aar": x,
+                          "dm4": demos4['mgs' + str(x)] / demos4['mgs2020'],
+                          "dp4": (demos4['pgs' + str(x)] / demos4['pgs2020']) / 
+                                 (demos4['mgs' + str(x)] / demos4['mgs2020']),
+                          "dem4": demos4['agrs' + str(x)]})
+    demaar4 = pd.concat([demaar4, nyrad], ignore_index=True)
+
+demaar5 = pd.DataFrame({"aar": [2020], "dm5": [1], "dp5": [1], "dem5": demos5['agrs2020']})
+
+for x in range(2021, 2041):
+    nyrad = pd.DataFrame({"aar": x,
+                          "dm5": demos5['mgs' + str(x)] / demos5['mgs2020'],
+                          "dp5": (demos5['pgs' + str(x)] / demos5['pgs2020']) / 
+                                 (demos5['mgs' + str(x)] / demos5['mgs2020']),
+                          "dem5": demos5['agrs' + str(x)]})
+    demaar5 = pd.concat([demaar5, nyrad], ignore_index=True)
+
+demaar6 = pd.DataFrame({"aar": [2020], "dm6": [1], "dp6": [1], "dem6": demos6['agrs2020']})
+
+for x in range(2021, 2041):
+    nyrad = pd.DataFrame({"aar": x,
+                          "dm6": demos6['mgs' + str(x)] / demos6['mgs2020'],
+                          "dp6": (demos6['pgs' + str(x)] / demos6['pgs2020']) / 
+                                 (demos6['mgs' + str(x)] / demos6['mgs2020']),
+                          "dem6": demos6['agrs' + str(x)]})
+    demaar6 = pd.concat([demaar6, nyrad], ignore_index=True)
+
+
+# ******************************************************
+# Lager indeks for demografikomponenten i etterspørselen
+# etter tjenester
+# ******************************************************
 
 """
-demo2['pg2021'] = demo2.pg2020 * (bef2.a2021 / bef2.a2020)
-demo2['pg2022'] = demo2.pg2021 * (bef2.a2022 / bef2.a2021)
-demo2['pg2023'] = demo2.pg2022 * (bef2.a2023 / bef2.a2022)
-demo2['pg2024'] = demo2.pg2023 * (bef2.a2024 / bef2.a2023)
-"""
-
-
-print(demo2.to_string())
-
-"""
-%MACRO aggre(n);
-
-    DATA demo&n(KEEP = ald1 ald2 pg&basaar - pg&simslutt mg&basaar - mg&simslutt agr&basaar - agr&simslutt);
-        MERGE bef&n demo&n;
-        BY ald2;
-
-        ARRAY dg(i) dg1 - dg6;
-        ARRAY mg(1980:2050) mg1980 - mg2050;
-        ARRAY pg(1980:2050) pg1980 - pg2050;
-        ARRAY agr(1980:2050) agr1980 - agr2050;
-        RETAIN akk 0;
-
-        akk + 1;
-        pg&basaar = br * bri;
-        mg&basaar = br * bri;
-
-        IF antaar = 0 THEN
-                                   antaar = 1;
-
-        IF antaar > 1 THEN DO;
-            DO i = 2 to antaar;
-                pg(&basaar + i - 1) = dg * bri * agr(&basaar + i - 1);
-            END;
-        END;
-
-        DO i = (&basaar + 1) TO &simslutt;
-            mg(i) = mg(&basaar) * agr(i) / agr(&basaar);
-        END;
-
-        DO i = (&basaar + antaar) TO &simslutt;
-            pg(i) = pg(&basaar + antaar - 1) * agr(i) / agr(&basaar + antaar - 1);
-        END;
-
-    PROC SUMMARY DATA = demo&n;
-        VAR pg&basaar - pg&simslutt mg&basaar - mg&simslutt agr&basaar - agr&simslutt;
-        OUTPUT OUT = demos&n SUM = pgs&basaar - pgs&simslutt mgs&basaar - mgs&simslutt agrs&basaar - agrs&simslutt;
-
-    DATA demy&n(KEEP = brind yrka);
-        SET demos&n;
-
-        DO i = 1 TO 5;
-            IF i = 1 THEN
-                                                   yrka = 'ba';
-            ELSE IF i = 2 THEN
-                                                   yrka = 'gr';
-            ELSE IF i = 3 THEN
-                                                   yrka = 'fa';
-            ELSE IF i = 4 THEN
-                                                   yrka = 'ph';
-                                               ELSE IF i = 5 THEN
-                                                   yrka = 'py';
-
-                        brind = pgs&basaar;
-
-                        OUTPUT demy&n;
-        END;
-
-    PROC SORT DATA = demy&n;
-        BY yrka;
-
-    DATA arsv&n(KEEP = yrka stdrd brind);
-        MERGE arsvesp demy&n;
-        BY yrka;
-
-        ars = ar&n;
-        stdrd = ar&n / brind;
-
-    DATA demaar&n(KEEP = aar dm&n dp&n dem&n);
-        SET demos&n;
-
-                               ARRAY pgs(1980:2050) pgs1980 - pgs2050;
-        ARRAY mgs(1980:2050) mgs1980 - mgs2050;
-        ARRAY agrs(1980:2050) agrs1980 - agrs2050;
-
-        DO aar = &basaar TO &simslutt;
-            dm&n = mgs(aar) / mgs(&basaar);
-            dp&n = (pgs(aar) / pgs(&basaar)) / dm&n;
-            dem&n = agrs(aar);
-
-                        OUTPUT demaar&n;
-        END;
-
-%MEND aggre;
-
-/*******************************************************************/
-/*  Lager indeks for demografikomponenten i etterspørselen         */
-/*  etter tjenester                                                */
-/*******************************************************************/
 %MACRO samle_demografi;
 
     DATA dmindeks(KEEP = aar dm1 - dm6 dp1 - dp6 ds1 - ds6 totm);
