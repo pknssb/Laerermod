@@ -66,7 +66,7 @@ nystu = 'utdata/nye_studenter.dat'
 
 # Filer produsert av demografi.sas
 dem1 = 'utdata/barnehage.dat';
-dem2 = 'utdata/grunnskole.dat';
+dem2 = 'inndata/grunnskole.dat';
 dem5 = 'utdata/andre_skoler.dat';
 dem6 = 'utdata/andre_skoler.dat';
 
@@ -302,13 +302,22 @@ for x in range(0, 100):
     ald5.loc[len(ald5)] = nyrad
 
 ald6 = pd.DataFrame(columns=['ald2', 'alder'])
-    
+
 for x in range(0, 100):
     nyrad = {'ald2': 99, 'alder': x}
     ald6.loc[len(ald6)] = nyrad
 
 demo2 = pd.DataFrame()
 
+demo2 = pd.read_fwf(dem2,
+                    header=None,
+                    delimiter=" ",
+                    names=["ald1",
+                           "ald2",
+                           "br",
+                           "bri",
+                           "antaar"])
+"""
 demo2 = pd.read_csv(dem2,
                     engine='python',
                     header=None,
@@ -318,12 +327,14 @@ demo2 = pd.read_csv(dem2,
                            'br',
                            'bri',
                            'antaar'],
-                    usecols=[0, 1, 2, 3, 4],
+                    usecols=[0, 1, 2, 4, 5],
                     dtype={'ald1': 'int',
                            'ald2': 'int',
                            'br': 'float',
                            'bri': 'float',
                            'antaar': 'int'})
+"""
+
 demo3 = pd.DataFrame()
 
 kolonneposisjoner = [(0, 2), (3, 5), (6, 14), (15, 18), (19, 20)]
@@ -331,6 +342,39 @@ kolonnenavn = ['ald1', 'ald2', 'br', 'bri', 'antaar']
 
 demo3 = pd.read_fwf(dem3, colspecs=kolonneposisjoner, header=None)
 demo3.columns = kolonnenavn
+
+demo4 = pd.DataFrame()
+
+demo4 = pd.read_fwf(dem4,
+                    header=None,
+                    delimiter=" ",
+                    names=["ald1",
+                           "ald2",
+                           "br",
+                           "bri",
+                           "antaar"])
+
+demo5 = pd.DataFrame()
+
+demo5 = pd.read_fwf(dem5,
+                    header=None,
+                    delimiter=" ",
+                    names=["ald1",
+                           "ald2",
+                           "br",
+                           "bri",
+                           "antaar"])
+
+demo6 = pd.DataFrame()
+
+demo6 = pd.read_fwf(dem6,
+                    header=None,
+                    delimiter=" ",
+                    names=["ald1",
+                           "ald2",
+                           "br",
+                           "bri",
+                           "antaar"])
 
 
 """
@@ -365,25 +409,81 @@ demo3.columns = kolonnenavn
 # LAGER ALDERSAGGREGATER av befolkningsfilen etter
 # gruppering i den aktuelle etterspørselsfil
 # ************************************************
-  
-        
+
+bef2 = pd.DataFrame()
+
+bef2 = ald2.merge(bef, how='inner', on='alder')
+
+bef2 = bef2.groupby(["ald2"]).sum()
+
+bef2.drop(['alder'], axis=1, inplace=True)
+bef2.drop(['kjonn'], axis=1, inplace=True)
+
+bef3 = pd.DataFrame()
+
+bef3 = ald3.merge(bef, how='inner', on='alder')
+
+bef3 = bef3.groupby(["ald2"]).sum()
+
+bef3.drop(['alder'], axis=1, inplace=True)
+bef3.drop(['kjonn'], axis=1, inplace=True)
+
+bef4 = pd.DataFrame()
+
+bef4 = ald4.merge(bef, how='inner', on='alder')
+
+bef4 = bef4.groupby(["ald2"]).sum()
+
+bef4.drop(['alder'], axis=1, inplace=True)
+bef4.drop(['kjonn'], axis=1, inplace=True)
+
+bef5 = pd.DataFrame()
+
+bef5 = ald5.merge(bef, how='inner', on='alder')
+
+bef5 = bef5.groupby(["ald2"]).sum()
+
+bef5.drop(['alder'], axis=1, inplace=True)
+bef5.drop(['kjonn'], axis=1, inplace=True)
+
+bef6 = pd.DataFrame()
+
+bef6 = ald6.merge(bef, how='inner', on='alder')
+
+bef6 = bef6.groupby(["ald2"]).sum()
+
+bef6.drop(['alder'], axis=1, inplace=True)
+bef6.drop(['kjonn'], axis=1, inplace=True)
+
+
+demo2 = demo2.set_index(['ald2'])
+
+for x in range(2021, 2041):
+    demo2['agr' + str(x)] = bef2['a' + str(x)]
+
+demo2['pg2020'] = demo2.br * demo2.bri
+
+for x in range(2021, 2041):
+    demo2['pg' + str(x)] = demo2['pg' + str(x-1)] * (bef2['a' + str(x)] / bef2['a' + str(x-1)])
+
+demo2['mg2020'] = demo2.br * demo2.bri
+
+for x in range(2021, 2041):
+    demo2['mg' + str(x)] = demo2['mg' + str(x-1)] * (bef2['a' + str(x)] / bef2['a' + str(x-1)])
+ 
+
+"""
+demo2['pg2021'] = demo2.pg2020 * (bef2.a2021 / bef2.a2020)
+demo2['pg2022'] = demo2.pg2021 * (bef2.a2022 / bef2.a2021)
+demo2['pg2023'] = demo2.pg2022 * (bef2.a2023 / bef2.a2022)
+demo2['pg2024'] = demo2.pg2023 * (bef2.a2024 / bef2.a2023)
+"""
+
+
+print(demo2.to_string())
+
 """
 %MACRO aggre(n);
-
-
-    DATA bef&n(keep = ald2 a1980 - a2050);
-        MERGE bef(IN = A) ald&n(IN = B);
-        BY alder;
-        IF B;
-
-    PROC SUMMARY DATA = bef&n;
-        CLASS ald2;
-        VAR a1980 - a2050;
-        OUTPUT OUT = bef&n SUM = agr1980 - agr2050;
-
-    DATA bef&n(KEEP = ald2 agr1980 - agr2050);
-        SET bef&n;
-        IF ald2 GE 0;
 
     DATA demo&n(KEEP = ald1 ald2 pg&basaar - pg&simslutt mg&basaar - mg&simslutt agr&basaar - agr&simslutt);
         MERGE bef&n demo&n;
