@@ -178,10 +178,23 @@ plussakt = pd.read_fwf(inplu,
                        delimiter=" ",
                        names=["alder", "plussm", "plussk"])
 
-nystud = pd.read_fwf(nystu,
-                     header=None,
-                     delimiter=" ",
-                     names=["yrka", "alder", "st", "stm", "stk"])
+nystud1 = pd.read_fwf(nystu,
+                      header=None,
+                      delimiter=" ",
+                      names=["yrka", "alder", "st", "stm", "stk"])
+
+nystud1['kjonn'] = 1
+nystud1['st_ald'] = nystud1.stm
+
+nystud2 = pd.read_fwf(nystu,
+                      header=None,
+                      delimiter=" ",
+                      names=["yrka", "alder", "st", "stm", "stk"])
+
+nystud2['kjonn'] = 2
+nystud2['st_ald'] = nystud2.stk
+
+nystud = pd.concat([nystud1, nystud2])
 
 beholdning = pd.DataFrame()
 beholdning = pd.read_csv(bhl,
@@ -706,9 +719,7 @@ kandtot["uteks"] = kandtot.oppfag * kandtot.fullfor
 #kandtot['uteks'] = kandtot.apply(lambda row: kandtot.oppfag * kandtot.fullfor if row['aar'] == '2030'
 #                             else kandtot.oppfag * kandtot.fullfor, axis=1)
 
-kandtot = kandtot.set_index(['aar', 'yrka'])
-
-print(kandtot.to_string())
+kandtot = kandtot.set_index(['yrka'])
 
 """
 %MACRO nykand;
@@ -725,7 +736,20 @@ print(kandtot.to_string())
                                    uteks = oppfag * fullfor;
 
         IF aar GE (&basaar + 1) AND aar LE &simslutt;
+"""
+nystud = nystud.set_index(['yrka'])
 
+kand_ald = nystud.merge(kandtot, how='inner', on=['yrka'])
+
+kand_ald["alder"] = kand_ald.alder + kand_ald.norm
+kand_ald["eks_ald"] = kand_ald.uteks * kand_ald.st_ald
+
+print(kand_ald.to_string())
+kandidater = pd.DataFrame()
+
+#kandidater["yrka"] = kand_ald.yrka
+
+"""
     DATA nystud;
         SET nystud;
 
