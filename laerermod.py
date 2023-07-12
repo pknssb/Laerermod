@@ -196,56 +196,64 @@ nystud2['st_ald'] = nystud2.stk
 
 nystud = pd.concat([nystud1, nystud2])
 
-beholdning = pd.DataFrame()
-beholdning = pd.read_csv(bhl,
-                         header=None,
-                         delimiter=r";",
-                         names=['yrke',
-                                'kjonn',
-                                'alder',
-                                'pers',
-                                'syss',
-                                'yp',
-                                'tpa',
-                                'tp',
-                                'aavs'],
-                         usecols=list(range(9)),
-                         dtype={'yrke': 'string',
-                                'kjonn': 'int',
-                                'alder': 'int',
-                                'pers': 'int',
-                                'syss': 'int',
-                                'yp': 'float',
-                                'tpa': 'float',
-                                'tp': 'float',
-                                'aavs': 'float'})
-
 beh_pers = pd.DataFrame()
+beh_pers = pd.read_csv(bhl,
+                       header=None,
+                       delimiter=r";",
+                       names=['yrke',
+                              'kjonn',
+                              'alder',
+                              'pers',
+                              'syss',
+                              'yp',
+                              'tpa',
+                              'tp',
+                              'aavs'],
+                       usecols=list(range(9)),
+                       dtype={'yrke': 'string',
+                              'kjonn': 'int',
+                              'alder': 'int',
+                              'pers': 'int',
+                              'syss': 'int',
+                              'yp': 'float',
+                              'tpa': 'float',
+                              'tp': 'float',
+                              'aavs': 'float'})
+
+beh_pers["arsv"] = beh_pers.pers * beh_pers.yp * beh_pers.tpa
+
+beh_pers.drop(['syss', 'yp', 'tpa', 'tp', 'aavs'], axis=1, inplace=True)
+
 beh_syss = pd.DataFrame()
+beh_syss = pd.read_csv(bhl,
+                       header=None,
+                       delimiter=r";",
+                       names=['yrke',
+                              'kjonn',
+                              'alder',
+                              'pers',
+                              'syss',
+                              'yp',
+                              'tpa',
+                              'tp',
+                              'aavs'],
+                       usecols=list(range(9)),
+                       dtype={'yrke': 'string',
+                              'kjonn': 'int',
+                              'alder': 'int',
+                              'pers': 'int',
+                              'syss': 'int',
+                              'yp': 'float',
+                              'tpa': 'float',
+                              'tp': 'float',
+                              'aavs': 'float'})
 
+beh_syss.rename(columns={"yp": "syssand",
+                         "tpa": "garsv"},
+                inplace=True)
 
-"""
-%MACRO lesinn;
+beh_syss.drop(['pers', 'syss', 'tp', 'aavs'], axis=1, inplace=True)
 
-
-    DATA beh_pers(KEEP=yrka aar kj alder pers arsv)
-         beh_syss(KEEP=yrka kj alder syss_and garsv);
-        INFILE bhl;
-       INPUT (stj)($CHAR1.)@;
-
-        IF substr(stj,1,1) NE '*';
-
-                    INPUT yrka        $ 1-2
-              kj              4
-              alder         6-7
-              @8(pers syss) (10.3)
-              @28(syss_and garsv tarsv)(10.5);
-  *           @8(pers syss) (10.3)
-              @28(syss_and garsv)(10.5);
-
-        arsv = pers * syss_and * garsv;
-        aar = &basaar;
-"""
 arsvesp = pd.DataFrame()
 
 arsvesp = pd.read_fwf(aarsv,
@@ -301,7 +309,7 @@ ald3 = pd.DataFrame(columns=['ald2', 'alder'])
 for x in range(0, 16):
     nyrad = {'ald2': 15, 'alder': x}
     ald3.loc[len(ald3)] = nyrad
-    
+
 for x in range(16, 25):
     nyrad = {'ald2': x, 'alder': x}
     ald3.loc[len(ald3)] = nyrad
@@ -744,8 +752,9 @@ kand_ald = nystud.merge(kandtot, how='inner', on=['yrka'])
 kand_ald["alder"] = kand_ald.alder + kand_ald.norm
 kand_ald["eks_ald"] = kand_ald.uteks * kand_ald.st_ald
 
-print(kand_ald.to_string())
+
 kandidater = pd.DataFrame()
+kandidater = kand_ald
 
 #kandidater["yrka"] = kand_ald.yrka
 
@@ -812,14 +821,19 @@ kandidater = pd.DataFrame()
                                    aar = %EVAL(&basaar);
 
 %MEND nykand;
+"""
+# *************************************************************
+# NYBEHOLD: Fører strømmen av nyutdannete inn i beholdningen av
+#           en yrkesgruppe, og framskriver beholdningen av fag-
+#           utdannete over simuleringsperioden.
+# *************************************************************
 
-/**********************************************************************/
-/*                                                                    */
-/* NYBEHOLD: Fører strømmen av nyutdannete inn i beholdningen av      */
-/*          en yrkesgruppe, og framskriver beholdningen av fag-       */
-/*          utdannete over simuleringsperioden.                       */
-/*                                                                    */
-/**********************************************************************/
+kand_aar = kandidater
+
+kand_aar = kand_aar[kand_aar['aar'] == simslutt]
+
+"""
+
 %MACRO nybehold;
 
     %DO aarn = %EVAL(&basaar + 1) %TO &simslutt;
@@ -855,14 +869,21 @@ kandidater = pd.DataFrame()
     %END;
 
 %MEND nybehold;
+"""
+# ************************************************************
+# TILBUD: Beregner
+#         årsverkstilbudet ut fra mønsteret i yrkesdeltakelsen
+#         og eventuell eksogen økning i yrkesdeltakelsen.
+# ************************************************************
 
-/********************************************************************/
-/*                                                                  */
-/* TILBUD: Beregner                                                 */
-/*         årsverkstilbudet ut fra mønsteret i yrkesdeltakelsen     */
-/*         og eventuell eksogen økning i yrkesdeltakelsen.          */
-/*                                                                  */
-/********************************************************************/
+tilb = beh_pers.merge(beh_syss, how='outer', on=['yrke', 'kjonn', 'alder'])
+
+tilb['aarsverk'] = tilb.pers * tilb.syssand * tilb.garsv #* pluss;
+
+tilb = tilb.groupby(['yrke']).sum()
+
+print(tilb)
+"""
 %MACRO tilbud;
 
     PROC SORT DATA = beh_syss;
