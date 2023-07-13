@@ -323,7 +323,7 @@ ald4 = pd.DataFrame(columns=['ald2', 'alder'])
 for x in range(19, 30):
     nyrad = {'ald2': x, 'alder': x}
     ald4.loc[len(ald4)] = nyrad
-    
+
 for x in range(30, 35):
     nyrad = {'ald2': 34, 'alder': x}
     ald4.loc[len(ald4)] = nyrad
@@ -331,7 +331,7 @@ for x in range(30, 35):
 for x in range(35, 40):
     nyrad = {'ald2': 39, 'alder': x}
     ald4.loc[len(ald4)] = nyrad
-    
+
 for x in range(40, 45):
     nyrad = {'ald2': 44, 'alder': x}
     ald4.loc[len(ald4)] = nyrad
@@ -756,7 +756,7 @@ kand_ald["eks_ald"] = kand_ald.uteks * kand_ald.st_ald
 kandidater = pd.DataFrame()
 kandidater = kand_ald
 
-#kandidater["yrka"] = kand_ald.yrka
+
 
 """
     DATA nystud;
@@ -828,10 +828,33 @@ kandidater = kand_ald
 #           utdannete over simuleringsperioden.
 # *************************************************************
 
+beh_pers['aar'] = 2020
+beh_paar = beh_pers.copy()
+
+fett = beh_pers.copy()
+fett.alder += 1
+fett.rename(columns={"yrke": "yrka"},
+                inplace=True)
+
+print(fett)
 kand_aar = kandidater
+kand_aar = kand_aar[kand_aar['aar'] == 2021]
+print(kand_aar)
 
-kand_aar = kand_aar[kand_aar['aar'] == simslutt]
+kult = fett.merge(kand_aar, how='outer', on=['yrka', 'kjonn', 'alder'])
+kult.pers = kult.pers + kult.eks_ald
+kult['aar'] = 2021
+slutt = kult[['yrka', 'kjonn', 'alder', 'pers', 'aar']]
+beh_paar = beh_paar + slutt
+print(beh_paar)
+"""
+beh_pers.rename(columns={"yrke": "yrka"},
+                inplace=True)
 
+beh_paar = beh_pers.merge(kand_aar, how='outer', on=['yrka', 'kjonn', 'alder'])
+
+beh_paar = beh_paar[beh_paar['aar'] == 2021]
+"""
 """
 
 %MACRO nybehold;
@@ -875,14 +898,14 @@ kand_aar = kand_aar[kand_aar['aar'] == simslutt]
 #         årsverkstilbudet ut fra mønsteret i yrkesdeltakelsen
 #         og eventuell eksogen økning i yrkesdeltakelsen.
 # ************************************************************
-
+"""
 tilb = beh_pers.merge(beh_syss, how='outer', on=['yrke', 'kjonn', 'alder'])
 
 tilb['aarsverk'] = tilb.pers * tilb.syssand * tilb.garsv #* pluss;
 
 tilb = tilb.groupby(['yrke']).sum()
-
-print(tilb)
+"""
+#print(tilb)
 """
 %MACRO tilbud;
 
