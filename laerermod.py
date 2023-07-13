@@ -138,7 +138,7 @@ gjfoer = pd.DataFrame()
 gjfoer = pd.read_fwf(stkap,
                      header=None,
                      delimiter=" ",
-                     names=["yrka", "norm", "fullfor", "fullfob"])
+                     names=["yrke", "norm", "fullfor", "fullfob"])
 
 innles = pd.DataFrame()
 
@@ -151,23 +151,23 @@ innles = innles.set_index(['aar'])
 
 ba = pd.DataFrame()
 ba['oppfag'] = innles['ba']
-ba.loc[:, 'yrka'] = 'ba'
+ba.loc[:, 'yrke'] = 'ba'
 
 gr = pd.DataFrame()
 gr['oppfag'] = innles['gr']
-gr.loc[:, 'yrka'] = 'gr'
+gr.loc[:, 'yrke'] = 'gr'
 
 fa = pd.DataFrame()
 fa['oppfag'] = innles['fa']
-fa.loc[:, 'yrka'] = 'fa'
+fa.loc[:, 'yrke'] = 'fa'
 
 ph = pd.DataFrame()
 ph['oppfag'] = innles['ph']
-ph.loc[:, 'yrka'] = 'ph'
+ph.loc[:, 'yrke'] = 'ph'
 
 py = pd.DataFrame()
 py['oppfag'] = innles['py']
-py.loc[:, 'yrka'] = 'py'
+py.loc[:, 'yrke'] = 'py'
 
 opptak = pd.concat([ba, gr, fa, ph, py])
 
@@ -181,7 +181,7 @@ plussakt = pd.read_fwf(inplu,
 nystud1 = pd.read_fwf(nystu,
                       header=None,
                       delimiter=" ",
-                      names=["yrka", "alder", "st", "stm", "stk"])
+                      names=["yrke", "alder", "st", "stm", "stk"])
 
 nystud1['kjonn'] = 1
 nystud1['st_ald'] = nystud1.stm
@@ -189,7 +189,7 @@ nystud1['st_ald'] = nystud1.stm
 nystud2 = pd.read_fwf(nystu,
                       header=None,
                       delimiter=" ",
-                      names=["yrka", "alder", "st", "stm", "stk"])
+                      names=["yrke", "alder", "st", "stm", "stk"])
 
 nystud2['kjonn'] = 2
 nystud2['st_ald'] = nystud2.stk
@@ -259,14 +259,14 @@ arsvesp = pd.DataFrame()
 arsvesp = pd.read_fwf(aarsv,
                       header=None,
                       delimiter=" ",
-                      names=["yrka", "ar1", "ar2", "ar3", "ar4", "ar5", "ar6"])
+                      names=["yrke", "ar1", "ar2", "ar3", "ar4", "ar5", "ar6"])
 
 vakesp = pd.DataFrame()
 
 vakesp = pd.read_fwf(vak,
                      header=None,
                      delimiter=" ",
-                     names=["yrka", "vak1", "vak2", "vak3", "vak4", "vak5", "vak6"])
+                     names=["yrke", "vak1", "vak2", "vak3", "vak4", "vak5", "vak6"])
 
 # ********************************************************
 # PROSENTVIS ENDRING I ANTALL ELEVER pr. 1000 INNBYGGERE
@@ -720,14 +720,14 @@ arsv = pd.concat([arsv2, arsv3, arsv4, arsv5, arsv6])
 opptak = opptak.reset_index()
 opptak = opptak[opptak['aar'] > basaar]
 
-kandtot = opptak.merge(gjfoer, how='inner', on='yrka')
+kandtot = opptak.merge(gjfoer, how='inner', on='yrke')
 
 kandtot["uteks"] = kandtot.oppfag * kandtot.fullfor
 
 #kandtot['uteks'] = kandtot.apply(lambda row: kandtot.oppfag * kandtot.fullfor if row['aar'] == '2030'
 #                             else kandtot.oppfag * kandtot.fullfor, axis=1)
 
-kandtot = kandtot.set_index(['yrka'])
+kandtot = kandtot.set_index(['yrke'])
 
 """
 %MACRO nykand;
@@ -745,9 +745,9 @@ kandtot = kandtot.set_index(['yrka'])
 
         IF aar GE (&basaar + 1) AND aar LE &simslutt;
 """
-nystud = nystud.set_index(['yrka'])
+nystud = nystud.set_index(['yrke'])
 
-kand_ald = nystud.merge(kandtot, how='inner', on=['yrka'])
+kand_ald = nystud.merge(kandtot, how='inner', on=['yrke'])
 
 kand_ald["alder"] = kand_ald.alder + kand_ald.norm
 kand_ald["eks_ald"] = kand_ald.uteks * kand_ald.st_ald
@@ -833,20 +833,48 @@ beh_paar = beh_pers.copy()
 
 fett = beh_pers.copy()
 fett.alder += 1
-fett.rename(columns={"yrke": "yrka"},
-                inplace=True)
 
-print(fett)
+
 kand_aar = kandidater
 kand_aar = kand_aar[kand_aar['aar'] == 2021]
-print(kand_aar)
 
-kult = fett.merge(kand_aar, how='outer', on=['yrka', 'kjonn', 'alder'])
+
+kult = fett.merge(kand_aar, how='outer', on=['yrke', 'kjonn', 'alder'])
+kult['pers'] = kult['pers'].fillna(0)
+kult['eks_ald'] = kult['eks_ald'].fillna(0)
+
 kult.pers = kult.pers + kult.eks_ald
 kult['aar'] = 2021
-slutt = kult[['yrka', 'kjonn', 'alder', 'pers', 'aar']]
-beh_paar = beh_paar + slutt
-print(beh_paar)
+slutt = kult[['yrke', 'kjonn', 'alder', 'pers', 'arsv', 'aar']]
+beh_paar = pd.concat([beh_paar, slutt])
+beh_paar.sort_values(by=['yrke', 'kjonn', 'alder'], inplace=True)
+
+
+for x in range(2022, 2041):
+    fett = beh_paar.copy()
+    fett = fett[fett['aar'] == x-1]
+    fett.alder += 1
+
+
+    kand_aar = kandidater
+    kand_aar = kand_aar[kand_aar['aar'] == x]
+
+
+    kult = fett.merge(kand_aar, how='outer', on=['yrke', 'kjonn', 'alder'])
+
+    kult['pers'] = kult['pers'].fillna(0)
+    kult['eks_ald'] = kult['eks_ald'].fillna(0)
+
+    kult.pers = kult.pers + kult.eks_ald
+    kult['aar'] = x
+    slutt = kult[['yrke', 'kjonn', 'alder', 'pers', 'arsv', 'aar']]
+    beh_paar = pd.concat([beh_paar, slutt])
+    beh_paar.sort_values(by=['yrke', 'kjonn', 'alder'], inplace=True)
+
+
+
+#beh_paar = beh_paar[beh_paar['yrke'] == 'ba']
+#print(beh_paar.to_string())
 """
 beh_pers.rename(columns={"yrke": "yrka"},
                 inplace=True)
@@ -898,14 +926,14 @@ beh_paar = beh_paar[beh_paar['aar'] == 2021]
 #         årsverkstilbudet ut fra mønsteret i yrkesdeltakelsen
 #         og eventuell eksogen økning i yrkesdeltakelsen.
 # ************************************************************
-"""
-tilb = beh_pers.merge(beh_syss, how='outer', on=['yrke', 'kjonn', 'alder'])
+
+tilb = beh_paar.merge(beh_syss, how='outer', on=['yrke', 'kjonn', 'alder'])
 
 tilb['aarsverk'] = tilb.pers * tilb.syssand * tilb.garsv #* pluss;
 
-tilb = tilb.groupby(['yrke']).sum()
-"""
-#print(tilb)
+tilb = tilb.groupby(['yrke', 'aar']).sum()
+
+print(tilb.to_string())
 """
 %MACRO tilbud;
 
