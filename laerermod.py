@@ -20,6 +20,7 @@ import pandas as pd
 import beholdning
 import demografi
 
+
 """
 beholdning.lag_tabse_syss()
 beholdning.lag_o1_syss()
@@ -871,56 +872,6 @@ for x in range(2022, 2041):
     beh_paar = pd.concat([beh_paar, slutt])
     beh_paar.sort_values(by=['yrke', 'kjonn', 'alder'], inplace=True)
 
-
-
-#beh_paar = beh_paar[beh_paar['yrke'] == 'ba']
-#print(beh_paar.to_string())
-"""
-beh_pers.rename(columns={"yrke": "yrka"},
-                inplace=True)
-
-beh_paar = beh_pers.merge(kand_aar, how='outer', on=['yrka', 'kjonn', 'alder'])
-
-beh_paar = beh_paar[beh_paar['aar'] == 2021]
-"""
-"""
-
-%MACRO nybehold;
-
-    %DO aarn = %EVAL(&basaar + 1) %TO &simslutt;
-
-        DATA kand_aar;
-            SET kandidater;
-            IF aar = &aarn;
-
-        DATA beh_paar(DROP = aar);
-            SET beh_pers;
-            IF aar = &aarn - 1;
-
-            alder = alder + 1;
-            IF alder LE 74;
-
-        /* Rutine som sikrer at hele aldersskalaen fylles ut før MERGE med tilvekst */
-        DATA beh_paar(DROP = pluss);
-            MERGE beh_paar (IN = A) plussakt (IN = B);
-            BY yrka kj alder;
-            IF B;
-            IF NOT A THEN
-                                                   pers = 0;
-
-        DATA beh_paar(KEEP = yrka aar kj alder pers eks_ald);
-            MERGE beh_paar kand_aar;
-            BY yrka kj alder;
-
-            pers = pers + eks_ald;
-
-        DATA beh_pers;
-            SET beh_pers beh_paar;
-
-    %END;
-
-%MEND nybehold;
-"""
 # ************************************************************
 # TILBUD: Beregner
 #         årsverkstilbudet ut fra mønsteret i yrkesdeltakelsen
@@ -933,48 +884,18 @@ tilb['aarsverk'] = tilb.pers * tilb.syssand * tilb.garsv #* pluss;
 
 tilb = tilb.groupby(['yrke', 'aar']).sum()
 
-print(tilb.to_string())
+# tilb = tilb.reset_index()
+
+tilb = tilb.drop(['kjonn', 'alder', 'pers', 'arsv', 'syssand', 'garsv'], axis=1)
+
+print('Dette er TILBUDET:')
+print('')
+print(tilb['aarsverk'].to_string(index=True))
+
+tilb.to_csv("resultater/Tilbud.csv")
+tilb.to_excel("resultater/Tilbud.xlsx")
+
 """
-%MACRO tilbud;
-
-    PROC SORT DATA = beh_syss;
-        BY yrka kj alder;
-
-    DATA beh_syss;
-        MERGE beh_syss(IN = A) plussakt(IN = B);
-        BY yrka kj alder;
-        IF B;
-        IF NOT A THEN
-                                   syss_and = 0;
-        IF NOT A THEN
-                                   garsv = 0;
-
-    PROC SORT DATA = beh_pers;
-        BY yrka kj alder aar;
-
-    DATA tilb;
-        MERGE beh_pers beh_syss(IN = B);
-        BY yrka kj alder;
-
-        aarsv = pers * syss_and * garsv * pluss;
-
-        IF aar > &basaar THEN
-                                   aarsv = aarsv * &arbtid;
-
-    PROC SORT DATA = tilb;
-        BY yrka aar;
-
-    PROC SUMMARY DATA = tilb;
-        CLASS yrka aar;
-        VAR aarsv;
-        OUTPUT OUT = tilb SUM = aarsv;
-
-    DATA tilb(keep = yrka aar aarsv);
-        SET tilb;
-        IF aar GT 0 AND yrka GT '  ';
-
-%MEND tilbud;
-
 /******************************************************************/
 /*                                                                */
 /*  TILB-ESP: Sluttproduktet fra simuleringen.                    */
