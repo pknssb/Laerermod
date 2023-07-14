@@ -16,30 +16,12 @@ print('/********************************************************************/')
 print()
 
 import pandas as pd
+from functools import reduce
 
 import beholdning
 import demografi
 
 
-"""
-beholdning.lag_tabse_syss()
-beholdning.lag_o1_syss()
-"""
-
-"""
-/* Deklarasjon av globale variable */
-%global basaar simslutt subst subaarst subaarsl vakaar befvekst arbtid estudpln
-priobarn priofosk priogrsk priovisk priouhsk prioansk prioutsk yrke
-oekstba oekstgr oekstvi oekstun oekstan oekstut
-oekslba oekslgr oekslvi oekslun oekslan oekslut;
-
-/* HOVEDVALG FORUT FOR KJØRINGEN   */
-%let yrke = alle; /* Utdanningstype. Alternativt, skriv "alle" for å */
-                  /* oppnå fremskrivinger av alle de 5 gruppene      */
-
-%LET subst = 0;   /* Det skal gjøres beregning med forutsetning om  */
-                  /* substitusjon mellom grupper                    */
-"""
 basaar = 2020
 simslutt = 2040
 
@@ -66,24 +48,21 @@ aarsv = 'utdata/aarsverk.dat'
 nystu = 'utdata/nye_studenter.dat'
 
 # Filer produsert av demografi.sas
-dem1 = 'utdata/barnehage.dat';
+dem1 = 'inndata/barnehage.dat';
 dem2 = 'inndata/grunnskole.dat';
 dem5 = 'inndata/andre_skoler.dat';
 dem6 = 'inndata/andre_skoler.dat';
 
+# Resultatfiler
+resultba = 'resultater/ba'
+resultgr = 'resultater/gr'
+resultfa = 'resultater/fa'
+resultph = 'resultater/ph'
+resultpy = 'resultater/py'
+resultla = 'resultater/la'
 
+o1 = 'resultater/samle'
 """
-/********************************************************************/
-
-filename resultba "/ssb/stamme02/laermod/wk48/g2021/resultater/referansebane/ba";
-filename resultgr "/ssb/stamme02/laermod/wk48/g2021/resultater/referansebane/gr";
-filename resultfa "/ssb/stamme02/laermod/wk48/g2021/resultater/referansebane/fa";
-filename resultph "/ssb/stamme02/laermod/wk48/g2021/resultater/referansebane/ph";
-filename resultpy "/ssb/stamme02/laermod/wk48/g2021/resultater/referansebane/py";
-filename resultla "/ssb/stamme02/laermod/wk48/g2021/resultater/referansebane/la";
-
-filename o1       "/ssb/stamme02/laermod/wk48/g2021/resultater/referansebane/samle";
-
 /********************************************************************/
 
 %let arbtid = 1.0;   /* arbtid = 1.1 betyr 10 prosent økt arbeidstid  */
@@ -269,6 +248,8 @@ vakesp = pd.read_fwf(vak,
                      delimiter=" ",
                      names=["yrke", "vak1", "vak2", "vak3", "vak4", "vak5", "vak6"])
 
+vakesp = vakesp[vakesp['yrke'] != 'sp']
+
 # ********************************************************
 # PROSENTVIS ENDRING I ANTALL ELEVER pr. 1000 INNBYGGERE
 # ved de ulike aktivitetsområdene over simuleringsperioden
@@ -298,6 +279,24 @@ stand = stand[stand['aar'] <= simslutt]
 filnavn = ['dem1', 'dem2', 'dem3', 'dem4', 'dem5', 'dem6']
 aldersnavn = ['ald1', 'ald2', 'ald3', 'ald4', 'ald5', 'ald6']
 demografinavn = ['demo1', 'demo2', 'demo3', 'demo4', 'demo5', 'dem6']
+
+ald1 = pd.DataFrame(columns=['ald2', 'alder'])
+
+for x in range(0, 1):
+    nyrad = {'ald2': 0, 'alder': x}
+    ald1.loc[len(ald1)] = nyrad
+
+for x in range(1, 3):
+    nyrad = {'ald2': 2, 'alder': x}
+    ald1.loc[len(ald1)] = nyrad
+
+for x in range(3, 4):
+    nyrad = {'ald2': 3, 'alder': x}
+    ald1.loc[len(ald1)] = nyrad
+
+for x in range(4, 6):
+    nyrad = {'ald2': 5, 'alder': x}
+    ald1.loc[len(ald1)] = nyrad
 
 ald2 = pd.DataFrame(columns=['ald2', 'alder'])
 
@@ -353,6 +352,12 @@ for x in range(0, 100):
     nyrad = {'ald2': 99, 'alder': x}
     ald6.loc[len(ald6)] = nyrad
 
+kolonneposisjoner = [(0, 2), (4, 6), (7, 16), (17, 22), (23, 25)]
+kolonnenavn = ['ald1', 'ald2', 'br', 'bri', 'antaar']
+
+demo1 = pd.read_fwf(dem1, colspecs=kolonneposisjoner, header=None)
+demo1.columns = kolonnenavn
+
 demo2 = pd.DataFrame()
 
 demo2 = pd.read_fwf(dem2,
@@ -363,23 +368,6 @@ demo2 = pd.read_fwf(dem2,
                            "br",
                            "bri",
                            "antaar"])
-"""
-demo2 = pd.read_csv(dem2,
-                    engine='python',
-                    header=None,
-                    delimiter=r'[\t:;: ]',
-                    names=['ald1',
-                           'ald2',
-                           'br',
-                           'bri',
-                           'antaar'],
-                    usecols=[0, 1, 2, 4, 5],
-                    dtype={'ald1': 'int',
-                           'ald2': 'int',
-                           'br': 'float',
-                           'bri': 'float',
-                           'antaar': 'int'})
-"""
 
 demo3 = pd.DataFrame()
 
@@ -416,39 +404,19 @@ demo6 = pd.read_fwf(dem6,
                            "bri",
                            "antaar"])
 
-
-"""
-
-
-%MACRO lesd(n);
-
-    DATA demo&n(KEEP=ald1 ald2 br bri antaar dg1 - dg6)
-         ald&n(keep=ald1 ald2);
-        INFILE dem&n;
-        INPUT ald1 1-2 ald2 4-5 @7(br)(8.) (bri)(8.4) antaar 19 @;
-
-        IF antaar GT 0 THEN DO;
-            ARRAY dg (6) dg1 - dg6;
-
-                        DO i = 1 TO antaar;
-                INPUT (dg(i))(7.4) @;
-            END;
-        END;
-
-%MEND lesd;
-
-%MACRO styr_les;
-
-    %DO n = 1 %TO 6;
-        %lesd(&n)
-    %END;
-
-%MEND styr_les;
-"""
 # ************************************************
 # LAGER ALDERSAGGREGATER av befolkningsfilen etter
 # gruppering i den aktuelle etterspørselsfil
 # ************************************************
+
+bef1 = pd.DataFrame()
+
+bef1 = ald1.merge(bef, how='inner', on='alder')
+
+bef1 = bef1.groupby(["ald2"]).sum()
+
+bef1.drop(['alder'], axis=1, inplace=True)
+bef1.drop(['kjonn'], axis=1, inplace=True)
 
 bef2 = pd.DataFrame()
 
@@ -495,6 +463,20 @@ bef6 = bef6.groupby(["ald2"]).sum()
 bef6.drop(['alder'], axis=1, inplace=True)
 bef6.drop(['kjonn'], axis=1, inplace=True)
 
+demo1 = demo1.set_index(['ald2'])
+
+for x in range(2020, 2041):
+    demo1['agr' + str(x)] = bef1['a' + str(x)]
+
+demo1['pg2020'] = demo1.br * demo1.bri
+
+for x in range(2021, 2041):
+    demo1['pg' + str(x)] = demo1['pg' + str(x-1)] * (bef1['a' + str(x)] / bef1['a' + str(x-1)])
+
+demo1['mg2020'] = demo1.br * demo1.bri
+
+for x in range(2021, 2041):
+    demo1['mg' + str(x)] = demo1['mg' + str(x-1)] * (bef1['a' + str(x)] / bef1['a' + str(x-1)])
 
 demo2 = demo2.set_index(['ald2'])
 
@@ -558,6 +540,7 @@ for x in range(2021, 2041):
 
 demo6 = demo5
 
+demos1 = pd.DataFrame()
 demos2 = pd.DataFrame()
 demos3 = pd.DataFrame()
 demos4 = pd.DataFrame()
@@ -565,6 +548,10 @@ demos5 = pd.DataFrame()
 demos6 = pd.DataFrame()
 
 for x in range(2020, 2041):
+    demos1['agrs' + str(x)] = [demo1['agr' + str(x)].sum()]
+    demos1['pgs' + str(x)] = [demo1['pg' + str(x)].sum()]
+    demos1['mgs' + str(x)] = [demo1['mg' + str(x)].sum()]
+
     demos2['agrs' + str(x)] = [demo2['agr' + str(x)].sum()]
     demos2['pgs' + str(x)] = [demo2['pg' + str(x)].sum()]
     demos2['mgs' + str(x)] = [demo2['mg' + str(x)].sum()]
@@ -585,6 +572,10 @@ for x in range(2020, 2041):
     demos6['pgs' + str(x)] = [demo6['pg' + str(x)].sum()]
     demos6['mgs' + str(x)] = [demo6['mg' + str(x)].sum()]
 
+x = demos1.pgs2020.loc[0]
+demy1 = pd.DataFrame({'gruppe': ['ba', 'gr', 'fa', 'ph', 'py'],
+                      'brind': [x, x, x, x, x]})
+
 x = demos2.pgs2020.loc[0]
 demy2 = pd.DataFrame({'gruppe': ['ba', 'gr', 'fa', 'ph', 'py'],
                       'brind': [x, x, x, x, x]})
@@ -604,6 +595,13 @@ demy5 = pd.DataFrame({'gruppe': ['ba', 'gr', 'fa', 'ph', 'py'],
 x = demos6.pgs2020.loc[0]
 demy6 = pd.DataFrame({'gruppe': ['ba', 'gr', 'fa', 'ph', 'py'],
                       'brind': [x, x, x, x, x]})
+
+arsv1 = pd.DataFrame()
+
+arsv1 = demy1
+
+arsv1['ar'] = arsvesp.ar2
+arsv1['stdrd'] = arsv1['ar'] / arsv1['brind']
 
 arsv2 = pd.DataFrame()
 
@@ -639,6 +637,16 @@ arsv6 = demy6
 
 arsv6['ar'] = arsvesp.ar6
 arsv6['stdrd'] = arsv6['ar'] / arsv6['brind']
+
+demaar1 = pd.DataFrame({"aar": [2020], "dm1": [1], "dp1": [1], "dem1": demos1['agrs2020']})
+
+for x in range(2021, 2041):
+    nyrad = pd.DataFrame({"aar": x,
+                          "dm1": demos1['mgs' + str(x)] / demos1['mgs2020'],
+                          "dp1": (demos1['pgs' + str(x)] / demos1['pgs2020']) / 
+                                 (demos1['mgs' + str(x)] / demos1['mgs2020']),
+                          "dem1": demos1['agrs' + str(x)]})
+    demaar1 = pd.concat([demaar1, nyrad], ignore_index=True)
 
 demaar2 = pd.DataFrame({"aar": [2020], "dm2": [1], "dp2": [1], "dem2": demos2['agrs2020']})
 
@@ -696,13 +704,15 @@ for x in range(2021, 2041):
 # etter tjenester
 # ******************************************************
 
-dmindeks = stand.merge(demaar2, how='inner', on='aar')
+dmindeks = stand.merge(demaar1, how='inner', on='aar')
+dmindeks = dmindeks.merge(demaar2, how='inner', on='aar')
 dmindeks = dmindeks.merge(demaar3, how='inner', on='aar')
 dmindeks = dmindeks.merge(demaar4, how='inner', on='aar')
 dmindeks = dmindeks.merge(demaar5, how='inner', on='aar')
 dmindeks = dmindeks.merge(demaar6, how='inner', on='aar')
 
-dmindeks.rename(columns={"ds2": "grskplus",
+dmindeks.rename(columns={"ds1": "barnplus",
+                         "ds2": "grskplus",
                          "ds3": "viskplus",
                          "ds4": "uhskplus",
                          "ds5": "anskplus",
@@ -711,7 +721,7 @@ dmindeks.rename(columns={"ds2": "grskplus",
 
 dmindeks['totm'] = dmindeks.dem6
 
-arsv = pd.concat([arsv2, arsv3, arsv4, arsv5, arsv6])
+arsv = pd.concat([arsv1, arsv2, arsv3, arsv4, arsv5, arsv6])
 
 # ******************************************************************
 # NYKAND: Beregner antall uteksaminerte studenter over sim.perioden.
@@ -835,10 +845,8 @@ beh_paar = beh_pers.copy()
 fett = beh_pers.copy()
 fett.alder += 1
 
-
 kand_aar = kandidater
 kand_aar = kand_aar[kand_aar['aar'] == 2021]
-
 
 kult = fett.merge(kand_aar, how='outer', on=['yrke', 'kjonn', 'alder'])
 kult['pers'] = kult['pers'].fillna(0)
@@ -856,11 +864,9 @@ for x in range(2022, 2041):
     fett = fett[fett['aar'] == x-1]
     fett.alder += 1
 
-
     kand_aar = kandidater
     kand_aar = kand_aar[kand_aar['aar'] == x]
-
-
+    
     kult = fett.merge(kand_aar, how='outer', on=['yrke', 'kjonn', 'alder'])
 
     kult['pers'] = kult['pers'].fillna(0)
@@ -888,85 +894,64 @@ tilb = tilb.groupby(['yrke', 'aar']).sum()
 
 tilb = tilb.drop(['kjonn', 'alder', 'pers', 'arsv', 'syssand', 'garsv'], axis=1)
 
-print('Dette er TILBUDET:')
-print('')
-print(tilb['aarsverk'].to_string(index=True))
+#print('Dette er TILBUDET:')
+#print('')
+#print(tilb['aarsverk'].to_string(index=True))
 
 tilb.to_csv("resultater/Tilbud.csv")
 tilb.to_excel("resultater/Tilbud.xlsx")
 
+# ******************************************
+# TILB-ESP: Sluttproduktet fra simuleringen.
+# ******************************************
+
+dmindeks['yrke'] = 'ba'
+ind1 = dmindeks.copy()
+dmindeks['yrke'] = 'gr'
+ind2 = dmindeks.copy()
+dmindeks['yrke'] = 'fa'
+ind3 = dmindeks.copy()
+dmindeks['yrke'] = 'ph'
+ind4 = dmindeks.copy()
+dmindeks['yrke'] = 'py'
+ind5 = dmindeks.copy()
+
+ind = pd.concat([ind1, ind2, ind3, ind4, ind5])
+ind = ind.reset_index()
+
+data_frames = [ind, arsvesp, vakesp]
+#esp = pd.DataFrame()
+esp = reduce(lambda left, right: pd.merge(left, right, on=['yrke'],
+                                          how='outer'), data_frames)
+
+esp = esp.reset_index()
+esp = esp.set_index(['yrke', 'aar'])
+
+esp['epd1'] = (esp.ar1 + esp.vak1) * esp.dm1 #* esp.ds2 * esp.pr2
+esp['ep1'] = (esp.ar1 + esp.vak1) * esp.dm1 #* esp.ds2 * esp.pr2
+esp['epd2'] = (esp.ar2 + esp.vak2) * esp.dm2 #* esp.ds2 * esp.pr2
+esp['ep2'] = (esp.ar2 + esp.vak2) * esp.dm2 #* esp.ds2 * esp.pr2
+esp['epd3'] = (esp.ar3 + esp.vak3) * esp.dm3 #* esp.ds2 * esp.pr2
+esp['ep3'] = (esp.ar3 + esp.vak3) * esp.dm3 #* esp.ds2 * esp.pr2
+esp['epd4'] = (esp.ar4 + esp.vak4) * esp.dm4 #* esp.ds2 * esp.pr2
+esp['ep4'] = (esp.ar4 + esp.vak4) * esp.dm4 #* esp.ds2 * esp.pr2
+esp['epd5'] = (esp.ar5 + esp.vak5) * esp.dm5 #* esp.ds2 * esp.pr2
+esp['ep5'] = (esp.ar5 + esp.vak5) * esp.dm5 #* esp.ds2 * esp.pr2
+esp['epd6'] = (esp.ar6 + esp.vak6) * esp.dm6 #* esp.ds2 * esp.pr2
+esp['ep6'] = (esp.ar6 + esp.vak6) * esp.dm6 #* esp.ds2 * esp.pr2
+
+esp['espd'] = esp['epd1'] + esp['epd2'] + esp['epd3'] + esp['epd4'] + esp['epd5'] + esp['epd6']
+esp['esp'] = esp['ep1'] + esp['ep2'] + esp['ep3'] + esp['ep4'] + esp['ep5'] + esp['ep6']
+esp['vaksum'] = esp['vak1'] + esp['vak2'] + esp['vak3'] + esp['vak4'] + esp['vak5'] + esp['vak6']
+esp['asum'] = esp['ar1'] + esp['ar2'] + esp['ar3'] + esp['ar4'] + esp['ar5'] + esp['ar6']
+
+tl_esp = tilb.merge(esp, how='outer', on=['yrke', 'aar'])
+t_e = tilb.merge(esp, how='outer', on=['yrke', 'aar'])
+esp_sk0 = tilb.merge(esp, how='outer', on=['yrke', 'aar'])
+
+t_e['vakans'] = t_e.aarsverk - t_e.espd
+
 """
-/******************************************************************/
-/*                                                                */
-/*  TILB-ESP: Sluttproduktet fra simuleringen.                    */
-/*                                                                */
-/******************************************************************/
-%MACRO espbasis;
-
-    DATA ind;
-        MERGE dmindeks laerebnp;
-        BY aar;
-
-    DATA ind(KEEP = yrka aar dm1 - dm6 dp1 - dp6 ds1 - ds6 pr1 - pr6);
-        SET ind;
-
-        DO i = 1 TO 5;
-            IF i = 1 THEN
-                                                   yrka = 'ba';
-            ELSE IF i = 2 THEN
-                                                   yrka = 'gr';
-            ELSE IF i = 3 THEN
-                                                   yrka = 'fa';
-            ELSE IF i = 4 THEN
-                                                   yrka = 'ph';
-                                               ELSE IF i = 5 THEN
-                                                   yrka = 'py';
-
-                        OUTPUT ind;
-        END;
-
-    PROC SORT DATA = ind;
-        BY yrka aar;
-
-    DATA esp;
-        MERGE ind arsvesp vakesp;
-        BY yrka;
-
-    DATA esp;
-        SET esp;
-        BY yrka;
-
-        ARRAY dm(6) dm1 - dm6;
-        ARRAY dp(6) dp1 - dp6;
-        ARRAY ds(6) ds1 - ds6;
-        ARRAY pr(6) pr1 - pr6;
-        ARRAY ar(6) ar1 - ar6;
-        ARRAY vaks(6) vaks1 - vaks6;
-        ARRAY epd(6) epd1 - epd6;
-        ARRAY ep(6) ep1 - ep6;
-
-        esp = 0;
-        espd = 0;
-        vaksum = 0;
-        asum = 0;
-
-        DO i = 1 TO 6;
-            epd(i) = (ar(i) + vaks(i)) * dm(i) * ds(i) * pr(i); /* dp(i) */
-                                   ep(i) = (ar(i) + vaks(i)) * dm(i) * ds(i) * pr(i);  /* dp(i) */
-
-                        espd = espd + epd(i);
-            esp = esp + ep(i);
-            vaksum = vaksum + vaks(i);
-            asum = asum + ar(i);
-        END;
-
-    DATA tl_esp
-         t_e(KEEP = yrka aar esp espd aarsv vakans)
-         esp_sk0(KEEP = aar yrka ep1 - ep6 epd1 - epd6);
-        MERGE tilb esp;
-        BY yrka aar;
-
-        vakans = aarsv - espd;
 
     %IF &vakaar GT &basaar AND (&subst = 0 OR &vakaar < &subaarst) %THEN %DO;
         DATA estl&vakaar(KEEP = yrka aar vakans va esp espk espd espdk
@@ -1046,28 +1031,18 @@ tilb.to_excel("resultater/Tilbud.xlsx")
     %END;
 
 %MEND espbasis;
+"""
 
-%MACRO summlaer;
+t_es = t_e.groupby(['aar']).sum()
 
-    PROC SORT DATA = t_e;
-        BY aar;
+t_es = t_es[['espd', 'esp', 'aarsverk', 'vakans']]
 
-    PROC SUMMARY DATA = t_e;
-        CLASS aar;
-        VAR espd esp aarsv vakans;
+t_e = t_e.reset_index()
+t_e = t_e[t_e['yrke'] == 'ba']
+print(t_e)
+tilb.to_csv(resultba)
+"""
 
-        OUTPUT OUT = t_es SUM = espd esp aarsv vakans;
-
-    DATA t_es(KEEP = yrka aar espd esp aarsv vakans);
-        SET t_es;
-        IF aar GT 0;
-
-        yrka = 'la';
-
-    DATA t_e;
-        SET t_e t_es;
-
-%MEND summlaer;
 
 %MACRO skriv_laer;
 
@@ -1237,23 +1212,6 @@ tilb.to_excel("resultater/Tilbud.xlsx")
        END;
 
 %MEND samle_samle;
-"""
-#lesinn()
-#styr_les()
-#aggre()
-
-"""
-
-%nykand
-%nybehold
-%tilbud
-%espbasis
-
-%summlaer
-%velgskr
-
-%styr_samle
-%samle_samle
 
 """
 
