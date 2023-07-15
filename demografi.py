@@ -210,7 +210,7 @@ barnr.to_csv(b1,
                       'ans2',
                       'antaar'],
              float_format='%.10f',
-             sep=' ',
+             sep=';',
              header=False,
              index=False)
 

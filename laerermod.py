@@ -48,20 +48,20 @@ aarsv = 'utdata/aarsverk.dat'
 nystu = 'utdata/nye_studenter.dat'
 
 # Filer produsert av demografi.sas
-dem1 = 'inndata/barnehage.dat';
+dem1 = 'utdata/barnehage.dat';
 dem2 = 'inndata/grunnskole.dat';
 dem5 = 'inndata/andre_skoler.dat';
 dem6 = 'inndata/andre_skoler.dat';
 
 # Resultatfiler
-resultba = 'resultater/ba'
-resultgr = 'resultater/gr'
-resultfa = 'resultater/fa'
-resultph = 'resultater/ph'
-resultpy = 'resultater/py'
-resultla = 'resultater/la'
+resultba = 'resultater/ba.csv'
+resultgr = 'resultater/gr.csv'
+resultfa = 'resultater/fa.csv'
+resultph = 'resultater/ph.csv'
+resultpy = 'resultater/py.csv'
+resultla = 'resultater/la.csv'
 
-o1 = 'resultater/samle'
+o1 = 'resultater/samle.csv'
 """
 /********************************************************************/
 
@@ -250,6 +250,8 @@ vakesp = pd.read_fwf(vak,
 
 vakesp = vakesp[vakesp['yrke'] != 'sp']
 
+print(vakesp)
+
 # ********************************************************
 # PROSENTVIS ENDRING I ANTALL ELEVER pr. 1000 INNBYGGERE
 # ved de ulike aktivitetsområdene over simuleringsperioden
@@ -355,9 +357,31 @@ for x in range(0, 100):
 kolonneposisjoner = [(0, 2), (4, 6), (7, 16), (17, 22), (23, 25)]
 kolonnenavn = ['ald1', 'ald2', 'br', 'bri', 'antaar']
 
-demo1 = pd.read_fwf(dem1, colspecs=kolonneposisjoner, header=None)
-demo1.columns = kolonnenavn
-
+#demo1 = pd.read_fwf(dem1, colspecs=kolonneposisjoner, header=None)
+demo1 = pd.read_csv(dem1,
+                       header=None,
+                       delimiter=r";",
+                       names=['ald1',
+                              'ald2',
+                              'agr2020',
+                              'agr2021',
+                              'br', # BU
+                              'bri',
+                              'ans1',
+                              'ans2',
+                              'antaar'],
+                       usecols=list(range(9)),
+                       dtype={'ald1': 'int',
+                              'ald2': 'int',
+                              'agr2020': 'int',
+                              'agr2021': 'int',
+                              'br': 'int',
+                              'bri': 'float',
+                              'ans1': 'float',
+                              'ans2': 'float',
+                              'antaar': 'int'})
+#demo1.columns = kolonnenavn
+print(demo1)
 demo2 = pd.DataFrame()
 
 demo2 = pd.read_fwf(dem2,
@@ -368,7 +392,7 @@ demo2 = pd.read_fwf(dem2,
                            "br",
                            "bri",
                            "antaar"])
-
+print(demo2)
 demo3 = pd.DataFrame()
 
 kolonneposisjoner = [(0, 2), (3, 5), (6, 14), (15, 18), (19, 20)]
@@ -866,7 +890,7 @@ for x in range(2022, 2041):
 
     kand_aar = kandidater
     kand_aar = kand_aar[kand_aar['aar'] == x]
-    
+
     kult = fett.merge(kand_aar, how='outer', on=['yrke', 'kjonn', 'alder'])
 
     kult['pers'] = kult['pers'].fillna(0)
@@ -945,10 +969,10 @@ esp['esp'] = esp['ep1'] + esp['ep2'] + esp['ep3'] + esp['ep4'] + esp['ep5'] + es
 esp['vaksum'] = esp['vak1'] + esp['vak2'] + esp['vak3'] + esp['vak4'] + esp['vak5'] + esp['vak6']
 esp['asum'] = esp['ar1'] + esp['ar2'] + esp['ar3'] + esp['ar4'] + esp['ar5'] + esp['ar6']
 
-tl_esp = tilb.merge(esp, how='outer', on=['yrke', 'aar'])
+#tl_esp = tilb.merge(esp, how='outer', on=['yrke', 'aar'])
 t_e = tilb.merge(esp, how='outer', on=['yrke', 'aar'])
-esp_sk0 = tilb.merge(esp, how='outer', on=['yrke', 'aar'])
-
+#esp_sk0 = tilb.merge(esp, how='outer', on=['yrke', 'aar'])
+print(t_e.esp.to_string())
 t_e['vakans'] = t_e.aarsverk - t_e.espd
 
 """
@@ -1033,17 +1057,31 @@ t_e['vakans'] = t_e.aarsverk - t_e.espd
 %MEND espbasis;
 """
 
-t_es = t_e.groupby(['aar']).sum()
+# t_e = t_e.groupby(['aar']).sum()
 
-t_es = t_es[['espd', 'esp', 'aarsverk', 'vakans']]
-
-t_e = t_e.reset_index()
-t_e = t_e[t_e['yrke'] == 'ba']
+t_e = t_e[['aarsverk', 'esp', 'vakans']]
 print(t_e)
-tilb.to_csv(resultba)
+# t_e = t_e.reset_index()
+
+#t_e = t_e[t_e['yrke'] == 'ba']
+t_e.ba.to_csv(resultba)
+
+t_e = t_e[t_e['yrke'] == 'gr']
+t_e.to_csv(resultgr)
+
+t_e = t_e[t_e['yrke'] == 'fa']
+t_e.to_csv(resultfa)
+
+t_e = t_e[t_e['yrke'] == 'ph']
+t_e.to_csv(resultph)
+
+t_e = t_e[t_e['yrke'] == 'py']
+t_e.to_csv(resultpy)
+
+t_e = t_e[t_e['yrke'] == 'la']
+t_e.to_csv(resultla)
+
 """
-
-
 %MACRO skriv_laer;
 
     DATA skriv;
