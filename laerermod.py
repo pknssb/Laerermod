@@ -1,6 +1,10 @@
 import pandas as pd
 from functools import reduce
 
+import time
+
+starttid = time.time()
+
 import beholdning
 import demografi
 
@@ -9,7 +13,6 @@ print()
 print('Velkommen til Python-versjonen av Lærermod!')
 print()
 
-print()
 print('/********************************************************************/')
 print('/********************************************************************/')
 print('/* Modellen LÆRERMOD beregner tilbud av og etterspørsel etter       */')
@@ -23,13 +26,8 @@ print('/********************************************************************/')
 print()
 
 
-basaar = 2020
-simslutt = 2040
-
-subaarst = 2020
-subaarsl = 2020
-
-vakaar = 2020
+basisaar = 2020
+sluttaar = 2040
 
 
 innb = 'inndata/mmmm_2022.txt'
@@ -43,59 +41,16 @@ dem4 = 'inndata/antall_studenter_hoyereutdanning.txt'
 innpr = 'inndata/standard.txt'
 inplu = 'inndata/endring_timeverk.txt'
 
-# Filer produsert av beholdning.sas
+# Filer produsert av beholdning.py
 bhl = 'utdata/beholdning.dat'
 aarsv = 'utdata/aarsverk.dat'
 nystu = 'utdata/nye_studenter.dat'
 
-# Filer produsert av demografi.sas
+# Filer produsert av demografi.py
 dem1 = 'utdata/barnehage.dat'
 dem2 = 'inndata/grunnskole.dat'
 dem5 = 'inndata/andre_skoler.dat'
 dem6 = 'inndata/andre_skoler.dat'
-
-# Resultatfiler
-resultba = 'resultater/ba.csv'
-resultgr = 'resultater/gr.csv'
-resultfa = 'resultater/fa.csv'
-resultph = 'resultater/ph.csv'
-resultpy = 'resultater/py.csv'
-resultla = 'resultater/la.csv'
-
-o1 = 'resultater/samle.csv'
-
-"""
-/********************************************************************/
-
-%let arbtid = 1.0;   /* arbtid = 1.1 betyr 10 prosent økt arbeidstid  */
-%let estudpln = 1.0; /* Varig endring i studiekapasitet i Norge       */
-%let estudplu = 1.0; /* Varig endring i studiekapasitet i utlandet    */
-
-/* POLITISKE PRIORITERINGER angitt ved prosentvis stillingsvekst  */
-/* i et aktivitetsområde ved 1,0 prosent vekst i BNP pr. capita   */
-/* (Prio**** = 1.0000 betyr 1 prosent økning)                     */
-
-%LET priobarn = 1;
-%LET priogrsk = 1;
-%LET priovisk = 1;
-%LET priouhsk = 1;
-%LET prioansk = 1;
-%LET prioutsk = 1;
-
-%LET oekstba = 2020;
-%LET oekstgr = 2020;
-%LET oekstvi = 2020;
-%LET oekstun = 2020;
-%LET oekstan = 2020;
-%LET oekstut = 2020;
-
-%LET oekslba = 2020;
-%LET oekslgr = 2020;
-%LET oekslvi = 2020;
-%LET oekslun = 2020;
-%LET oekslan = 2020;
-%LET oekslut = 2020;
-"""
 
 # ********************
 # Innlesing av inndata
@@ -107,7 +62,6 @@ for x in range(1980, 2051):
     kolonnenavn = kolonnenavn + ["a" + str(x)]
 
 bef = pd.DataFrame()
-
 bef = pd.read_fwf(innb,
                   header=None,
                   delimiter=" ",
@@ -116,14 +70,12 @@ bef = pd.read_fwf(innb,
 bef.columns = kolonnenavn
 
 gjfoer = pd.DataFrame()
-
 gjfoer = pd.read_fwf(stkap,
                      header=None,
                      delimiter=" ",
                      names=["yrke", "norm", "fullfor", "fullfob"])
 
 innles = pd.DataFrame()
-
 innles = pd.read_fwf(oppta,
                      header=None,
                      delimiter=" ",
@@ -154,7 +106,6 @@ py.loc[:, 'yrke'] = 'py'
 opptak = pd.concat([ba, gr, fa, ph, py])
 
 plussakt = pd.DataFrame()
-
 plussakt = pd.read_fwf(inplu,
                        header=None,
                        delimiter=" ",
@@ -237,14 +188,12 @@ beh_syss.rename(columns={"yp": "syssand",
 beh_syss.drop(['pers', 'syss', 'tp', 'aavs'], axis=1, inplace=True)
 
 arsvesp = pd.DataFrame()
-
 arsvesp = pd.read_fwf(aarsv,
                       header=None,
                       delimiter=" ",
                       names=["yrke", "ar1", "ar2", "ar3", "ar4", "ar5", "ar6"])
 
 vakesp = pd.DataFrame()
-
 vakesp = pd.read_fwf(vak,
                      header=None,
                      delimiter=" ",
@@ -259,7 +208,6 @@ vakesp = vakesp[vakesp['yrke'] != 'sp']
 # ********************************************************
 
 stand = pd.DataFrame()
-
 stand = pd.read_fwf(innpr,
                     header=None,
                     delimiter=" ",
@@ -271,8 +219,8 @@ stand = pd.read_fwf(innpr,
                            "anskplus",
                            "utskplus"])
 
-stand = stand[stand['aar'] >= basaar]
-stand = stand[stand['aar'] <= simslutt]
+stand = stand[stand['aar'] >= basisaar]
+stand = stand[stand['aar'] <= sluttaar]
 
 # ****************************************
 # Oppretter datasett for senere utfylling.
@@ -357,33 +305,30 @@ for x in range(0, 100):
 kolonneposisjoner = [(0, 2), (4, 6), (7, 16), (17, 22), (23, 25)]
 kolonnenavn = ['ald1', 'ald2', 'br', 'bri', 'antaar']
 
-#demo1 = pd.read_fwf(dem1, colspecs=kolonneposisjoner, header=None)
 demo1 = pd.read_csv(dem1,
-                       header=None,
-                       delimiter=r";",
-                       names=['ald1',
-                              'ald2',
-                              'agr2020',
-                              'agr2021',
-                              'br', # BU
-                              'bri',
-                              'ans1',
-                              'ans2',
-                              'antaar'],
-                       usecols=list(range(9)),
-                       dtype={'ald1': 'int',
-                              'ald2': 'int',
-                              'agr2020': 'int',
-                              'agr2021': 'int',
-                              'br': 'int',
-                              'bri': 'float',
-                              'ans1': 'float',
-                              'ans2': 'float',
-                              'antaar': 'int'})
-#demo1.columns = kolonnenavn
+                    header=None,
+                    delimiter=r";",
+                    names=['ald1',
+                           'ald2',
+                           'agr2020',
+                           'agr2021',
+                           'br',
+                           'bri',
+                           'ans1',
+                           'ans2',
+                           'antaar'],
+                    usecols=list(range(9)),
+                    dtype={'ald1': 'int',
+                           'ald2': 'int',
+                           'agr2020': 'int',
+                           'agr2021': 'int',
+                           'br': 'int',
+                           'bri': 'float',
+                           'ans1': 'float',
+                           'ans2': 'float',
+                           'antaar': 'int'})
 
 demo2 = pd.DataFrame()
-
 demo2 = pd.read_fwf(dem2,
                     header=None,
                     delimiter=" ",
@@ -402,7 +347,6 @@ demo3 = pd.read_fwf(dem3, colspecs=kolonneposisjoner, header=None)
 demo3.columns = kolonnenavn
 
 demo4 = pd.DataFrame()
-
 demo4 = pd.read_fwf(dem4,
                     header=None,
                     delimiter=" ",
@@ -413,12 +357,11 @@ demo4 = pd.read_fwf(dem4,
                            "antaar"])
 
 demo5 = pd.DataFrame()
-
 demo5 = pd.read_fwf(dem5, colspecs=kolonneposisjoner, header=None)
+
 demo5.columns = kolonnenavn
 
 demo6 = pd.DataFrame()
-
 demo6 = pd.read_fwf(dem6,
                     header=None,
                     delimiter=" ",
@@ -436,7 +379,6 @@ demo6 = pd.read_fwf(dem6,
 bef1 = pd.DataFrame()
 
 bef1 = ald1.merge(bef, how='inner', on='alder')
-
 bef1 = bef1.groupby(["ald2"]).sum()
 
 bef1.drop(['alder'], axis=1, inplace=True)
@@ -445,7 +387,6 @@ bef1.drop(['kjonn'], axis=1, inplace=True)
 bef2 = pd.DataFrame()
 
 bef2 = ald2.merge(bef, how='inner', on='alder')
-
 bef2 = bef2.groupby(["ald2"]).sum()
 
 bef2.drop(['alder'], axis=1, inplace=True)
@@ -454,7 +395,6 @@ bef2.drop(['kjonn'], axis=1, inplace=True)
 bef3 = pd.DataFrame()
 
 bef3 = ald3.merge(bef, how='inner', on='alder')
-
 bef3 = bef3.groupby(["ald2"]).sum()
 
 bef3.drop(['alder'], axis=1, inplace=True)
@@ -463,7 +403,6 @@ bef3.drop(['kjonn'], axis=1, inplace=True)
 bef4 = pd.DataFrame()
 
 bef4 = ald4.merge(bef, how='inner', on='alder')
-
 bef4 = bef4.groupby(["ald2"]).sum()
 
 bef4.drop(['alder'], axis=1, inplace=True)
@@ -472,7 +411,6 @@ bef4.drop(['kjonn'], axis=1, inplace=True)
 bef5 = pd.DataFrame()
 
 bef5 = ald5.merge(bef, how='inner', on='alder')
-
 bef5 = bef5.groupby(["ald2"]).sum()
 
 bef5.drop(['alder'], axis=1, inplace=True)
@@ -481,7 +419,6 @@ bef5.drop(['kjonn'], axis=1, inplace=True)
 bef6 = pd.DataFrame()
 
 bef6 = ald6.merge(bef, how='inner', on='alder')
-
 bef6 = bef6.groupby(["ald2"]).sum()
 
 bef6.drop(['alder'], axis=1, inplace=True)
@@ -631,42 +568,36 @@ demy6 = pd.DataFrame({'gruppe': ['ba', 'gr', 'fa', 'ph', 'py'],
                       'brind': [x, x, x, x, x]})
 
 arsv1 = pd.DataFrame()
-
 arsv1 = demy1
 
 arsv1['ar'] = arsvesp.ar2
 arsv1['stdrd'] = arsv1['ar'] / arsv1['brind']
 
 arsv2 = pd.DataFrame()
-
 arsv2 = demy2
 
 arsv2['ar'] = arsvesp.ar2
 arsv2['stdrd'] = arsv2['ar'] / arsv2['brind']
 
 arsv3 = pd.DataFrame()
-
 arsv3 = demy3
 
 arsv3['ar'] = arsvesp.ar3
 arsv3['stdrd'] = arsv3['ar'] / arsv3['brind']
 
 arsv4 = pd.DataFrame()
-
 arsv4 = demy4
 
 arsv4['ar'] = arsvesp.ar4
 arsv4['stdrd'] = arsv4['ar'] / arsv4['brind']
 
 arsv5 = pd.DataFrame()
-
 arsv5 = demy5
 
 arsv5['ar'] = arsvesp.ar5
 arsv5['stdrd'] = arsv5['ar'] / arsv5['brind']
 
 arsv6 = pd.DataFrame()
-
 arsv6 = demy6
 
 arsv6['ar'] = arsvesp.ar6
@@ -732,7 +663,6 @@ for x in range(2021, 2041):
                           "dem6": demos6['agrs' + str(x)]})
     demaar6 = pd.concat([demaar6, nyrad], ignore_index=True)
 
-
 # ******************************************************
 # Lager indeks for demografikomponenten i etterspørselen
 # etter tjenester
@@ -763,33 +693,18 @@ arsv = pd.concat([arsv1, arsv2, arsv3, arsv4, arsv5, arsv6])
 # ******************************************************************
 
 opptak = opptak.reset_index()
-opptak = opptak[opptak['aar'] > basaar]
+opptak = opptak[opptak['aar'] > basisaar]
 
 kandtot = opptak.merge(gjfoer, how='inner', on='yrke')
 
 kandtot["uteks"] = kandtot.oppfag * kandtot.fullfor
 
-#kandtot['uteks'] = kandtot.apply(lambda row: kandtot.oppfag * kandtot.fullfor if row['aar'] == '2030'
-#                             else kandtot.oppfag * kandtot.fullfor, axis=1)
+kandtot['uteks'] = kandtot.apply(lambda row: (row['oppfag'] * row['fullfob'])
+                                 if row['aar'] + row['norm'] <= basisaar + 3
+                                 else (row['oppfag'] * row['fullfor']), axis=1)
 
 kandtot = kandtot.set_index(['yrke'])
 
-"""
-%MACRO nykand;
-
-    DATA kandtot(KEEP = yrka aar uteks norm);
-        MERGE gjfoer opptak;
-        BY yrka;
-
-        aar = aar + norm;
-
-        IF aar LE (&basaar + 3) THEN
-                                   uteks = oppfag * fullfob;
-        ELSE
-                                   uteks = oppfag * fullfor;
-
-        IF aar GE (&basaar + 1) AND aar LE &simslutt;
-"""
 nystud = nystud.set_index(['yrke'])
 
 kand_ald = nystud.merge(kandtot, how='inner', on=['yrke'])
@@ -800,70 +715,6 @@ kand_ald["eks_ald"] = kand_ald.uteks * kand_ald.st_ald
 kandidater = pd.DataFrame()
 kandidater = kand_ald
 
-"""
-    DATA nystud;
-        SET nystud;
-
-        DO aar = (&basaar + 1) TO &simslutt;
-            OUTPUT nystud;
-        END;
-
-    PROC SORT DATA = nystud;
-        BY yrka aar kj alder;
-
-    DATA kand_ald(KEEP = yrka aar kj alder eks_ald);
-        MERGE nystud kandtot;
-        BY yrka aar;
-
-        alder = alder + norm;
-        eks_ald = uteks * st_ald;
-
-        IF alder LE 74;
-
-    DATA plussts;
-        SET plussakt;
-
-        DO aar = (&basaar + 1) TO &simslutt;
-            OUTPUT plussts;
-        END;
-
-    PROC SORT DATA = plussts;
-        BY yrka aar kj alder;
-
-    /* Rutine som sikrer at hele aldersskalaen fylles ut før MERGE med dødelighet  */
-    DATA kand_ald(DROP = pluss);
-        MERGE kand_ald (IN = A) plussts (IN = B);
-        BY yrka aar kj alder;
-        IF B;
-        IF NOT A THEN
-                                   eks_ald = 0;
-
-    PROC SORT DATA = kand_ald;
-        BY aar kj alder yrka;
-
-    DATA kandidater;
-                    SET kand_ald;
-
-    PROC SORT DATA = kandidater;
-        BY yrka aar kj alder;
-
-    PROC SORT DATA = beh_pers;
-        BY yrka kj alder;
-
-    PROC SORT DATA = plussakt;
-        BY yrka kj alder;
-
-    DATA beh_pers(DROP = pluss);
-        MERGE beh_pers (IN = A) plussakt (IN = B);
-        BY yrka kj alder;
-        IF B;
-        IF NOT A THEN
-                                   pers = 0;
-        IF NOT A THEN
-                                   aar = %EVAL(&basaar);
-
-%MEND nykand;
-"""
 # *************************************************************
 # NYBEHOLD: Fører strømmen av nyutdannete inn i beholdningen av
 #           en yrkesgruppe, og framskriver beholdningen av fag-
@@ -885,7 +736,9 @@ neste_aar['eks_ald'] = neste_aar['eks_ald'].fillna(0)
 
 neste_aar.pers = neste_aar.pers + neste_aar.eks_ald
 neste_aar['aar'] = 2021
+
 slutt = neste_aar[['yrke', 'kjonn', 'alder', 'pers', 'arsv', 'aar']]
+
 beh_paar = pd.concat([beh_paar, slutt])
 beh_paar.sort_values(by=['yrke', 'kjonn', 'alder'], inplace=True)
 
@@ -904,7 +757,9 @@ for x in range(2022, 2041):
 
     neste_aar.pers = neste_aar.pers + neste_aar.eks_ald
     neste_aar['aar'] = x
+
     slutt = neste_aar[['yrke', 'kjonn', 'alder', 'pers', 'arsv', 'aar']]
+
     beh_paar = pd.concat([beh_paar, slutt])
     beh_paar.sort_values(by=['yrke', 'kjonn', 'alder'], inplace=True)
 
@@ -916,16 +771,10 @@ for x in range(2022, 2041):
 
 tilb = beh_paar.merge(beh_syss, how='outer', on=['yrke', 'kjonn', 'alder'])
 
-tilb['aarsverk'] = tilb.pers * tilb.syssand * tilb.garsv #* pluss;
+tilb['aarsverk'] = tilb.pers * tilb.syssand * tilb.garsv
 
 tilb = tilb.groupby(['yrke', 'aar']).sum()
-
-# tilb = tilb.reset_index()
-
 tilb = tilb.drop(['kjonn', 'alder', 'pers', 'arsv', 'syssand', 'garsv'], axis=1)
-
-#tilb.to_csv("resultater/Tilbud.csv")
-#tilb.to_excel("resultater/Tilbud.xlsx")
 
 # ******************************************
 # TILB-ESP: Sluttproduktet fra simuleringen.
@@ -946,120 +795,34 @@ ind = pd.concat([ind1, ind2, ind3, ind4, ind5])
 ind = ind.reset_index()
 
 data_frames = [ind, arsvesp, vakesp]
-#esp = pd.DataFrame()
+
 esp = reduce(lambda left, right: pd.merge(left, right, on=['yrke'],
                                           how='outer'), data_frames)
 
 esp = esp.reset_index()
 esp = esp.set_index(['yrke', 'aar'])
 
-esp['epd1'] = (esp.ar1 + esp.vak1) * esp.dm1 #* esp.ds2 * esp.pr2
-esp['ep1'] = (esp.ar1 + esp.vak1) * esp.dm1 #* esp.ds2 * esp.pr2
-esp['epd2'] = (esp.ar2 + esp.vak2) * esp.dm2 #* esp.ds2 * esp.pr2
-esp['ep2'] = (esp.ar2 + esp.vak2) * esp.dm2 #* esp.ds2 * esp.pr2
-esp['epd3'] = (esp.ar3 + esp.vak3) * esp.dm3 #* esp.ds2 * esp.pr2
-esp['ep3'] = (esp.ar3 + esp.vak3) * esp.dm3 #* esp.ds2 * esp.pr2
-esp['epd4'] = (esp.ar4 + esp.vak4) * esp.dm4 #* esp.ds2 * esp.pr2
-esp['ep4'] = (esp.ar4 + esp.vak4) * esp.dm4 #* esp.ds2 * esp.pr2
-esp['epd5'] = (esp.ar5 + esp.vak5) * esp.dm5 #* esp.ds2 * esp.pr2
-esp['ep5'] = (esp.ar5 + esp.vak5) * esp.dm5 #* esp.ds2 * esp.pr2
-esp['epd6'] = (esp.ar6 + esp.vak6) * esp.dm6 #* esp.ds2 * esp.pr2
-esp['ep6'] = (esp.ar6 + esp.vak6) * esp.dm6 #* esp.ds2 * esp.pr2
+esp['epd1'] = (esp.ar1 + esp.vak1) * esp.dm1 * esp.barnplus
+esp['ep1'] = (esp.ar1 + esp.vak1) * esp.dm1 * esp.barnplus
+esp['epd2'] = (esp.ar2 + esp.vak2) * esp.dm2 * esp.grskplus
+esp['ep2'] = (esp.ar2 + esp.vak2) * esp.dm2 * esp.grskplus
+esp['epd3'] = (esp.ar3 + esp.vak3) * esp.dm3 * esp.viskplus
+esp['ep3'] = (esp.ar3 + esp.vak3) * esp.dm3 * esp.viskplus
+esp['epd4'] = (esp.ar4 + esp.vak4) * esp.dm4 * esp.uhskplus
+esp['ep4'] = (esp.ar4 + esp.vak4) * esp.dm4 * esp.uhskplus
+esp['epd5'] = (esp.ar5 + esp.vak5) * esp.dm5 * esp.anskplus
+esp['ep5'] = (esp.ar5 + esp.vak5) * esp.dm5 * esp.anskplus
+esp['epd6'] = (esp.ar6 + esp.vak6) * esp.dm6 * esp.utskplus
+esp['ep6'] = (esp.ar6 + esp.vak6) * esp.dm6 * esp.utskplus
 
 esp['espd'] = esp['epd1'] + esp['epd2'] + esp['epd3'] + esp['epd4'] + esp['epd5'] + esp['epd6']
 esp['esp'] = esp['ep1'] + esp['ep2'] + esp['ep3'] + esp['ep4'] + esp['ep5'] + esp['ep6']
 esp['vaksum'] = esp['vak1'] + esp['vak2'] + esp['vak3'] + esp['vak4'] + esp['vak5'] + esp['vak6']
 esp['asum'] = esp['ar1'] + esp['ar2'] + esp['ar3'] + esp['ar4'] + esp['ar5'] + esp['ar6']
 
-#tl_esp = tilb.merge(esp, how='outer', on=['yrke', 'aar'])
 t_e = tilb.merge(esp, how='outer', on=['yrke', 'aar'])
-#esp_sk0 = tilb.merge(esp, how='outer', on=['yrke', 'aar'])
-#print(t_e.esp.to_string())
+
 t_e['vakans'] = t_e.aarsverk - t_e.espd
-
-"""
-
-    %IF &vakaar GT &basaar AND (&subst = 0 OR &vakaar < &subaarst) %THEN %DO;
-        DATA estl&vakaar(KEEP = yrka aar vakans va esp espk espd espdk
-                                esp&vakaar espd&vakaar
-                                epd&vakaar.1 - epd&vakaar.6 ep&vakaar.1 - ep&vakaar.6
-                                dm&vakaar.1 - dm&vakaar.6 pr&vakaar.1 - pr&vakaar.6);
-            SET tl_esp;
-
-            ARRAY epd(i) epd1 - epd6;
-            ARRAY ep(i) ep1 - ep6;
-            ARRAY epd&vakaar(i) epd&vakaar.1 - epd&vakaar.6;
-            ARRAY ep&vakaar(i) ep&vakaar.1 - ep&vakaar.6;
-            ARRAY dm(i) dm1 - dm6;
-            ARRAY pr(i) pr1 - pr6;
-            ARRAY dm&vakaar(i) dm&vakaar.1 - dm&vakaar.6;
-            ARRAY pr&vakaar(i) pr&vakaar.1 - pr&vakaar.6;
-
-            n = %EVAL(&vakaar - &basaar);
-
-            IF n = 1 THEN
-                                                   va = lag1(vakans);
-            ELSE IF n = 2 THEN
-                                                   va = lag2(vakans);
-            ELSE IF n = 3 THEN
-                                                   va = lag3(vakans);
-            ELSE IF n = 4 THEN
-                                                   va = lag4(vakans);
-            ELSE IF n = 5 THEN
-                                                   va = lag5(vakans);
-
-            IF aar = &vakaar;
-
-            espk = 0;
-            espdk = 0;
-            esp&vakaar = esp - vakans + va;
-            espd&vakaar = esp&vakaar / pr1;
-
-            DO i = 1 TO 6;
-                ep&vakaar = ep * esp&vakaar / esp;
-                epd&vakaar = epd * espd&vakaar / espd;
-                espk + ep&vakaar;
-                espdk + epd&vakaar;
-                dm&vakaar = dm;
-                pr&vakaar = pr;
-            END;
-
-        DATA tl_esp
-             t_e(KEEP = yrka aar esp espd aarsv vakans)
-             esp_sk0(KEEP = aar yrka ep1 - ep6 epd1 - epd6);
-            MERGE tl_esp estl&vakaar;
-            BY yrka;
-
-            ARRAY epd(i) epd1 - epd6;
-            ARRAY ep(i) ep1 - ep6;
-            ARRAY epd&vakaar(i) epd&vakaar.1 - epd&vakaar.6;
-            ARRAY ep&vakaar(i) ep&vakaar.1 - ep&vakaar.6;
-            ARRAY dm(i) dm1 - dm6;
-            ARRAY pr(i) pr1 - pr6;
-            ARRAY dm&vakaar(i) dm&vakaar.1 - dm&vakaar.6;
-            ARRAY pr&vakaar(i) pr&vakaar.1 - pr&vakaar.6;
-
-            espg = esp;
-            espdg = espd;
-            vakg =
-            esp = 0;
-            espd = 0;
-
-            DO i = 1 TO 6;
-                epd = epd&vakaar * dm / dm&vakaar;
-                ep = ep&vakaar * dm * pr / (dm&vakaar * pr&vakaar);
-                espd + epd;
-                esp + ep;
-            END;
-
-            vakans = esp - aarsv;
-
-    %END;
-
-%MEND espbasis;
-"""
-
-# t_e = t_e.groupby(['aar']).sum()
 
 t_e = t_e[['aarsverk', 'esp', 'vakans']]
 t_e.rename(columns={"aarsverk": "Tilbud",
@@ -1068,203 +831,16 @@ t_e.rename(columns={"aarsverk": "Tilbud",
 
 t_e.index.names = ['Yrke', 'År']
 
-t_e.to_csv("resultater/Lærermod.csv")
+t_e.astype(int).to_csv("resultater/Lærermod.csv")
 t_e.to_excel("resultater/Lærermod.xlsx")
 
-print(t_e.to_string())
-
-"""
-# t_e = t_e.reset_index()
-
-resultba = t_e[t_e['yrke'] == 'ba']
-t_e.ba.to_csv(resultba)
-
-t_e = t_e[t_e['yrke'] == 'gr']
-t_e.to_csv(resultgr)
-
-t_e = t_e[t_e['yrke'] == 'fa']
-t_e.to_csv(resultfa)
-
-t_e = t_e[t_e['yrke'] == 'ph']
-t_e.to_csv(resultph)
-
-t_e = t_e[t_e['yrke'] == 'py']
-t_e.to_csv(resultpy)
-
-t_e = t_e[t_e['yrke'] == 'la']
-t_e.to_csv(resultla)
-"""
-"""
-%MACRO skriv_laer;
-
-    DATA skriv;
-        SET t_e;
-        IF yrka = "&yrke";
-
-        FILE result&yrke;
-        PUT @3(yrka)($CHAR2.) aar 8-11 @15(espd aarsv vakans)(10.);
-
-%MEND skriv_laer;
-
-%MACRO velgskr;
-
-    %IF &yrke = alle %THEN %DO;
-        %DO i = 1 %TO 6;
-            %IF &i = 1 %THEN %DO;
-                                                   %LET yrke = ba;
-                                               %END;
-
-                        %IF &i = 2 %THEN %DO;
-                                                   %LET yrke = gr;
-                                               %END;
-
-                        %IF &i = 3 %THEN %DO;
-                                                   %LET yrke = fa;
-                                               %END;
-
-                        %IF &i = 4 %THEN %DO;
-                                                   %LET yrke = ph;
-                                               %END;
-
-                                               %IF &i = 5 %THEN %DO;
-                                                   %LET yrke = py;
-                                               %END;
-
-                        %IF &i = 6 %THEN %DO;
-                                                   %LET yrke = la;
-                                               %END;
-
-                        %skriv_laer
-        %END;
-    %END;
-    %ELSE %DO;
-                    %skriv
-                %END;
-
-%MEND velgskr;
-
-%MACRO skrive_samle(n);
-
-    DATA skriv&n;
-        IF &n = 1 THEN DO;
-            INFILE resultba;
-        END;
-
-        IF &n = 2 THEN DO;
-            INFILE resultgr;
-        END;
-
-        IF &n = 3 THEN DO;
-            INFILE resultfa;
-        END;
-
-        IF &n = 4 THEN DO;
-            INFILE resultph;
-        END;
-
-        IF &n = 5 THEN DO;
-            INFILE resultpy;
-        END;
-
-        IF &n = 6 THEN DO;
-            INFILE resultla;
-        END;
-
-        INPUT @3(yrka)($CHAR2.) aar 8-11 @15(espd aarsverk vakanser)(10.);
-
-        gr = %EVAL(&n);
-
-%MEND skrive_samle;
-
-%MACRO styr_samle;
-
-    %DO n = 1 %TO 6;
-        %IF n = 1 %THEN %DO;
-            %LET yrke = ba;
-        %END;
-
-        %IF n = 2 %THEN %DO;
-            %LET yrke = gr;
-        %END;
-
-        %IF n = 3 %THEN %DO;
-            %LET yrke = fa;
-        %END;
-
-        %IF n = 4 %THEN %DO;
-            %LET yrke = ph;
-        %END;
-
-        %IF n = 5 %THEN %DO;
-            %LET yrke = py;
-        %END;
-
-        %IF n = 6 %THEN %DO;
-            %LET yrke = la;
-        %END;
-
-        %skrive_samle(&n)
-    %END;
-
-%MEND styr_samle;
-
-%MACRO samle_samle;
-    DATA skriv;
-        SET skriv1 skriv2 skriv3 skriv4 skriv5 skriv6;
-    DATA samle;
-        SET skriv;
-        BY gr;
-        FILE o1;
-
-        IF _N_ = 1 THEN DO;
-            d0 = 'Referansebane 2022                           ';
-            PUT @1(d0)($CHAR54.);
-            d0 = '                                                  ';
-            PUT @1(d0)($CHAR54.);
-            d1 = 'Aar';
-            d2 = 'Ettersp';
-            d3 = 'Tilbud';
-            d4 = 'Vakans';
-            PUT @8(d1)($CHAR3.) @18(d2)($CHAR10.) @29(d3)($CHAR10.)(d4)($CHAR6.);
-        END;
-
-        IF FIRST.gr THEN DO;
-            d0 = '                                                  ';
-            PUT @1(d0)($CHAR54.);
-
-                        IF yrka = 'ba' THEN
-                                                   d0 = 'Barnehagelærere              ';
-
-                                               IF yrka = 'gr' THEN
-                                                   d0 = 'Grunnskolelærere             ';
-
-                        IF yrka = 'fa' THEN
-                                                   d0 = 'Faglærere                    ';
-
-                        IF yrka = 'ph' THEN
-                                                   d0 = 'PPU UH                       ';
-
-                        IF yrka = 'py' THEN
-                                                   d0 = 'PPU YF                       ';
-
-                        IF yrka = 'la' THEN
-                                                   d0 = 'Alle lærere                  ';
-
-                        PUT @8(d0)($CHAR47.);
-
-                        d0 = '                                                  ';
-
-                        PUT @1(d0)($CHAR54.);
-
-            PUT (yrka)($CHAR2.) aar 8-11 @15(espd aarsverk vakanser)(10.);
-        END;
-        ELSE DO;
-            PUT (yrka)($CHAR2.) aar 8-11 @15(espd aarsverk vakanser)(10.);
-       END;
-
-%MEND samle_samle;
-
-"""
+print(t_e.astype(int).to_string())
 
 print()
 print('Lærermod er nå ferdig.')
+print()
+
+totaltid = time.time() - starttid
+
+print(f'Og det tok {totaltid:.2f} sekunder. Velkommen tilbake.')
+print()
