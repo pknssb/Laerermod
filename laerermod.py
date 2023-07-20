@@ -697,8 +697,6 @@ opptak = opptak[opptak['aar'] > basisaar]
 
 kandtot = opptak.merge(gjfoer, how='inner', on='yrke')
 
-kandtot["uteks"] = kandtot.oppfag * kandtot.fullfor
-
 kandtot['uteks'] = kandtot.apply(lambda row: (row['oppfag'] * row['fullfob'])
                                  if row['aar'] + row['norm'] <= basisaar + 3
                                  else (row['oppfag'] * row['fullfor']), axis=1)
@@ -774,6 +772,7 @@ tilb = beh_paar.merge(beh_syss, how='outer', on=['yrke', 'kjonn', 'alder'])
 tilb['aarsverk'] = tilb.pers * tilb.syssand * tilb.garsv
 
 tilb = tilb.groupby(['yrke', 'aar']).sum()
+
 tilb = tilb.drop(['kjonn', 'alder', 'pers', 'arsv', 'syssand', 'garsv'], axis=1)
 
 # ******************************************
@@ -824,17 +823,21 @@ t_e = tilb.merge(esp, how='outer', on=['yrke', 'aar'])
 
 t_e['vakans'] = t_e.aarsverk - t_e.espd
 
-t_e = t_e[['aarsverk', 'esp', 'vakans']]
+t_e = t_e[['esp', 'aarsverk', 'vakans']]
+
 t_e.rename(columns={"aarsverk": "Tilbud",
                     "esp": "Etterspørsel",
                     "vakans": "Vakanse"}, inplace=True)
 
+custom_dict = {'ba': 1, 'gr': 2, 'fa': 3, 'ph': 4, 'py': 5}
+t_e = t_e.sort_values(by=['yrke', 'aar'], key=lambda x: x.map(custom_dict))
+
 t_e.index.names = ['Yrke', 'År']
 
-t_e.astype(int).to_csv("resultater/Lærermod.csv")
-t_e.to_excel("resultater/Lærermod.xlsx")
+t_e.round(0).astype(int).to_csv("resultater/Lærermod.csv")
+t_e.round(0).astype(int).to_excel("resultater/Lærermod.xlsx")
 
-print(t_e.astype(int).to_string())
+print(t_e.round(0).astype(int).to_string())
 
 print()
 print('Lærermod er nå ferdig.')
