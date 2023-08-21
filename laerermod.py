@@ -834,6 +834,14 @@ t_e = t_e.sort_values(by=['yrke', 'aar'], key=lambda x: x.map(custom_dict))
 
 t_e.index.names = ['Yrke', 'År']
 
+t_e.rename(index={'ba': 'Barnehagelærere'}, inplace=True)
+t_e.rename(index={'gr': 'Grunnskolelærere'}, inplace=True)
+t_e.rename(index={'fa': 'Faglærere'}, inplace=True)
+t_e.rename(index={'ph': 'PPU Universitet og høyskole'}, inplace=True)
+t_e.rename(index={'py': 'PPU Yrkesfag'}, inplace=True)
+
+pd.options.display.multi_sparse = False
+
 t_e.round(0).astype(int).to_csv("resultater/Lærermod.csv")
 t_e.round(0).astype(int).to_excel("resultater/Lærermod.xlsx")
 
