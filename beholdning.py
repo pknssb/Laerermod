@@ -12,8 +12,6 @@ ut = 'utdata/nye_studenter.dat'
 # Konstanter
 # **********
 
-sektorer = [1, 2, 3, 4, 5, 6]
-grupper = [1, 2, 3, 4, 5]
 
 sektorliste = [1, 2, 3, 4, 5, 6]
 gruppeliste = [1, 1, 1, 1, 1, 1,
