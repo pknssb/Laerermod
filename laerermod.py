@@ -2,6 +2,7 @@ import pandas as pd
 from functools import reduce
 
 import time
+import math
 
 starttid = time.time()
 
@@ -40,7 +41,6 @@ inplu = 'inndata/endring_timeverk.txt'
 
 # Filer produsert av beholdning.py
 bhl = 'utdata/beholdning.dat'
-aarsv = 'utdata/aarsverk.dat'
 nystu = 'utdata/nye_studenter.dat'
 
 
@@ -48,14 +48,12 @@ i1_syss = 'inndata/syssutd2021.txt'
 i1_utd = 'inndata/utd2021_dat.txt'
 st = 'inndata/nye_studenter.txt'
 
-o1 = 'utdata/aarsverk.dat'
 o2 = 'utdata/beholdning.dat'
 ut = 'utdata/nye_studenter.dat'
 
 # **********
 # Konstanter
 # **********
-
 
 sektorliste = [1, 2, 3, 4, 5, 6]
 gruppeliste = [1, 1, 1, 1, 1, 1,
@@ -90,19 +88,6 @@ tabse_syss = pd.read_csv(i1_syss,
                                 'syssk': 'int',
                                 'gaavma': 'float',
                                 'gaavka': 'float'})
-
-tabse_syss['studium'].replace(to_replace="4", value="ba", inplace=True)
-tabse_syss['studium'].replace(to_replace="2", value="gr", inplace=True)
-tabse_syss['studium'].replace(to_replace="3", value="fa", inplace=True)
-tabse_syss['studium'].replace(to_replace="1", value="ps", inplace=True)
-tabse_syss['studium'].replace(to_replace="5", value="an", inplace=True)
-tabse_syss['studium'].replace(to_replace="6", value="sp", inplace=True)
-tabse_syss['studium'].replace(to_replace="7", value="st", inplace=True)
-tabse_syss['studium'].replace(to_replace="a", value="ph", inplace=True)
-tabse_syss['studium'].replace(to_replace="b", value="py", inplace=True)
-
-tabse_syss['sektor'] -= 1
-tabse_syss['sektor'].replace(to_replace=0, value=6, inplace=True)
 
 tabse_syss.loc[tabse_syss['syssm'] < 0, ['syssm']] = 0
 tabse_syss.loc[tabse_syss['syssk'] < 0, ['syssk']] = 0
@@ -156,23 +141,10 @@ tabse_utd = pd.read_csv(i1_utd,
                                'tpa': 'float',
                                'tp': 'float'})
 
-tabse_utd['studium'].replace(to_replace="4", value="ba", inplace=True)
-tabse_utd['studium'].replace(to_replace="2", value="gr", inplace=True)
-tabse_utd['studium'].replace(to_replace="3", value="fa", inplace=True)
-tabse_utd['studium'].replace(to_replace="1", value="ps", inplace=True)
-tabse_utd['studium'].replace(to_replace="5", value="an", inplace=True)
-tabse_utd['studium'].replace(to_replace="6", value="sp", inplace=True)
-tabse_utd['studium'].replace(to_replace="7", value="st", inplace=True)
-tabse_utd['studium'].replace(to_replace="a", value="ph", inplace=True)
-tabse_utd['studium'].replace(to_replace="b", value="py", inplace=True)
-
 tabse_utd['yp'] = tabse_utd.apply(lambda row: row['sysselsatte'] /
                                   row['bestand']
                                   if row['bestand'] > 0
                                   else 0, axis=1)
-
-tabse_utd = tabse_utd[tabse_utd['alder'] >= 17]
-tabse_utd = tabse_utd[tabse_utd['alder'] <= 74]
 
 tabse_utd.sort_values(by=['studium', 'kjonn', 'alder'], inplace=True)
 
@@ -221,14 +193,10 @@ tabe['studium'].replace(to_replace="gr", value="2", inplace=True)
 tabe['studium'].replace(to_replace="fa", value="3", inplace=True)
 tabe['studium'].replace(to_replace="ph", value="4", inplace=True)
 tabe['studium'].replace(to_replace="py", value="5", inplace=True)
-tabe['studium'].replace(to_replace=["an", "st", "sp"], value="6", inplace=True)
 
 tabe.rename(columns={"studium": "gruppe"}, inplace=True)
 
 tabe["gruppe"] = pd.to_numeric(tabe["gruppe"])
-
-indexAge = tabe[(tabe['gruppe'] > 5)].index
-tabe.drop(indexAge, inplace=True)
 
 tabe.sort_values(by=['gruppe', 'sektor'], inplace=True)
 tabe = tabe.reset_index()
@@ -243,10 +211,6 @@ tabe = tabe.set_index(['gruppe', 'sektor'])
 taber = pd.DataFrame()
 
 taber = tabet.copy()
-
-taber = taber[taber['studium'] == 'an']
-
-taber.drop(['studium'], axis=1, inplace=True)
 
 taber.set_index('sektor', inplace=True)
 
@@ -492,37 +456,6 @@ aarsverk_ettersporsel.rename(columns={0: "ar1", 1: "ar2", 2: "ar3", 3: "ar4", 4:
 
 aarsverk_ettersporsel.index.name = 'yrke'
 
-#print(list(aarsverk_ettersporsel.columns))
-#print(aarsverk_ettersporsel.to_string())
-
-# *****************************
-# Skriver ut fil med årsverkene
-# *****************************
-"""
-with open(o1, 'w') as f:
-    f.write("ba")
-    serie = tabeut.loc[1]
-    for x in range(6):
-        f.write(str(round(serie[x+1])).rjust(6))
-    f.write('\ngr')
-    serie = tabeut.loc[2]
-    for x in range(6):
-        f.write(str(round(serie[x+1])).rjust(6))
-    f.write('\nfa')
-    serie = tabeut.loc[3]
-    for x in range(6):
-        f.write(str(round(serie[x+1])).rjust(6))
-    f.write('\nph')
-    serie = tabeut.loc[4]
-    for x in range(6):
-        f.write(str(round(serie[x+1])).rjust(6))
-    f.write('\npy')
-    serie = tabeut.loc[5]
-    for x in range(6):
-        f.write(str(round(serie[x+1])).rjust(6))
-
-    f.close()
-"""
 # **********************
 # Opprettelse av tabergs
 # **********************
@@ -610,10 +543,6 @@ tabgg['studium'].replace(to_replace="py", value="5", inplace=True)
 
 tabgg.rename(columns={"studium": "gruppe"}, inplace=True)
 
-tabgg = tabgg[tabgg['gruppe'] != "an"]
-tabgg = tabgg[tabgg['gruppe'] != "sp"]
-tabgg = tabgg[tabgg['gruppe'] != "st"]
-
 # *********************
 # Opprettelse av tabtot
 # *********************
@@ -668,7 +597,6 @@ studa['studium'].replace(to_replace="gr", value="2", inplace=True)
 studa['studium'].replace(to_replace="fa", value="3", inplace=True)
 studa['studium'].replace(to_replace="ph", value="4", inplace=True)
 studa['studium'].replace(to_replace="py", value="5", inplace=True)
-studa['studium'].replace(to_replace="sp", value="6", inplace=True)
 
 studa = studa.set_index(['studium'])
 
@@ -713,7 +641,6 @@ taba['studium'].replace(to_replace="2", value="gr", inplace=True)
 taba['studium'].replace(to_replace="3", value="fa", inplace=True)
 taba['studium'].replace(to_replace="4", value="ph", inplace=True)
 taba['studium'].replace(to_replace="5", value="py", inplace=True)
-taba['studium'].replace(to_replace="6", value="sp", inplace=True)
 
 # ********************************
 # Skriver ut fil med nye studenter
@@ -1018,6 +945,10 @@ plussakt = pd.read_fwf(inplu,
                        delimiter=" ",
                        names=["alder", "plussm", "plussk"])
 
+#nystud1 = pd.DataFrame()
+#nystud1 = taba
+#nystud1.rename(columns={"studium": "yrke", "bss": "st", "bm": "stm", "bk": "stk"}, inplace=True)
+
 nystud1 = pd.read_fwf(nystu,
                       header=None,
                       delimiter=" ",
@@ -1025,6 +956,10 @@ nystud1 = pd.read_fwf(nystu,
 
 nystud1['kjonn'] = 1
 nystud1['st_ald'] = nystud1.stm
+
+#nystud2 = pd.DataFrame()
+#nystud2 = taba
+#nystud2.rename(columns={"studium": "yrke", "bss": "st", "bm": "stm", "bk": "stk"}, inplace=True)
 
 nystud2 = pd.read_fwf(nystu,
                       header=None,
@@ -1034,7 +969,7 @@ nystud2 = pd.read_fwf(nystu,
 nystud2['kjonn'] = 2
 nystud2['st_ald'] = nystud2.stk
 
-nystud = pd.concat([nystud1, nystud2])
+nystud = pd.concat([nystud1, nystud2], copy=False)
 
 beh_pers = pd.DataFrame()
 beh_pers = pd.read_csv(bhl,
@@ -1093,20 +1028,12 @@ beh_syss.rename(columns={"yp": "syssand",
                 inplace=True)
 
 beh_syss.drop(['pers', 'syss', 'tp', 'aavs'], axis=1, inplace=True)
-"""
-arsvesp = pd.DataFrame()
-arsvesp = pd.read_fwf(aarsv,
-                      header=None,
-                      delimiter=" ",
-                      names=["yrke", "ar1", "ar2", "ar3", "ar4", "ar5", "ar6"])
-"""
+
 vakesp = pd.DataFrame()
 vakesp = pd.read_fwf(vak,
                      header=None,
                      delimiter=" ",
                      names=["yrke", "vak1", "vak2", "vak3", "vak4", "vak5", "vak6"])
-
-vakesp = vakesp[vakesp['yrke'] != 'sp']
 
 # ********************************************************
 # PROSENTVIS ENDRING I ANTALL ELEVER pr. 1000 INNBYGGERE
@@ -1445,57 +1372,46 @@ demy6 = pd.DataFrame({'gruppe': ['ba', 'gr', 'fa', 'ph', 'py'],
 arsv1 = pd.DataFrame()
 arsv1 = demy1
 
-arsvesp1 = tabeut[tabeut.index.get_level_values('sektor').isin([1])]
+arsvesp1 = tabeut[tabeut.index.get_level_values('sektor').isin([1])].truncate()
 arsvesp1.reset_index(drop=True, inplace=True)
-#print(arsvesp1.to_string())
-arsvesp2 = tabeut[tabeut.index.get_level_values('sektor').isin([2])]
+
+arsvesp2 = round(tabeut[tabeut.index.get_level_values('sektor').isin([2])])
 arsvesp2.reset_index(drop=True, inplace=True)
 
-arsvesp3 = tabeut[tabeut.index.get_level_values('sektor').isin([3])]
+arsvesp3 = round(tabeut[tabeut.index.get_level_values('sektor').isin([3])])
 arsvesp3.reset_index(drop=True, inplace=True)
 
-arsvesp4 = tabeut[tabeut.index.get_level_values('sektor').isin([4])]
+arsvesp4 = round(tabeut[tabeut.index.get_level_values('sektor').isin([4])])
 arsvesp4.reset_index(drop=True, inplace=True)
 
-arsvesp5 = tabeut[tabeut.index.get_level_values('sektor').isin([5])]
+arsvesp5 = round(tabeut[tabeut.index.get_level_values('sektor').isin([5])])
 arsvesp5.reset_index(drop=True, inplace=True)
 
-arsvesp6 = tabeut[tabeut.index.get_level_values('sektor').isin([6])]
+arsvesp6 = round(tabeut[tabeut.index.get_level_values('sektor').isin([6])])
 arsvesp6.reset_index(drop=True, inplace=True)
 
-#print(asas.to_string())
-#print(arsvesp.ar2)
-arsv1['ar'] = arsvesp2#arsvesp.ar2
+arsv1['ar'] = arsvesp2
 arsv1['stdrd'] = arsv1['ar'] / arsv1['brind']
 
-arsv2 = pd.DataFrame()
-arsv2 = demy2
 
-arsv2['ar'] = arsvesp2#arsvesp.ar2
+arsv2 = demy2
+arsv2['ar'] = arsvesp2
 arsv2['stdrd'] = arsv2['ar'] / arsv2['brind']
 
-arsv3 = pd.DataFrame()
 arsv3 = demy3
-
-arsv3['ar'] = arsvesp3#arsvesp.ar3
+arsv3['ar'] = arsvesp3
 arsv3['stdrd'] = arsv3['ar'] / arsv3['brind']
 
-arsv4 = pd.DataFrame()
 arsv4 = demy4
-
-arsv4['ar'] = arsvesp4#arsvesp.ar4
+arsv4['ar'] = arsvesp4
 arsv4['stdrd'] = arsv4['ar'] / arsv4['brind']
 
-arsv5 = pd.DataFrame()
 arsv5 = demy5
-
-arsv5['ar'] = arsvesp5#arsvesp.ar5
+arsv5['ar'] = arsvesp5
 arsv5['stdrd'] = arsv5['ar'] / arsv5['brind']
 
-arsv6 = pd.DataFrame()
 arsv6 = demy6
-
-arsv6['ar'] = arsvesp6#arsvesp.ar6
+arsv6['ar'] = arsvesp6
 arsv6['stdrd'] = arsv6['ar'] / arsv6['brind']
 
 demaar1 = pd.DataFrame({"aar": [basisaar], "dm1": [1], "dp1": [1], "dem1": demos1['agrs2020']})
