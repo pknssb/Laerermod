@@ -179,6 +179,7 @@ tabet['aavt'] = tabet.apply(lambda row: row['aavm'] + row['aavk']
                             else row['aavk'], axis=1)
 
 tabet.sort_values(by=['studium', 'sektor'], inplace=True)
+print(tabet.to_string())
 
 # *******************
 # Opprettelse av tabe
@@ -307,7 +308,6 @@ for x in range(5):
                         (tabe.iloc[3 + x * 6, 0] / tabes.iloc[3, 0]),
                         (tabe.iloc[4 + x * 6, 0] / tabes.iloc[4, 0]),
                         (tabe.iloc[5 + x * 6, 0] / tabes.iloc[5, 0])])
-
 # **********************
 # Opprettelse av taberg1
 # **********************
