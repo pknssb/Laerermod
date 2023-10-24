@@ -5,9 +5,6 @@ import time
 
 starttid = time.time()
 
-import beholdning
-import demografi
-
 
 print()
 print('Velkommen til Python-versjonen av Lærermod!')
@@ -51,6 +48,945 @@ dem1 = 'utdata/barnehage.dat'
 dem2 = 'inndata/grunnskole.dat'
 dem5 = 'inndata/andre_skoler.dat'
 dem6 = 'inndata/andre_skoler.dat'
+
+
+
+
+i1_syss = 'inndata/syssutd2021.txt'
+i1_utd = 'inndata/utd2021_dat.txt'
+st = 'inndata/nye_studenter.txt'
+
+o1 = 'utdata/aarsverk.dat'
+o2 = 'utdata/beholdning.dat'
+ut = 'utdata/nye_studenter.dat'
+
+# **********
+# Konstanter
+# **********
+
+sektorer = [1, 2, 3, 4, 5, 6]
+grupper = [1, 2, 3, 4, 5]
+
+sektorliste = [1, 2, 3, 4, 5, 6]
+gruppeliste = [1, 1, 1, 1, 1, 1,
+               2, 2, 2, 2, 2, 2,
+               3, 3, 3, 3, 3, 3,
+               4, 4, 4, 4, 4, 4,
+               5, 5, 5, 5, 5, 5]
+
+indeks = pd.MultiIndex.from_product([['1', '2', '3', '4', '5'],
+                                    ['1', '2', '3', '4', '5', '6']],
+                                    names=['gruppe', 'sektor'])
+
+# ********************
+# Innlesing av i1_syss
+# ********************
+
+tabse_syss = pd.DataFrame()
+
+tabse_syss = pd.read_csv(i1_syss,
+                         header=None,
+                         delimiter=r"\s+",
+                         names=['studium',
+                                'sektor',
+                                'syssm',
+                                'syssk',
+                                'gaavma',
+                                'gaavka'],
+                         usecols=list(range(6)),
+                         dtype={'studium': 'string',
+                                'sektor': 'int',
+                                'syssm': 'int',
+                                'syssk': 'int',
+                                'gaavma': 'float',
+                                'gaavka': 'float'})
+
+tabse_syss['studium'].replace(to_replace="4", value="ba", inplace=True)
+tabse_syss['studium'].replace(to_replace="2", value="gr", inplace=True)
+tabse_syss['studium'].replace(to_replace="3", value="fa", inplace=True)
+tabse_syss['studium'].replace(to_replace="1", value="ps", inplace=True)
+tabse_syss['studium'].replace(to_replace="5", value="an", inplace=True)
+# tabse_syss['studium'].replace(to_replace="6", value="sp", inplace=True)
+# tabse_syss['studium'].replace(to_replace="7", value="st", inplace=True)
+tabse_syss['studium'].replace(to_replace="a", value="ph", inplace=True)
+tabse_syss['studium'].replace(to_replace="b", value="py", inplace=True)
+
+tabse_syss['sektor'] -= 1
+tabse_syss['sektor'].replace(to_replace=0, value=6, inplace=True)
+
+tabse_syss.loc[tabse_syss['syssm'] < 0, ['syssm']] = 0
+tabse_syss.loc[tabse_syss['syssk'] < 0, ['syssk']] = 0
+tabse_syss.loc[tabse_syss['gaavma'] < 0, ['gaavma']] = 0
+tabse_syss.loc[tabse_syss['gaavka'] < 0, ['gaavka']] = 0
+
+tabse_syss['aavma'] = tabse_syss.apply(lambda row: row['syssm'] *
+                                       row['gaavma'], axis=1)
+tabse_syss['aavka'] = tabse_syss.apply(lambda row: row['syssk'] *
+                                       row['gaavka'], axis=1)
+
+# tabse_syss.sort_values(by=['studium', 'sektor'], inplace=True)
+
+# **********************
+# Opprettelse av o1_syss
+# **********************
+
+o1_syss = pd.DataFrame()
+
+o1_syss = tabse_syss.copy()
+
+o1_syss.drop(['gaavma', 'gaavka'], axis=1, inplace=True)
+
+o1_syss.rename(columns={"aavma": "aavm", "aavka": "aavk"}, inplace=True)
+
+# *******************
+# Innlesing av i1_utd
+# *******************
+
+tabse_utd = pd.DataFrame()
+
+tabse_utd = pd.read_csv(i1_utd,
+                        header=None,
+                        delimiter=r"\s+",
+                        na_values={'.', ' .'},
+                        names=['studium',
+                               'kjonn',
+                               'alder',
+                               'bestand',
+                               'sysselsatte',
+                               'yp',
+                               'tpa',
+                               'tp'],
+                        usecols=list(range(8)),
+                        dtype={'studium': 'string',
+                               'kjonn': 'int',
+                               'alder': 'int',
+                               'bestand': 'int',
+                               'sysselsatte': 'int',
+                               'yp': 'float',
+                               'tpa': 'float',
+                               'tp': 'float'})
+
+tabse_utd['studium'].replace(to_replace="4", value="ba", inplace=True)
+tabse_utd['studium'].replace(to_replace="2", value="gr", inplace=True)
+tabse_utd['studium'].replace(to_replace="3", value="fa", inplace=True)
+tabse_utd['studium'].replace(to_replace="a", value="ph", inplace=True)
+tabse_utd['studium'].replace(to_replace="b", value="py", inplace=True)
+
+tabse_utd['yp'] = tabse_utd.apply(lambda row: row['sysselsatte'] /
+                                  row['bestand']
+                                  if row['bestand'] > 0
+                                  else 0, axis=1)
+
+tabse_utd = tabse_utd[tabse_utd['alder'] >= 17]
+tabse_utd = tabse_utd[tabse_utd['alder'] <= 74]
+
+tabse_utd.sort_values(by=['studium', 'kjonn', 'alder'], inplace=True)
+
+# *********************
+# Opprettelse av o1_utd
+# *********************
+
+o1_utd = pd.DataFrame()
+
+o1_utd = tabse_utd.copy()
+
+# ********************
+# Opprettelse av tabet
+# ********************
+
+tabet = pd.DataFrame()
+
+tabet = o1_syss.copy()
+
+tabet['sysst'] = tabet.apply(lambda row: row['syssm'] + row['syssk']
+                             if row['syssm'] >= 0
+                             and row['syssk'] >= 0
+                             else row['syssm']
+                             if row['syssm'] >= 0
+                             else row['syssk'], axis=1)
+
+tabet['aavt'] = tabet.apply(lambda row: row['aavm'] + row['aavk']
+                            if row['aavm'] >= 0
+                            and row['aavk'] >= 0
+                            else row['aavm']
+                            if row['aavm'] >= 0
+                            else row['aavk'], axis=1)
+
+tabet.sort_values(by=['studium', 'sektor'], inplace=True)
+
+# *******************
+# Opprettelse av tabe
+# *******************
+
+tabe = pd.DataFrame()
+
+tabe = tabet.copy()
+
+tabe['studium'].replace(to_replace="ba", value="1", inplace=True)
+tabe['studium'].replace(to_replace="gr", value="2", inplace=True)
+tabe['studium'].replace(to_replace="fa", value="3", inplace=True)
+tabe['studium'].replace(to_replace="ph", value="4", inplace=True)
+tabe['studium'].replace(to_replace="py", value="5", inplace=True)
+tabe['studium'].replace(to_replace=["an", "st", "sp"], value="6", inplace=True)
+
+tabe.rename(columns={"studium": "gruppe"}, inplace=True)
+
+tabe["gruppe"] = pd.to_numeric(tabe["gruppe"])
+
+indexAge = tabe[(tabe['gruppe'] > 5)].index
+tabe.drop(indexAge, inplace=True)
+
+tabe.sort_values(by=['gruppe', 'sektor'], inplace=True)
+tabe = tabe.reset_index()
+tabe.drop(['index'], axis=1, inplace=True)
+
+tabe = tabe.set_index(['gruppe', 'sektor'])
+
+# ********************
+# Opprettelse av taber
+# ********************
+
+taber = pd.DataFrame()
+
+taber = tabet.copy()
+
+taber = taber[taber['studium'] == 'an']
+
+taber.drop(['studium'], axis=1, inplace=True)
+
+taber.set_index('sektor', inplace=True)
+
+# *****************************
+# Proc Summary på tabet og tabe
+# *****************************
+
+tabet = tabet.groupby(['studium', 'sektor']).sum()
+
+tabe = tabe.groupby(['gruppe', 'sektor']).sum()
+
+# ********************
+# Opprettelse av tabes
+# ********************
+
+tabes = pd.DataFrame()
+
+tabes = tabe.copy()
+
+tabes = tabes.groupby(['sektor']).sum()
+
+tabes.rename(columns={"syssm": "syssms"}, inplace=True)
+tabes.rename(columns={"syssk": "syssks"}, inplace=True)
+tabes.rename(columns={"aavm": "aavms"}, inplace=True)
+tabes.rename(columns={"aavk": "aavks"}, inplace=True)
+
+# ********************
+# Opprettelse av tabeg
+# ********************
+
+tabeg = pd.DataFrame()
+
+tabeg = tabe.copy()
+
+tabeg = tabeg.groupby(['gruppe']).sum()
+
+# *********************
+# Opprettelse av tabesg
+# *********************
+
+tabesg = pd.DataFrame()
+
+tabesg = tabe.copy()
+
+tabesg = tabesg.groupby(['sektor', 'gruppe']).sum()
+
+# **************************************
+# Slår sammen tabe og tabes og får tabea
+# **************************************
+
+tabea = pd.DataFrame()
+
+tabes.rename(columns={"syssms": "syssm"}, inplace=True)
+tabes.rename(columns={"syssks": "syssk"}, inplace=True)
+tabes.rename(columns={"aavms": "aavm"}, inplace=True)
+tabes.rename(columns={"aavks": "aavk"}, inplace=True)
+tabes.rename(columns={"syssms": "syssm"}, inplace=True)
+tabes.rename(columns={"syssms": "syssm"}, inplace=True)
+
+kolonnenavn = ['andms', 'andks', 'andmt', 'andkt']
+
+for x in range(5):
+    tabea.insert(loc=x, column=kolonnenavn[3]+str(x+1),
+                 value=[(tabe.iloc[0 + x * 6, 3] / tabes.iloc[0, 3]),
+                        (tabe.iloc[1 + x * 6, 3] / tabes.iloc[1, 3]),
+                        (tabe.iloc[2 + x * 6, 3] / tabes.iloc[2, 3]),
+                        (tabe.iloc[3 + x * 6, 3] / tabes.iloc[3, 3]),
+                        (tabe.iloc[4 + x * 6, 3] / tabes.iloc[4, 3]),
+                        (tabe.iloc[5 + x * 6, 3] / tabes.iloc[5, 3])])
+
+for x in range(5):
+    tabea.insert(loc=x, column=kolonnenavn[2]+str(x+1),
+                 value=[(tabe.iloc[0 + x * 6, 2] / tabes.iloc[0, 2]),
+                        (tabe.iloc[1 + x * 6, 2] / tabes.iloc[1, 2]),
+                        (tabe.iloc[2 + x * 6, 2] / tabes.iloc[2, 2]),
+                        (tabe.iloc[3 + x * 6, 2] / tabes.iloc[3, 2]),
+                        (tabe.iloc[4 + x * 6, 2] / tabes.iloc[4, 2]),
+                        (tabe.iloc[5 + x * 6, 2] / tabes.iloc[5, 2])])
+
+for x in range(5):
+    tabea.insert(loc=x, column=kolonnenavn[1]+str(x+1),
+                 value=[(tabe.iloc[0 + x * 6, 1] / tabes.iloc[0, 1]),
+                        (tabe.iloc[1 + x * 6, 1] / tabes.iloc[1, 1]),
+                        (tabe.iloc[2 + x * 6, 1] / tabes.iloc[2, 1]),
+                        (tabe.iloc[3 + x * 6, 1] / tabes.iloc[3, 1]),
+                        (tabe.iloc[4 + x * 6, 1] / tabes.iloc[4, 1]),
+                        (tabe.iloc[5 + x * 6, 1] / tabes.iloc[5, 1])])
+
+for x in range(5):
+    tabea.insert(loc=x, column=kolonnenavn[0]+str(x+1),
+                 value=[(tabe.iloc[0 + x * 6, 0] / tabes.iloc[0, 0]),
+                        (tabe.iloc[1 + x * 6, 0] / tabes.iloc[1, 0]),
+                        (tabe.iloc[2 + x * 6, 0] / tabes.iloc[2, 0]),
+                        (tabe.iloc[3 + x * 6, 0] / tabes.iloc[3, 0]),
+                        (tabe.iloc[4 + x * 6, 0] / tabes.iloc[4, 0]),
+                        (tabe.iloc[5 + x * 6, 0] / tabes.iloc[5, 0])])
+
+# **********************
+# Opprettelse av taberg1
+# **********************
+
+taber = taber.reset_index()
+
+taberg1 = pd.DataFrame()
+
+taberg1["syssma1"] = tabea.andms1 * taber.syssm
+taberg1["syssma2"] = tabea.andms2 * taber.syssm
+taberg1["syssma3"] = tabea.andms3 * taber.syssm
+taberg1["syssma4"] = tabea.andms4 * taber.syssm
+taberg1["syssma5"] = tabea.andms5 * taber.syssm
+
+taberg1["sysska1"] = tabea.andks1 * taber.syssk
+taberg1["sysska2"] = tabea.andks2 * taber.syssk
+taberg1["sysska3"] = tabea.andks3 * taber.syssk
+taberg1["sysska4"] = tabea.andks4 * taber.syssk
+taberg1["sysska5"] = tabea.andks5 * taber.syssk
+
+taberg1["aavma1"] = tabea.andmt1 * taber.aavm
+taberg1["aavma2"] = tabea.andmt2 * taber.aavm
+taberg1["aavma3"] = tabea.andmt3 * taber.aavm
+taberg1["aavma4"] = tabea.andmt4 * taber.aavm
+taberg1["aavma5"] = tabea.andmt5 * taber.aavm
+
+taberg1["aavka1"] = tabea.andkt1 * taber.aavk
+taberg1["aavka2"] = tabea.andkt2 * taber.aavk
+taberg1["aavka3"] = tabea.andkt3 * taber.aavk
+taberg1["aavka4"] = tabea.andkt4 * taber.aavk
+taberg1["aavka5"] = tabea.andkt5 * taber.aavk
+
+# *********************
+# Opprettelse av taberg
+# *********************
+
+taberg = pd.DataFrame()
+
+idx = pd.MultiIndex.from_product([['1', '2', '3', '4', '5'],
+                                  ['1', '2', '3', '4', '5', '6']],
+                                 names=['gruppe', 'sektor'])
+col = ['syssmr', 'sysskr', 'aavmr', 'aavkr']
+
+df = pd.DataFrame('-', idx, col)
+
+taberg["sektor"] = sektorliste * 5
+taberg["gruppe"] = gruppeliste
+
+taberg["syssmr"] = pd.concat([taberg1.syssma1,
+                              taberg1.syssma2,
+                              taberg1.syssma3,
+                              taberg1.syssma4,
+                              taberg1.syssma5],
+                             ignore_index=True,
+                             sort=False)
+
+taberg["sysskr"] = pd.concat([taberg1.sysska1,
+                              taberg1.sysska2,
+                              taberg1.sysska3,
+                              taberg1.sysska4,
+                              taberg1.sysska5],
+                             ignore_index=True,
+                             sort=False)
+
+taberg["aavmr"] = pd.concat([taberg1.aavma1,
+                             taberg1.aavma2,
+                             taberg1.aavma3,
+                             taberg1.aavma4,
+                             taberg1.aavma5],
+                            ignore_index=True,
+                            sort=False)
+
+taberg["aavkr"] = pd.concat([taberg1.aavka1,
+                             taberg1.aavka2,
+                             taberg1.aavka3,
+                             taberg1.aavka4,
+                             taberg1.aavka5],
+                            ignore_index=True,
+                            sort=False)
+
+taberg["sysstr"] = taberg.syssmr + taberg.sysskr
+
+taberg["aavtr"] = taberg.aavmr + taberg.aavkr
+
+taberg.sort_values(by=['gruppe', 'sektor'], inplace=True)
+taberg = taberg.reset_index()
+taberg.drop(['index'], axis=1, inplace=True)
+
+taberg = taberg.set_index(['gruppe', 'sektor'])
+
+# **********************
+# Opprettelse av tabetot
+# **********************
+
+tabetot = pd.DataFrame()
+
+tabetot['syssm'] = tabe.syssm + taberg.syssmr
+tabetot['syssk'] = tabe.syssk + taberg.sysskr
+tabetot['sysst'] = tabe.sysst + taberg.sysstr
+tabetot['aavm'] = tabe.aavm + taberg.aavmr
+tabetot['aavk'] = tabe.aavk + taberg.aavkr
+tabetot['aavt'] = tabe.aavt + taberg.aavtr
+
+# *********************
+# Opprettelse av tabeut
+# *********************
+
+tabeut = pd.DataFrame()
+
+tabeut = tabetot.aavt.groupby(['gruppe', 'sektor']).sum()
+
+# *****************************
+# Skriver ut fil med årsverkene
+# *****************************
+
+with open(o1, 'w') as f:
+    f.write("ba")
+    serie = tabeut.loc[1]
+    for x in range(6):
+        f.write(str(round(serie[x+1])).rjust(6))
+    f.write('\ngr')
+    serie = tabeut.loc[2]
+    for x in range(6):
+        f.write(str(round(serie[x+1])).rjust(6))
+    f.write('\nfa')
+    serie = tabeut.loc[3]
+    for x in range(6):
+        f.write(str(round(serie[x+1])).rjust(6))
+    f.write('\nph')
+    serie = tabeut.loc[4]
+    for x in range(6):
+        f.write(str(round(serie[x+1])).rjust(6))
+    f.write('\npy')
+    serie = tabeut.loc[5]
+    for x in range(6):
+        f.write(str(round(serie[x+1])).rjust(6))
+
+    f.close()
+
+# **********************
+# Opprettelse av tabergs
+# **********************
+
+tabergs = pd.DataFrame()
+
+tabergs = taberg.groupby(['gruppe']).sum()
+
+# *********************
+# Opprettelse av tabers
+# *********************
+
+tabers = pd.DataFrame()
+
+tabers = tabergs.sum()
+
+# *********************
+# Opprettelse av tabera
+# *********************
+
+tabera = pd.DataFrame()
+
+tabera['andms'] = tabergs.syssmr / tabers.syssmr
+tabera['andks'] = tabergs.sysskr / tabers.sysskr
+tabera['andmt'] = tabergs.aavmr / tabers.aavmr
+tabera['andkt'] = tabergs.aavkr / tabers.aavkr
+
+# **********************
+# Opprettelse av taberak
+# **********************
+
+taberak = pd.DataFrame()
+
+taberak = (tabera.T)
+
+# ******************
+# Opprettelse av tab
+# ******************
+
+tab = pd.DataFrame()
+
+tab = o1_utd
+
+# ******************
+# Opprettelse av tab
+# ******************
+
+tabs = pd.DataFrame()
+
+tab['aavs'] = tab.sysselsatte * tab.tpa
+
+tabs = tab.groupby(["studium"]).sum()
+
+# ****************************
+# Opprettelse av tabap og tabg
+# ****************************
+
+tabap = pd.DataFrame()
+tabg = pd.DataFrame()
+
+tabap = tab
+tabg = tab
+
+# ********************
+# Opprettelse av tabgs
+# ********************
+
+tabgs = pd.DataFrame()
+
+tabgs = tab.groupby(["studium"]).sum()
+
+# ********************
+# Opprettelse av tabgg
+# ********************
+
+tabgg = pd.DataFrame()
+
+tabgg = tabg
+
+tabgg['studium'].replace(to_replace="ba", value="1", inplace=True)
+tabgg['studium'].replace(to_replace="gr", value="2", inplace=True)
+tabgg['studium'].replace(to_replace="fa", value="3", inplace=True)
+tabgg['studium'].replace(to_replace="ph", value="4", inplace=True)
+tabgg['studium'].replace(to_replace="py", value="5", inplace=True)
+
+tabgg.rename(columns={"studium": "gruppe"}, inplace=True)
+
+tabgg = tabgg[tabgg['gruppe'] != "an"]
+tabgg = tabgg[tabgg['gruppe'] != "sp"]
+tabgg = tabgg[tabgg['gruppe'] != "st"]
+
+# *********************
+# Opprettelse av tabtot
+# *********************
+
+tabtot = pd.DataFrame()
+
+tabtot = tabgg
+
+tabtot['gruppe'].replace(to_replace="1", value="ba", inplace=True)
+tabtot['gruppe'].replace(to_replace="2", value="gr", inplace=True)
+tabtot['gruppe'].replace(to_replace="3", value="fa", inplace=True)
+tabtot['gruppe'].replace(to_replace="4", value="ph", inplace=True)
+tabtot['gruppe'].replace(to_replace="5", value="py", inplace=True)
+
+tabtot = tabtot.fillna('')
+
+tabtot['yp'] = pd.to_numeric(tabtot['yp'])
+tabtot['tpa'] = pd.to_numeric(tabtot['tpa'])
+tabtot['tp'] = pd.to_numeric(tabtot['tp'])
+tabtot['aavs'] = pd.to_numeric(tabtot['aavs'])
+
+# *******************************
+# Skriver ut fil med beholdningen
+# *******************************
+
+tabtot.to_csv(o2, float_format='%.5f', sep=';', header=False, index=False)
+
+# **************************
+# Innlesing av nye studenter
+# **************************
+
+studa = pd.DataFrame()
+
+studa = pd.read_csv(st,
+                    header=None,
+                    delimiter=r"\s+",
+                    na_values={'.', ' .'},
+                    names=['studium',
+                           'alder',
+                           'bs',
+                           'bm',
+                           'bk'],
+                    usecols=list(range(5)),
+                    dtype={'studium': 'string',
+                           'alder': 'int',
+                           'bs': 'int',
+                           'bm': 'int',
+                           'bk': 'int'})
+
+studa['studium'].replace(to_replace="ba", value="1", inplace=True)
+studa['studium'].replace(to_replace="gr", value="2", inplace=True)
+studa['studium'].replace(to_replace="fa", value="3", inplace=True)
+studa['studium'].replace(to_replace="ph", value="4", inplace=True)
+studa['studium'].replace(to_replace="py", value="5", inplace=True)
+studa['studium'].replace(to_replace="sp", value="6", inplace=True)
+
+studa = studa.set_index(['studium'])
+
+# ********************
+# Opprettelse av studs
+# ********************
+
+studs = pd.DataFrame()
+
+studs = studa.groupby(["studium"]).sum()
+
+studs.rename(columns={"bs": "bss"}, inplace=True)
+
+studs.drop(['alder'], axis=1, inplace=True)
+studs.drop(['bk'], axis=1, inplace=True)
+studs.drop(['bm'], axis=1, inplace=True)
+
+# *******************
+# Opprettelse av taba
+# *******************
+
+taba = pd.DataFrame()
+
+taba = studa
+
+taba = taba.merge(studs, how='outer', on='studium')
+
+taba.bs = taba.bs / taba.bss
+taba.bm = taba.bm / taba.bss
+taba.bk = taba.bk / taba.bss
+
+taba.drop(['bss'], axis=1, inplace=True)
+
+taba.sort_values(by=['studium', 'alder'], inplace=True)
+
+taba.rename(columns={"bs": "bss"}, inplace=True)
+
+taba = taba.reset_index()
+
+taba['studium'].replace(to_replace="1", value="ba", inplace=True)
+taba['studium'].replace(to_replace="2", value="gr", inplace=True)
+taba['studium'].replace(to_replace="3", value="fa", inplace=True)
+taba['studium'].replace(to_replace="4", value="ph", inplace=True)
+taba['studium'].replace(to_replace="5", value="py", inplace=True)
+taba['studium'].replace(to_replace="6", value="sp", inplace=True)
+
+# ********************************
+# Skriver ut fil med nye studenter
+# ********************************
+
+taba.to_csv(ut, float_format='%.4f', sep=' ', header=False, index=False)
+
+
+
+
+
+
+
+import pandas as pd
+
+i1 = 'inndata/mmmm_2022.txt'
+i2 = 'inndata/antall_barn_barnehager.txt'
+
+b1 = 'utdata/barnehage.dat'
+e1 = 'utdata/grunnskole.dat'
+e2 = 'utdata/andre_skoler.dat'
+
+# ****************************************
+# Innlesing av folkemengden i alder 0-5 år
+# ****************************************
+
+bef1 = pd.DataFrame()
+
+bef1 = pd.read_csv(i1,
+                   header=None,
+                   delimiter=" ",
+                   names=['alder',
+                          'kjonn',
+                          'a2020',
+                          'a2021'],
+                   skiprows=range(2, 200),
+                   usecols=[1, 2, 43, 44])
+
+bef2 = pd.DataFrame()
+
+bef2 = pd.read_csv(i1,
+                   header=None,
+                   delimiter=" ",
+                   names=['alder',
+                          'kjonn',
+                          'a2020',
+                          'a2021'],
+                   skiprows=range(6, 200),
+                   usecols=[1, 2, 43, 44])
+
+bef2 = bef2.drop([0, 1])
+
+bef2 = bef2.reset_index()
+bef2.drop(['index'], axis=1, inplace=True)
+
+bef3 = pd.DataFrame()
+
+bef3 = pd.read_csv(i1,
+                   header=None,
+                   delimiter=" ",
+                   names=['alder',
+                          'kjonn',
+                          'a2020',
+                          'a2021'],
+                   skiprows=range(8, 200),
+                   usecols=[1, 2, 43, 44])
+
+bef3.drop(bef3.index[:6], inplace=True)
+
+bef3 = bef3.reset_index()
+bef3.drop(['index'], axis=1, inplace=True)
+
+bef4 = pd.DataFrame()
+
+bef4 = pd.read_csv(i1,
+                   header=None,
+                   delimiter=" ",
+                   names=['alder',
+                          'kjonn',
+                          'a2020',
+                          'a2021'],
+                   skiprows=range(12, 200),
+                   usecols=[1, 2, 43, 44])
+
+bef4.drop(bef4.index[:8], inplace=True)
+
+bef4 = bef4.reset_index()
+bef4.drop(['index'], axis=1, inplace=True)
+
+# ************************************
+# Innlesing av antall barn i barnehage
+# ************************************
+
+barnhin = pd.DataFrame()
+
+barnhin = pd.read_csv(i2,
+                      header=None,
+                      delimiter=" ",
+                      names=['aar',
+                             'ti1',
+                             'ti2',
+                             'ba1',
+                             'ba2',
+                             'ba3',
+                             'ba4',
+                             'ba5',
+                             'ba6'],
+                      usecols=list(range(9)))
+
+barn1 = pd.DataFrame()
+
+barn1["b2021"] = barnhin.ba1
+barn1["tim"] = barnhin.ti1 + ((barnhin.ti2 - barnhin.ti1) / 2)
+barn1["ald1"] = 0
+barn1["ald2"] = 0
+
+barn2 = pd.DataFrame()
+
+barn2["b2021"] = barnhin.ba2 + barnhin.ba3
+barn2["tim"] = barnhin.ti1 + ((barnhin.ti2 - barnhin.ti1) / 2)
+barn2["ald1"] = 1
+barn2["ald2"] = 2
+
+barn3 = pd.DataFrame()
+
+barn3["b2021"] = barnhin.ba4
+barn3["tim"] = barnhin.ti1 + ((barnhin.ti2 - barnhin.ti1) / 2)
+barn3["ald1"] = 3
+barn3["ald2"] = 3
+
+barn4 = pd.DataFrame()
+
+barn4["b2021"] = barnhin.ba5 + barnhin.ba6
+barn4["tim"] = barnhin.ti1 + ((barnhin.ti2 - barnhin.ti1) / 2)
+barn4["ald1"] = 4
+barn4["ald2"] = 5
+
+# ************************************
+# Oppretter noen oppsummeringstabeller
+# ************************************
+
+befs1 = pd.DataFrame({'agr2020': bef1.a2020.sum(),
+                      'agr2021': bef1.a2021.sum(),
+                      'ald1': 0,
+                      'ald2': 0}, index=[0])
+
+befs2 = pd.DataFrame({'agr2020': bef2.a2020.sum(),
+                      'agr2021': bef2.a2021.sum(),
+                      'ald1': 1,
+                      'ald2': 2}, index=[0])
+
+befs3 = pd.DataFrame({'agr2020': bef3.a2020.sum(),
+                      'agr2021': bef3.a2021.sum(),
+                      'ald1': 3,
+                      'ald2': 3}, index=[0])
+
+befs4 = pd.DataFrame({'agr2020': bef4.a2020.sum(),
+                      'agr2021': bef4.a2021.sum(),
+                      'ald1': 4,
+                      'ald2': 5}, index=[0])
+
+barna1 = pd.DataFrame({'ald1': 0,
+                       'ald2': 0,
+                       'bu': barn1.b2021.sum(),
+                       'bri': (2 * barn1.b2021.mul(barn1.tim.values).sum()) /
+                              (barn1.b2021.sum() * 42.5)}, index=[0])
+
+barna2 = pd.DataFrame({'ald1': 1,
+                       'ald2': 2,
+                       'bu': barn2.b2021.sum(),
+                       'bri': (2 * barn2.b2021.mul(barn2.tim.values).sum()) /
+                              (barn2.b2021.sum() * 42.5)}, index=[0])
+
+barna3 = pd.DataFrame({'ald1': 3,
+                       'ald2': 3,
+                       'bu': barn3.b2021.sum(),
+                       'bri': (1.5 * barn3.b2021.mul(barn3.tim.values).sum()) /
+                              (barn3.b2021.sum() * 42.5)}, index=[0])
+
+barna4 = pd.DataFrame({'ald1': 4,
+                       'ald2': 5,
+                       'bu': barn4.b2021.sum(),
+                       'bri': (1 * barn4.b2021.mul(barn4.tim.values).sum()) /
+                              (barn4.b2021.sum() * 42.5)}, index=[0])
+
+# ********************
+# Slår sammen tabeller
+# ********************
+
+barnr = pd.DataFrame
+
+barnr = pd.concat([befs1, befs2, befs3, befs4], ignore_index=True)
+barnar = pd.concat([barna1, barna2, barna3, barna4], ignore_index=True)
+
+barnr["bu"] = barnar.bu
+barnr["bri"] = barnar.bri
+
+barnr["ans1"] = barnr.bu / barnr.agr2021
+barnr["ans2"] = 1.12 * barnr.ans1
+
+barnr['ans2'] = barnr.apply(lambda row: 1.05 * row['ans1']
+                            if row['ald1'] == 0
+                            else row['ans2'], axis=1)
+
+barnr['ans2'] = barnr.apply(lambda row: 0.97
+                            if row['ans2'] > 0.95
+                            else row['ans2'], axis=1)
+
+barnr["antaar"] = 2
+
+# ***********************************
+# Skriver ut fil med barn i barnehage
+# ***********************************
+
+barnr.to_csv(b1,
+             columns=['ald1',
+                      'ald2',
+                      'agr2020',
+                      'agr2021',
+                      'bu',
+                      'bri',
+                      'ans1',
+                      'ans2',
+                      'antaar'],
+             float_format='%.10f',
+             sep=';',
+             header=False,
+             index=False)
+
+# ******************************************************
+# Innlesing av folkemengden i grunnskole og andre skoler
+# ******************************************************
+
+kolonneposisjoner = [(0, 2), (3, 4), (245, 250), (251, 256)]
+kolonnenavn = ['alder', 'kjonn', 'a2020', 'a2021']
+
+fwf = pd.DataFrame()
+
+fwf = pd.read_fwf(i1, colspecs=kolonneposisjoner, header=None)
+fwf.columns = kolonnenavn
+
+bef5 = pd.DataFrame()
+
+bef5 = fwf[fwf['alder'] >= 6]
+bef5 = bef5[bef5['alder'] <= 15]
+
+bef5 = bef5.reset_index()
+bef5.drop(['index'], axis=1, inplace=True)
+
+bef6 = pd.DataFrame()
+bef6 = fwf
+
+# *************************************
+# Oppretter flere oppsummeringstabeller
+# *************************************
+
+befs5 = pd.DataFrame({'agr2020': bef5.a2020.sum(),
+                      'agr2021': bef5.a2021.sum(),
+                      'ald1': 6,
+                      'ald2': 15,
+                      'bri': 1,
+                      'antaar': 0}, index=[0])
+
+befs6 = pd.DataFrame({'agr2020': bef6.a2020.sum(),
+                      'agr2021': bef6.a2021.sum(),
+                      'ald1': 0,
+                      'ald2': 99,
+                      'bri': 1,
+                      'antaar': 0}, index=[0])
+
+# **************************************
+# Skriver ut fil med elever i grunnskole
+# **************************************
+
+befs5.to_csv(e1,
+             columns=['ald1',
+                      'ald2',
+                      'agr2020',
+                      'agr2021',
+                      'bri',
+                      'antaar'],
+             float_format='%.10f',
+             sep=' ',
+             header=False,
+             index=False)
+
+# ****************************************
+# Skriver ut fil med elever i andre skoler
+# ****************************************
+
+befs6.to_csv(e2,
+             columns=['ald1',
+                      'ald2',
+                      'agr2020',
+                      'agr2021',
+                      'bri',
+                      'antaar'],
+             float_format='%.10f',
+             sep=' ',
+             header=False,
+             index=False)
+
+
+
+
+
+
 
 # ********************
 # Innlesing av inndata
@@ -832,7 +1768,7 @@ t_e.rename(columns={"aarsverk": "Tilbud",
 custom_dict = {'ba': 1, 'gr': 2, 'fa': 3, 'ph': 4, 'py': 5}
 t_e = t_e.sort_values(by=['yrke', 'aar'], key=lambda x: x.map(custom_dict))
 
-t_e.index.names = ['Yrke', 'År']
+t_e.index.names = ['Utdanning', 'År']
 
 t_e.rename(index={'ba': 'Barnehagelærere'}, inplace=True)
 t_e.rename(index={'gr': 'Grunnskolelærere'}, inplace=True)
