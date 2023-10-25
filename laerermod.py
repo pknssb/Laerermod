@@ -382,6 +382,9 @@ taberg1["aavka3"] = tabea.andkt3 * taber.aavk
 taberg1["aavka4"] = tabea.andkt4 * taber.aavk
 taberg1["aavka5"] = tabea.andkt5 * taber.aavk
 
+#print(tabea.to_string())
+#print(taber.to_string())
+#print(taberg1.to_string())
 # *********************
 # Opprettelse av taberg
 # *********************
@@ -446,12 +449,12 @@ taberg = taberg.set_index(['gruppe', 'sektor'])
 
 tabetot = pd.DataFrame()
 
-tabetot['syssm'] = tabe.syssm + taberg.syssmr
-tabetot['syssk'] = tabe.syssk + taberg.sysskr
-tabetot['sysst'] = tabe.sysst + taberg.sysstr
-tabetot['aavm'] = tabe.aavm + taberg.aavmr
-tabetot['aavk'] = tabe.aavk + taberg.aavkr
-tabetot['aavt'] = tabe.aavt + taberg.aavtr
+tabetot['syssm'] = tabe.syssm #+ taberg.syssmr
+tabetot['syssk'] = tabe.syssk #+ taberg.sysskr
+tabetot['sysst'] = tabe.sysst #+ taberg.sysstr
+tabetot['aavm'] = tabe.aavm #+ taberg.aavmr
+tabetot['aavk'] = tabe.aavk #+ taberg.aavkr
+tabetot['aavt'] = tabe.aavt #+ taberg.aavtr
 
 # *********************
 # Opprettelse av tabeut
