@@ -30,7 +30,7 @@ sluttaar = 2040
 innb = 'inndata/mmmm_2022.txt'
 stkap = 'inndata/fullforingsgrader.txt'
 oppta = 'inndata/opptak.txt'
-vak = 'inndata/vakanse.txt'
+vak = 'inndata/vakanseoriginal.txt'
 
 dem3 = 'inndata/antall_elever_videregaende.txt'
 dem4 = 'inndata/antall_studenter_hoyereutdanning.txt'
@@ -52,8 +52,8 @@ dem6 = 'inndata/andre_skoler.dat'
 
 
 
-i1_syss = 'inndata/syssutd2021.txt'
-i1_utd = 'inndata/utd2021_dat.txt'
+i1_syss = 'inndata/sysselsatte.txt'
+i1_utd = 'inndata/utdannede.txt'
 st = 'inndata/nye_studenter.txt'
 
 o1 = 'utdata/aarsverk.dat'
@@ -101,30 +101,13 @@ tabse_syss = pd.read_csv(i1_syss,
                                 'gaavma': 'float',
                                 'gaavka': 'float'})
 
-tabse_syss['studium'].replace(to_replace="4", value="ba", inplace=True)
-tabse_syss['studium'].replace(to_replace="2", value="gr", inplace=True)
-tabse_syss['studium'].replace(to_replace="3", value="fa", inplace=True)
-tabse_syss['studium'].replace(to_replace="1", value="ps", inplace=True)
-tabse_syss['studium'].replace(to_replace="5", value="an", inplace=True)
-# tabse_syss['studium'].replace(to_replace="6", value="sp", inplace=True)
-# tabse_syss['studium'].replace(to_replace="7", value="st", inplace=True)
-tabse_syss['studium'].replace(to_replace="a", value="ph", inplace=True)
-tabse_syss['studium'].replace(to_replace="b", value="py", inplace=True)
-
 tabse_syss['sektor'] -= 1
 tabse_syss['sektor'].replace(to_replace=0, value=6, inplace=True)
 
-tabse_syss.loc[tabse_syss['syssm'] < 0, ['syssm']] = 0
-tabse_syss.loc[tabse_syss['syssk'] < 0, ['syssk']] = 0
-tabse_syss.loc[tabse_syss['gaavma'] < 0, ['gaavma']] = 0
-tabse_syss.loc[tabse_syss['gaavka'] < 0, ['gaavka']] = 0
-
-tabse_syss['aavma'] = tabse_syss.apply(lambda row: row['syssm'] *
-                                       row['gaavma'], axis=1)
-tabse_syss['aavka'] = tabse_syss.apply(lambda row: row['syssk'] *
-                                       row['gaavka'], axis=1)
-
-# tabse_syss.sort_values(by=['studium', 'sektor'], inplace=True)
+tabse_syss['aavm'] = tabse_syss.apply(lambda row: row['syssm'] *
+                                      row['gaavma'], axis=1)
+tabse_syss['aavk'] = tabse_syss.apply(lambda row: row['syssk'] *
+                                      row['gaavka'], axis=1)
 
 # **********************
 # Opprettelse av o1_syss
@@ -135,8 +118,6 @@ o1_syss = pd.DataFrame()
 o1_syss = tabse_syss.copy()
 
 o1_syss.drop(['gaavma', 'gaavka'], axis=1, inplace=True)
-
-o1_syss.rename(columns={"aavma": "aavm", "aavka": "aavk"}, inplace=True)
 
 # *******************
 # Innlesing av i1_utd
@@ -166,21 +147,10 @@ tabse_utd = pd.read_csv(i1_utd,
                                'tpa': 'float',
                                'tp': 'float'})
 
-tabse_utd['studium'].replace(to_replace="4", value="ba", inplace=True)
-tabse_utd['studium'].replace(to_replace="2", value="gr", inplace=True)
-tabse_utd['studium'].replace(to_replace="3", value="fa", inplace=True)
-tabse_utd['studium'].replace(to_replace="a", value="ph", inplace=True)
-tabse_utd['studium'].replace(to_replace="b", value="py", inplace=True)
-
 tabse_utd['yp'] = tabse_utd.apply(lambda row: row['sysselsatte'] /
                                   row['bestand']
                                   if row['bestand'] > 0
                                   else 0, axis=1)
-
-tabse_utd = tabse_utd[tabse_utd['alder'] >= 17]
-tabse_utd = tabse_utd[tabse_utd['alder'] <= 74]
-
-tabse_utd.sort_values(by=['studium', 'kjonn', 'alder'], inplace=True)
 
 # *********************
 # Opprettelse av o1_utd
@@ -382,9 +352,6 @@ taberg1["aavka3"] = tabea.andkt3 * taber.aavk
 taberg1["aavka4"] = tabea.andkt4 * taber.aavk
 taberg1["aavka5"] = tabea.andkt5 * taber.aavk
 
-#print(tabea.to_string())
-#print(taber.to_string())
-#print(taberg1.to_string())
 # *********************
 # Opprettelse av taberg
 # *********************
@@ -449,12 +416,12 @@ taberg = taberg.set_index(['gruppe', 'sektor'])
 
 tabetot = pd.DataFrame()
 
-tabetot['syssm'] = tabe.syssm #+ taberg.syssmr
-tabetot['syssk'] = tabe.syssk #+ taberg.sysskr
-tabetot['sysst'] = tabe.sysst #+ taberg.sysstr
-tabetot['aavm'] = tabe.aavm #+ taberg.aavmr
-tabetot['aavk'] = tabe.aavk #+ taberg.aavkr
-tabetot['aavt'] = tabe.aavt #+ taberg.aavtr
+tabetot['syssm'] = tabe.syssm + taberg.syssmr
+tabetot['syssk'] = tabe.syssk + taberg.sysskr
+tabetot['sysst'] = tabe.sysst + taberg.sysstr
+tabetot['aavm'] = tabe.aavm + taberg.aavmr
+tabetot['aavk'] = tabe.aavk + taberg.aavkr
+tabetot['aavt'] = tabe.aavt + taberg.aavtr
 
 # *********************
 # Opprettelse av tabeut
@@ -570,18 +537,7 @@ tabgs = tab.groupby(["studium"]).sum()
 tabgg = pd.DataFrame()
 
 tabgg = tabg
-
-tabgg['studium'].replace(to_replace="ba", value="1", inplace=True)
-tabgg['studium'].replace(to_replace="gr", value="2", inplace=True)
-tabgg['studium'].replace(to_replace="fa", value="3", inplace=True)
-tabgg['studium'].replace(to_replace="ph", value="4", inplace=True)
-tabgg['studium'].replace(to_replace="py", value="5", inplace=True)
-
 tabgg.rename(columns={"studium": "gruppe"}, inplace=True)
-
-tabgg = tabgg[tabgg['gruppe'] != "an"]
-tabgg = tabgg[tabgg['gruppe'] != "sp"]
-tabgg = tabgg[tabgg['gruppe'] != "st"]
 
 # *********************
 # Opprettelse av tabtot
@@ -590,12 +546,6 @@ tabgg = tabgg[tabgg['gruppe'] != "st"]
 tabtot = pd.DataFrame()
 
 tabtot = tabgg
-
-tabtot['gruppe'].replace(to_replace="1", value="ba", inplace=True)
-tabtot['gruppe'].replace(to_replace="2", value="gr", inplace=True)
-tabtot['gruppe'].replace(to_replace="3", value="fa", inplace=True)
-tabtot['gruppe'].replace(to_replace="4", value="ph", inplace=True)
-tabtot['gruppe'].replace(to_replace="5", value="py", inplace=True)
 
 tabtot = tabtot.fillna('')
 
