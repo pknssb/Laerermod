@@ -27,7 +27,7 @@ basisaar = 2020
 sluttaar = 2040
 
 
-innb = 'inndata/mmmm_2022.txt'
+befolkning = 'inndata/mmmm_2022.txt'
 stkap = 'inndata/fullforingsgrader.txt'
 oppta = 'inndata/opptak.txt'
 vak = 'inndata/vakanseoriginal.txt'
@@ -39,7 +39,6 @@ innpr = 'inndata/standard.txt'
 inplu = 'inndata/endring_timeverk.txt'
 
 # Filer produsert av beholdning.py
-bhl = 'utdata/beholdning.dat'
 aarsv = 'utdata/aarsverk.dat'
 nystu = 'utdata/nye_studenter.dat'
 
@@ -47,7 +46,7 @@ nystu = 'utdata/nye_studenter.dat'
 dem1 = 'utdata/barnehage.dat'
 dem2 = 'inndata/grunnskole.dat'
 dem5 = 'inndata/andre_skoler.dat'
-dem6 = 'inndata/andre_skoler.dat'
+
 
 
 
@@ -57,12 +56,10 @@ utdannede = 'inndata/utdannede.txt'
 st = 'inndata/nye_studenter.txt'
 
 o1 = 'utdata/aarsverk.dat'
-o2 = 'utdata/beholdning.dat'
 ut = 'utdata/nye_studenter.dat'
 
 
 
-i1 = 'inndata/mmmm_2022.txt'
 i2 = 'inndata/antall_barn_barnehager.txt'
 
 b1 = 'utdata/barnehage.dat'
@@ -511,12 +508,6 @@ tabtot['tpa'] = pd.to_numeric(tabtot['tpa'])
 tabtot['tp'] = pd.to_numeric(tabtot['tp'])
 tabtot['aavs'] = pd.to_numeric(tabtot['aavs'])
 
-# *******************************
-# Skriver ut fil med beholdningen
-# *******************************
-
-tabtot.to_csv(o2, float_format='%.5f', sep=';', header=False, index=False)
-
 # **************************
 # Innlesing av nye studenter
 # **************************
@@ -538,13 +529,6 @@ studa = pd.read_csv(st,
                            'bs': 'int',
                            'bm': 'int',
                            'bk': 'int'})
-
-studa['studium'].replace(to_replace="ba", value="1", inplace=True)
-studa['studium'].replace(to_replace="gr", value="2", inplace=True)
-studa['studium'].replace(to_replace="fa", value="3", inplace=True)
-studa['studium'].replace(to_replace="ph", value="4", inplace=True)
-studa['studium'].replace(to_replace="py", value="5", inplace=True)
-studa['studium'].replace(to_replace="sp", value="6", inplace=True)
 
 studa = studa.set_index(['studium'])
 
@@ -584,13 +568,6 @@ taba.rename(columns={"bs": "bss"}, inplace=True)
 
 taba = taba.reset_index()
 
-taba['studium'].replace(to_replace="1", value="ba", inplace=True)
-taba['studium'].replace(to_replace="2", value="gr", inplace=True)
-taba['studium'].replace(to_replace="3", value="fa", inplace=True)
-taba['studium'].replace(to_replace="4", value="ph", inplace=True)
-taba['studium'].replace(to_replace="5", value="py", inplace=True)
-taba['studium'].replace(to_replace="6", value="sp", inplace=True)
-
 # ********************************
 # Skriver ut fil med nye studenter
 # ********************************
@@ -608,7 +585,7 @@ taba.to_csv(ut, float_format='%.4f', sep=' ', header=False, index=False)
 
 bef1 = pd.DataFrame()
 
-bef1 = pd.read_csv(i1,
+bef1 = pd.read_csv(befolkning,
                    header=None,
                    delimiter=" ",
                    names=['alder',
@@ -620,7 +597,7 @@ bef1 = pd.read_csv(i1,
 
 bef2 = pd.DataFrame()
 
-bef2 = pd.read_csv(i1,
+bef2 = pd.read_csv(befolkning,
                    header=None,
                    delimiter=" ",
                    names=['alder',
@@ -637,7 +614,7 @@ bef2.drop(['index'], axis=1, inplace=True)
 
 bef3 = pd.DataFrame()
 
-bef3 = pd.read_csv(i1,
+bef3 = pd.read_csv(befolkning,
                    header=None,
                    delimiter=" ",
                    names=['alder',
@@ -654,7 +631,7 @@ bef3.drop(['index'], axis=1, inplace=True)
 
 bef4 = pd.DataFrame()
 
-bef4 = pd.read_csv(i1,
+bef4 = pd.read_csv(befolkning,
                    header=None,
                    delimiter=" ",
                    names=['alder',
@@ -818,7 +795,7 @@ kolonnenavn = ['alder', 'kjonn', 'a2020', 'a2021']
 
 fwf = pd.DataFrame()
 
-fwf = pd.read_fwf(i1, colspecs=kolonneposisjoner, header=None)
+fwf = pd.read_fwf(befolkning, colspecs=kolonneposisjoner, header=None)
 fwf.columns = kolonnenavn
 
 bef5 = pd.DataFrame()
@@ -866,7 +843,7 @@ for x in range(1980, 2051):
     kolonnenavn = kolonnenavn + ["a" + str(x)]
 
 bef = pd.DataFrame()
-bef = pd.read_fwf(innb,
+bef = pd.read_fwf(befolkning,
                   header=None,
                   delimiter=" ",
                   col_names=kolonnenavn)
@@ -932,31 +909,7 @@ nystud2['kjonn'] = 2
 nystud2['st_ald'] = nystud2.stk
 
 nystud = pd.concat([nystud1, nystud2])
-"""
-beh_pers = pd.DataFrame()
-beh_pers = pd.read_csv(bhl,
-                       header=None,
-                       delimiter=r";",
-                       names=['yrke',
-                              'kjonn',
-                              'alder',
-                              'pers',
-                              'syss',
-                              'yp',
-                              'tpa',
-                              'tp',
-                              'aavs'],
-                       usecols=list(range(9)),
-                       dtype={'yrke': 'string',
-                              'kjonn': 'int',
-                              'alder': 'int',
-                              'pers': 'int',
-                              'syss': 'int',
-                              'yp': 'float',
-                              'tpa': 'float',
-                              'tp': 'float',
-                              'aavs': 'float'})
-"""
+
 beh_pers = tabtot.copy()
 beh_pers.rename(columns={"bestand": "pers"}, inplace=True)
 beh_pers.rename(columns={"sysselsatte": "syss"}, inplace=True)
@@ -965,30 +918,6 @@ beh_pers.rename(columns={"gruppe": "yrke"}, inplace=True)
 beh_pers["arsv"] = beh_pers.pers * beh_pers.yp * beh_pers.tpa
 
 beh_pers.drop(['syss', 'yp', 'tpa', 'tp', 'aavs'], axis=1, inplace=True)
-
-beh_syss = pd.DataFrame()
-beh_syss = pd.read_csv(bhl,
-                       header=None,
-                       delimiter=r";",
-                       names=['yrke',
-                              'kjonn',
-                              'alder',
-                              'pers',
-                              'syss',
-                              'yp',
-                              'tpa',
-                              'tp',
-                              'aavs'],
-                       usecols=list(range(9)),
-                       dtype={'yrke': 'string',
-                              'kjonn': 'int',
-                              'alder': 'int',
-                              'pers': 'int',
-                              'syss': 'int',
-                              'yp': 'float',
-                              'tpa': 'float',
-                              'tp': 'float',
-                              'aavs': 'float'})
 
 beh_syss = tabtot.copy()
 beh_syss.rename(columns={"bestand": "pers"}, inplace=True)
@@ -1174,16 +1103,6 @@ demo5 = pd.DataFrame()
 demo5 = pd.read_fwf(dem5, colspecs=kolonneposisjoner, header=None)
 
 demo5.columns = kolonnenavn
-
-demo6 = pd.DataFrame()
-demo6 = pd.read_fwf(dem6,
-                    header=None,
-                    delimiter=" ",
-                    names=["ald1",
-                           "ald2",
-                           "br",
-                           "bri",
-                           "antaar"])
 
 # ************************************************
 # LAGER ALDERSAGGREGATER av befolkningsfilen etter
