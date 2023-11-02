@@ -52,20 +52,27 @@ dem6 = 'inndata/andre_skoler.dat'
 
 
 
-i1_syss = 'inndata/sysselsatte.txt'
-i1_utd = 'inndata/utdannede.txt'
+sysselsatte = 'inndata/sysselsatte.txt'
+utdannede = 'inndata/utdannede.txt'
 st = 'inndata/nye_studenter.txt'
 
 o1 = 'utdata/aarsverk.dat'
 o2 = 'utdata/beholdning.dat'
 ut = 'utdata/nye_studenter.dat'
 
+
+
+i1 = 'inndata/mmmm_2022.txt'
+i2 = 'inndata/antall_barn_barnehager.txt'
+
+b1 = 'utdata/barnehage.dat'
+
+
+
+
 # **********
 # Konstanter
 # **********
-
-sektorer = [1, 2, 3, 4, 5, 6]
-grupper = [1, 2, 3, 4, 5]
 
 sektorliste = [1, 2, 3, 4, 5, 6]
 gruppeliste = [1, 1, 1, 1, 1, 1,
@@ -74,115 +81,94 @@ gruppeliste = [1, 1, 1, 1, 1, 1,
                4, 4, 4, 4, 4, 4,
                5, 5, 5, 5, 5, 5]
 
-indeks = pd.MultiIndex.from_product([['1', '2', '3', '4', '5'],
-                                    ['1', '2', '3', '4', '5', '6']],
-                                    names=['gruppe', 'sektor'])
+# ********************************
+# Innlesing av sysselsatte lærere.
+# ********************************
 
-# ********************
-# Innlesing av i1_syss
-# ********************
+sysselsatte_laerere = pd.DataFrame()
 
-tabse_syss = pd.DataFrame()
+sysselsatte_laerere = pd.read_csv(sysselsatte,
+                                  header=None,
+                                  delimiter=r"\s+",
+                                  names=['studium',
+                                         'sektor',
+                                         'syssm',
+                                         'syssk',
+                                         'gaavma',
+                                         'gaavka'],
+                                  usecols=list(range(6)),
+                                  dtype={'studium': 'string',
+                                         'sektor': 'int',
+                                         'syssm': 'int',
+                                         'syssk': 'int',
+                                         'gaavma': 'float',
+                                         'gaavka': 'float'})
 
-tabse_syss = pd.read_csv(i1_syss,
-                         header=None,
-                         delimiter=r"\s+",
-                         names=['studium',
-                                'sektor',
-                                'syssm',
-                                'syssk',
-                                'gaavma',
-                                'gaavka'],
-                         usecols=list(range(6)),
-                         dtype={'studium': 'string',
-                                'sektor': 'int',
-                                'syssm': 'int',
-                                'syssk': 'int',
-                                'gaavma': 'float',
-                                'gaavka': 'float'})
+sysselsatte_laerere['sektor'] -= 1
+sysselsatte_laerere['sektor'].replace(to_replace=0, value=6, inplace=True)
 
-tabse_syss['sektor'] -= 1
-tabse_syss['sektor'].replace(to_replace=0, value=6, inplace=True)
+sysselsatte_laerere['aavm'] = sysselsatte_laerere.apply(lambda row:
+                                                        row['syssm'] *
+                                                        row['gaavma'], axis=1)
+sysselsatte_laerere['aavk'] = sysselsatte_laerere.apply(lambda row: 
+                                                        row['syssk'] *
+                                                        row['gaavka'], axis=1)
 
-tabse_syss['aavm'] = tabse_syss.apply(lambda row: row['syssm'] *
-                                      row['gaavma'], axis=1)
-tabse_syss['aavk'] = tabse_syss.apply(lambda row: row['syssk'] *
-                                      row['gaavka'], axis=1)
+sysselsatte_laerere.drop(['gaavma', 'gaavka'], axis=1, inplace=True)
 
-# **********************
-# Opprettelse av o1_syss
-# **********************
+# ******************************
+# Innlesing av utdannede lærere.
+# ******************************
 
-o1_syss = pd.DataFrame()
+utdannede_laerere = pd.DataFrame()
 
-o1_syss = tabse_syss.copy()
+utdannede_laerere = pd.read_csv(utdannede,
+                                header=None,
+                                delimiter=r"\s+",
+                                na_values={'.', ' .'},
+                                names=['studium',
+                                       'kjonn',
+                                       'alder',
+                                       'bestand',
+                                       'sysselsatte',
+                                       'yp',
+                                       'tpa',
+                                       'tp'],
+                                usecols=list(range(8)),
+                                dtype={'studium': 'string',
+                                       'kjonn': 'int',
+                                       'alder': 'int',
+                                       'bestand': 'int',
+                                       'sysselsatte': 'int',
+                                       'yp': 'float',
+                                       'tpa': 'float',
+                                       'tp': 'float'})
 
-o1_syss.drop(['gaavma', 'gaavka'], axis=1, inplace=True)
-
-# *******************
-# Innlesing av i1_utd
-# *******************
-
-tabse_utd = pd.DataFrame()
-
-tabse_utd = pd.read_csv(i1_utd,
-                        header=None,
-                        delimiter=r"\s+",
-                        na_values={'.', ' .'},
-                        names=['studium',
-                               'kjonn',
-                               'alder',
-                               'bestand',
-                               'sysselsatte',
-                               'yp',
-                               'tpa',
-                               'tp'],
-                        usecols=list(range(8)),
-                        dtype={'studium': 'string',
-                               'kjonn': 'int',
-                               'alder': 'int',
-                               'bestand': 'int',
-                               'sysselsatte': 'int',
-                               'yp': 'float',
-                               'tpa': 'float',
-                               'tp': 'float'})
-
-tabse_utd['yp'] = tabse_utd.apply(lambda row: row['sysselsatte'] /
-                                  row['bestand']
-                                  if row['bestand'] > 0
-                                  else 0, axis=1)
-
-# *********************
-# Opprettelse av o1_utd
-# *********************
-
-o1_utd = pd.DataFrame()
-
-o1_utd = tabse_utd.copy()
+utdannede_laerere['yp'] = utdannede_laerere.apply(lambda row:
+                                                  row['sysselsatte'] /
+                                                  row['bestand']
+                                                  if row['bestand'] > 0
+                                                  else 0, axis=1)
 
 # ********************
 # Opprettelse av tabet
 # ********************
 
-tabet = pd.DataFrame()
-
-tabet = o1_syss.copy()
-
-tabet['sysst'] = tabet.apply(lambda row: row['syssm'] + row['syssk']
+sysselsatte_laerere['sysst'] = sysselsatte_laerere.apply(lambda row: row['syssm'] + row['syssk']
                              if row['syssm'] >= 0
                              and row['syssk'] >= 0
                              else row['syssm']
                              if row['syssm'] >= 0
                              else row['syssk'], axis=1)
 
-tabet['aavt'] = tabet.apply(lambda row: row['aavm'] + row['aavk']
+sysselsatte_laerere['aavt'] = sysselsatte_laerere.apply(lambda row: row['aavm'] + row['aavk']
                             if row['aavm'] >= 0
                             and row['aavk'] >= 0
                             else row['aavm']
                             if row['aavm'] >= 0
                             else row['aavk'], axis=1)
 
-tabet.sort_values(by=['studium', 'sektor'], inplace=True)
+sysselsatte_laerere.sort_values(by=['studium', 'sektor'], inplace=True)
 
 # *******************
 # Opprettelse av tabe
@@ -190,7 +176,7 @@ tabet.sort_values(by=['studium', 'sektor'], inplace=True)
 
 tabe = pd.DataFrame()
 
-tabe = tabet.copy()
+tabe = sysselsatte_laerere.copy()
 
 tabe['studium'].replace(to_replace="ba", value="1", inplace=True)
 tabe['studium'].replace(to_replace="gr", value="2", inplace=True)
@@ -218,7 +204,7 @@ tabe = tabe.set_index(['gruppe', 'sektor'])
 
 taber = pd.DataFrame()
 
-taber = tabet.copy()
+taber = sysselsatte_laerere.copy()
 
 taber = taber[taber['studium'] == 'an']
 
@@ -230,7 +216,7 @@ taber.set_index('sektor', inplace=True)
 # Proc Summary på tabet og tabe
 # *****************************
 
-tabet = tabet.groupby(['studium', 'sektor']).sum()
+sysselsatte_laerere = sysselsatte_laerere.groupby(['studium', 'sektor']).sum()
 
 tabe = tabe.groupby(['gruppe', 'sektor']).sum()
 
@@ -243,11 +229,6 @@ tabes = pd.DataFrame()
 tabes = tabe.copy()
 
 tabes = tabes.groupby(['sektor']).sum()
-
-tabes.rename(columns={"syssm": "syssms"}, inplace=True)
-tabes.rename(columns={"syssk": "syssks"}, inplace=True)
-tabes.rename(columns={"aavm": "aavms"}, inplace=True)
-tabes.rename(columns={"aavk": "aavks"}, inplace=True)
 
 # ********************
 # Opprettelse av tabeg
@@ -274,13 +255,6 @@ tabesg = tabesg.groupby(['sektor', 'gruppe']).sum()
 # **************************************
 
 tabea = pd.DataFrame()
-
-tabes.rename(columns={"syssms": "syssm"}, inplace=True)
-tabes.rename(columns={"syssks": "syssk"}, inplace=True)
-tabes.rename(columns={"aavms": "aavm"}, inplace=True)
-tabes.rename(columns={"aavks": "aavk"}, inplace=True)
-tabes.rename(columns={"syssms": "syssm"}, inplace=True)
-tabes.rename(columns={"syssms": "syssm"}, inplace=True)
 
 kolonnenavn = ['andms', 'andks', 'andmt', 'andkt']
 
@@ -498,43 +472,28 @@ taberak = (tabera.T)
 # Opprettelse av tab
 # ******************
 
-tab = pd.DataFrame()
-
-tab = o1_utd
-
-# ******************
-# Opprettelse av tab
-# ******************
-
 tabs = pd.DataFrame()
 
-tab['aavs'] = tab.sysselsatte * tab.tpa
+utdannede_laerere['aavs'] = utdannede_laerere.sysselsatte * utdannede_laerere.tpa
 
-tabs = tab.groupby(["studium"]).sum()
+tabs = utdannede_laerere.groupby(["studium"]).sum()
 
 # ****************************
 # Opprettelse av tabap og tabg
 # ****************************
 
-tabap = pd.DataFrame()
-tabg = pd.DataFrame()
-
-tabap = tab
-tabg = tab
+tabap = utdannede_laerere
+tabg = utdannede_laerere
 
 # ********************
 # Opprettelse av tabgs
 # ********************
 
-tabgs = pd.DataFrame()
-
-tabgs = tab.groupby(["studium"]).sum()
+tabgs = utdannede_laerere.groupby(["studium"]).sum()
 
 # ********************
 # Opprettelse av tabgg
 # ********************
-
-tabgg = pd.DataFrame()
 
 tabgg = tabg
 tabgg.rename(columns={"studium": "gruppe"}, inplace=True)
@@ -542,8 +501,6 @@ tabgg.rename(columns={"studium": "gruppe"}, inplace=True)
 # *********************
 # Opprettelse av tabtot
 # *********************
-
-tabtot = pd.DataFrame()
 
 tabtot = tabgg
 
@@ -644,16 +601,6 @@ taba.to_csv(ut, float_format='%.4f', sep=' ', header=False, index=False)
 
 
 
-
-
-import pandas as pd
-
-i1 = 'inndata/mmmm_2022.txt'
-i2 = 'inndata/antall_barn_barnehager.txt'
-
-b1 = 'utdata/barnehage.dat'
-e1 = 'utdata/grunnskole.dat'
-e2 = 'utdata/andre_skoler.dat'
 
 # ****************************************
 # Innlesing av folkemengden i alder 0-5 år
@@ -903,38 +850,6 @@ befs6 = pd.DataFrame({'agr2020': bef6.a2020.sum(),
                       'bri': 1,
                       'antaar': 0}, index=[0])
 
-# **************************************
-# Skriver ut fil med elever i grunnskole
-# **************************************
-
-befs5.to_csv(e1,
-             columns=['ald1',
-                      'ald2',
-                      'agr2020',
-                      'agr2021',
-                      'bri',
-                      'antaar'],
-             float_format='%.10f',
-             sep=' ',
-             header=False,
-             index=False)
-
-# ****************************************
-# Skriver ut fil med elever i andre skoler
-# ****************************************
-
-befs6.to_csv(e2,
-             columns=['ald1',
-                      'ald2',
-                      'agr2020',
-                      'agr2021',
-                      'bri',
-                      'antaar'],
-             float_format='%.10f',
-             sep=' ',
-             header=False,
-             index=False)
-
 
 
 
@@ -1017,7 +932,7 @@ nystud2['kjonn'] = 2
 nystud2['st_ald'] = nystud2.stk
 
 nystud = pd.concat([nystud1, nystud2])
-
+"""
 beh_pers = pd.DataFrame()
 beh_pers = pd.read_csv(bhl,
                        header=None,
@@ -1041,6 +956,11 @@ beh_pers = pd.read_csv(bhl,
                               'tpa': 'float',
                               'tp': 'float',
                               'aavs': 'float'})
+"""
+beh_pers = tabtot.copy()
+beh_pers.rename(columns={"bestand": "pers"}, inplace=True)
+beh_pers.rename(columns={"sysselsatte": "syss"}, inplace=True)
+beh_pers.rename(columns={"gruppe": "yrke"}, inplace=True)
 
 beh_pers["arsv"] = beh_pers.pers * beh_pers.yp * beh_pers.tpa
 
@@ -1069,6 +989,11 @@ beh_syss = pd.read_csv(bhl,
                               'tpa': 'float',
                               'tp': 'float',
                               'aavs': 'float'})
+
+beh_syss = tabtot.copy()
+beh_syss.rename(columns={"bestand": "pers"}, inplace=True)
+beh_syss.rename(columns={"sysselsatte": "syss"}, inplace=True)
+beh_syss.rename(columns={"gruppe": "yrke"}, inplace=True)
 
 beh_syss.rename(columns={"yp": "syssand",
                          "tpa": "garsv"},
