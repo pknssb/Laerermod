@@ -3,7 +3,31 @@ from functools import reduce
 
 import time
 
-starttid = time.time()
+
+basisaar = 2020
+sluttaar = 2040
+
+
+befolkning = 'inndata/mmmm_2022.txt'
+stkap = 'inndata/fullforingsgrader.txt'
+oppta = 'inndata/opptak.txt'
+vak = 'inndata/vakanseoriginal.txt'
+
+dem3 = 'inndata/antall_elever_videregaende.txt'
+dem4 = 'inndata/antall_studenter_hoyereutdanning.txt'
+
+innpr = 'inndata/standard.txt'
+inplu = 'inndata/endring_timeverk.txt'
+
+# Filer produsert av demografi.py
+dem2 = 'inndata/grunnskole.dat'
+dem5 = 'inndata/andre_skoler.dat'
+
+sysselsatte = 'inndata/sysselsatte.txt'
+utdannede = 'inndata/utdannede.txt'
+st = 'inndata/nye_studenter.txt'
+
+i2 = 'inndata/antall_barn_barnehager.txt'
 
 
 print()
@@ -23,48 +47,7 @@ print('/********************************************************************/')
 print()
 
 
-basisaar = 2020
-sluttaar = 2040
-
-
-befolkning = 'inndata/mmmm_2022.txt'
-stkap = 'inndata/fullforingsgrader.txt'
-oppta = 'inndata/opptak.txt'
-vak = 'inndata/vakanseoriginal.txt'
-
-dem3 = 'inndata/antall_elever_videregaende.txt'
-dem4 = 'inndata/antall_studenter_hoyereutdanning.txt'
-
-innpr = 'inndata/standard.txt'
-inplu = 'inndata/endring_timeverk.txt'
-
-# Filer produsert av beholdning.py
-aarsv = 'utdata/aarsverk.dat'
-nystu = 'utdata/nye_studenter.dat'
-
-# Filer produsert av demografi.py
-dem1 = 'utdata/barnehage.dat'
-dem2 = 'inndata/grunnskole.dat'
-dem5 = 'inndata/andre_skoler.dat'
-
-
-
-
-
-sysselsatte = 'inndata/sysselsatte.txt'
-utdannede = 'inndata/utdannede.txt'
-st = 'inndata/nye_studenter.txt'
-
-o1 = 'utdata/aarsverk.dat'
-ut = 'utdata/nye_studenter.dat'
-
-
-
-i2 = 'inndata/antall_barn_barnehager.txt'
-
-b1 = 'utdata/barnehage.dat'
-
-
+starttid = time.time()
 
 
 # **********
@@ -113,6 +96,22 @@ sysselsatte_laerere['aavk'] = sysselsatte_laerere.apply(lambda row:
 
 sysselsatte_laerere.drop(['gaavma', 'gaavka'], axis=1, inplace=True)
 
+sysselsatte_laerere['sysst'] = sysselsatte_laerere.apply(lambda row: row['syssm'] + row['syssk']
+                             if row['syssm'] >= 0
+                             and row['syssk'] >= 0
+                             else row['syssm']
+                             if row['syssm'] >= 0
+                             else row['syssk'], axis=1)
+
+sysselsatte_laerere['aavt'] = sysselsatte_laerere.apply(lambda row: row['aavm'] + row['aavk']
+                            if row['aavm'] >= 0
+                            and row['aavk'] >= 0
+                            else row['aavm']
+                            if row['aavm'] >= 0
+                            else row['aavk'], axis=1)
+
+sysselsatte_laerere.sort_values(by=['studium', 'sektor'], inplace=True)
+
 # ******************************
 # Innlesing av utdannede lærere.
 # ******************************
@@ -147,26 +146,6 @@ utdannede_laerere['yp'] = utdannede_laerere.apply(lambda row:
                                                   if row['bestand'] > 0
                                                   else 0, axis=1)
 
-# ********************
-# Opprettelse av tabet
-# ********************
-
-sysselsatte_laerere['sysst'] = sysselsatte_laerere.apply(lambda row: row['syssm'] + row['syssk']
-                             if row['syssm'] >= 0
-                             and row['syssk'] >= 0
-                             else row['syssm']
-                             if row['syssm'] >= 0
-                             else row['syssk'], axis=1)
-
-sysselsatte_laerere['aavt'] = sysselsatte_laerere.apply(lambda row: row['aavm'] + row['aavk']
-                            if row['aavm'] >= 0
-                            and row['aavk'] >= 0
-                            else row['aavm']
-                            if row['aavm'] >= 0
-                            else row['aavk'], axis=1)
-
-sysselsatte_laerere.sort_values(by=['studium', 'sektor'], inplace=True)
-
 # *******************
 # Opprettelse av tabe
 # *******************
@@ -180,7 +159,7 @@ tabe['studium'].replace(to_replace="gr", value="2", inplace=True)
 tabe['studium'].replace(to_replace="fa", value="3", inplace=True)
 tabe['studium'].replace(to_replace="ph", value="4", inplace=True)
 tabe['studium'].replace(to_replace="py", value="5", inplace=True)
-tabe['studium'].replace(to_replace=["an", "st", "sp"], value="6", inplace=True)
+tabe['studium'].replace(to_replace="an", value="6", inplace=True)
 
 tabe.rename(columns={"studium": "gruppe"}, inplace=True)
 
@@ -402,34 +381,6 @@ tabeut = pd.DataFrame()
 
 tabeut = tabetot.aavt.groupby(['gruppe', 'sektor']).sum()
 
-# *****************************
-# Skriver ut fil med årsverkene
-# *****************************
-
-with open(o1, 'w') as f:
-    f.write("ba")
-    serie = tabeut.loc[1]
-    for x in range(6):
-        f.write(str(round(serie[x+1])).rjust(6))
-    f.write('\ngr')
-    serie = tabeut.loc[2]
-    for x in range(6):
-        f.write(str(round(serie[x+1])).rjust(6))
-    f.write('\nfa')
-    serie = tabeut.loc[3]
-    for x in range(6):
-        f.write(str(round(serie[x+1])).rjust(6))
-    f.write('\nph')
-    serie = tabeut.loc[4]
-    for x in range(6):
-        f.write(str(round(serie[x+1])).rjust(6))
-    f.write('\npy')
-    serie = tabeut.loc[5]
-    for x in range(6):
-        f.write(str(round(serie[x+1])).rjust(6))
-
-    f.close()
-
 # **********************
 # Opprettelse av tabergs
 # **********************
@@ -450,56 +401,33 @@ tabers = tabergs.sum()
 # Opprettelse av tabera
 # *********************
 
-tabera = pd.DataFrame()
+#tabera = pd.DataFrame()
 
-tabera['andms'] = tabergs.syssmr / tabers.syssmr
-tabera['andks'] = tabergs.sysskr / tabers.sysskr
-tabera['andmt'] = tabergs.aavmr / tabers.aavmr
-tabera['andkt'] = tabergs.aavkr / tabers.aavkr
+#tabera['andms'] = tabergs.syssmr / tabers.syssmr
+#tabera['andks'] = tabergs.sysskr / tabers.sysskr
+#tabera['andmt'] = tabergs.aavmr / tabers.aavmr
+#tabera['andkt'] = tabergs.aavkr / tabers.aavkr
 
 # **********************
 # Opprettelse av taberak
 # **********************
 
-taberak = pd.DataFrame()
+#taberak = pd.DataFrame()
 
-taberak = (tabera.T)
+#taberak = (tabera.T)
 
 # ******************
 # Opprettelse av tab
 # ******************
 
-tabs = pd.DataFrame()
-
 utdannede_laerere['aavs'] = utdannede_laerere.sysselsatte * utdannede_laerere.tpa
-
-tabs = utdannede_laerere.groupby(["studium"]).sum()
-
-# ****************************
-# Opprettelse av tabap og tabg
-# ****************************
-
-tabap = utdannede_laerere
-tabg = utdannede_laerere
-
-# ********************
-# Opprettelse av tabgs
-# ********************
-
-tabgs = utdannede_laerere.groupby(["studium"]).sum()
-
-# ********************
-# Opprettelse av tabgg
-# ********************
-
-tabgg = tabg
-tabgg.rename(columns={"studium": "gruppe"}, inplace=True)
 
 # *********************
 # Opprettelse av tabtot
 # *********************
 
-tabtot = tabgg
+tabtot = utdannede_laerere
+tabtot.rename(columns={"studium": "gruppe"}, inplace=True)
 
 tabtot = tabtot.fillna('')
 
@@ -567,17 +495,6 @@ taba.sort_values(by=['studium', 'alder'], inplace=True)
 taba.rename(columns={"bs": "bss"}, inplace=True)
 
 taba = taba.reset_index()
-
-# ********************************
-# Skriver ut fil med nye studenter
-# ********************************
-
-taba.to_csv(ut, float_format='%.4f', sep=' ', header=False, index=False)
-
-
-
-
-
 
 # ****************************************
 # Innlesing av folkemengden i alder 0-5 år
@@ -767,25 +684,6 @@ barnr['ans2'] = barnr.apply(lambda row: 0.97
 
 barnr["antaar"] = 2
 
-# ***********************************
-# Skriver ut fil med barn i barnehage
-# ***********************************
-
-barnr.to_csv(b1,
-             columns=['ald1',
-                      'ald2',
-                      'agr2020',
-                      'agr2021',
-                      'bu',
-                      'bri',
-                      'ans1',
-                      'ans2',
-                      'antaar'],
-             float_format='%.10f',
-             sep=';',
-             header=False,
-             index=False)
-
 # ******************************************************
 # Innlesing av folkemengden i grunnskole og andre skoler
 # ******************************************************
@@ -826,12 +724,6 @@ befs6 = pd.DataFrame({'agr2020': bef6.a2020.sum(),
                       'ald2': 99,
                       'bri': 1,
                       'antaar': 0}, index=[0])
-
-
-
-
-
-
 
 # ********************
 # Innlesing av inndata
@@ -892,19 +784,13 @@ plussakt = pd.read_fwf(inplu,
                        delimiter=" ",
                        names=["alder", "plussm", "plussk"])
 
-nystud1 = pd.read_fwf(nystu,
-                      header=None,
-                      delimiter=" ",
-                      names=["yrke", "alder", "st", "stm", "stk"])
-
+nystud1 = taba.copy()
+nystud1.rename(columns={"studium": "yrke", "bss": "st", "bm": "stm", "bk": "stk"}, inplace=True)
 nystud1['kjonn'] = 1
 nystud1['st_ald'] = nystud1.stm
 
-nystud2 = pd.read_fwf(nystu,
-                      header=None,
-                      delimiter=" ",
-                      names=["yrke", "alder", "st", "stm", "stk"])
-
+nystud2 = taba.copy()
+nystud2.rename(columns={"studium": "yrke", "bss": "st", "bm": "stm", "bk": "stk"}, inplace=True)
 nystud2['kjonn'] = 2
 nystud2['st_ald'] = nystud2.stk
 
@@ -930,11 +816,14 @@ beh_syss.rename(columns={"yp": "syssand",
 
 beh_syss.drop(['pers', 'syss', 'tp', 'aavs'], axis=1, inplace=True)
 
-arsvesp = pd.DataFrame()
-arsvesp = pd.read_fwf(aarsv,
-                      header=None,
-                      delimiter=" ",
-                      names=["yrke", "ar1", "ar2", "ar3", "ar4", "ar5", "ar6"])
+arsvesp = pd.DataFrame({'yrke': ['ba', 'gr', 'fa', 'ph', 'py']})
+
+arsvesp['ar1'] = tabetot.aavt[tabetot.aavt.index.get_level_values('sektor') == 1].reset_index(drop=True)
+arsvesp['ar2'] = tabetot.aavt[tabetot.aavt.index.get_level_values('sektor') == 2].reset_index(drop=True)
+arsvesp['ar3'] = tabetot.aavt[tabetot.aavt.index.get_level_values('sektor') == 3].reset_index(drop=True)
+arsvesp['ar4'] = tabetot.aavt[tabetot.aavt.index.get_level_values('sektor') == 4].reset_index(drop=True)
+arsvesp['ar5'] = tabetot.aavt[tabetot.aavt.index.get_level_values('sektor') == 5].reset_index(drop=True)
+arsvesp['ar6'] = tabetot.aavt[tabetot.aavt.index.get_level_values('sektor') == 6].reset_index(drop=True)
 
 vakesp = pd.DataFrame()
 vakesp = pd.read_fwf(vak,
@@ -968,10 +857,6 @@ stand = stand[stand['aar'] <= sluttaar]
 # ****************************************
 # Oppretter datasett for senere utfylling.
 # ****************************************
-
-filnavn = ['dem1', 'dem2', 'dem3', 'dem4', 'dem5', 'dem6']
-aldersnavn = ['ald1', 'ald2', 'ald3', 'ald4', 'ald5', 'ald6']
-demografinavn = ['demo1', 'demo2', 'demo3', 'demo4', 'demo5', 'dem6']
 
 ald1 = pd.DataFrame(columns=['ald2', 'alder'])
 
@@ -1048,43 +933,18 @@ for x in range(0, 100):
 kolonneposisjoner = [(0, 2), (4, 6), (7, 16), (17, 22), (23, 25)]
 kolonnenavn = ['ald1', 'ald2', 'br', 'bri', 'antaar']
 
-demo1 = pd.read_csv(dem1,
-                    header=None,
-                    delimiter=r";",
-                    names=['ald1',
-                           'ald2',
-                           'agr2020',
-                           'agr2021',
-                           'br',
-                           'bri',
-                           'ans1',
-                           'ans2',
-                           'antaar'],
-                    usecols=list(range(9)),
-                    dtype={'ald1': 'int',
-                           'ald2': 'int',
-                           'agr2020': 'int',
-                           'agr2021': 'int',
-                           'br': 'int',
-                           'bri': 'float',
-                           'ans1': 'float',
-                           'ans2': 'float',
-                           'antaar': 'int'})
+demo1 = barnr
+demo1.rename(columns={"bu": "br"}, inplace=True)
 
 demo2 = pd.DataFrame()
 demo2 = pd.read_fwf(dem2,
                     header=None,
                     delimiter=" ",
-                    names=["ald1",
-                           "ald2",
-                           "br",
-                           "bri",
-                           "antaar"])
+                    names=kolonnenavn)
 
 demo3 = pd.DataFrame()
 
 kolonneposisjoner = [(0, 2), (3, 5), (6, 14), (15, 18), (19, 20)]
-kolonnenavn = ['ald1', 'ald2', 'br', 'bri', 'antaar']
 
 demo3 = pd.read_fwf(dem3, colspecs=kolonneposisjoner, header=None)
 demo3.columns = kolonnenavn
@@ -1093,11 +953,7 @@ demo4 = pd.DataFrame()
 demo4 = pd.read_fwf(dem4,
                     header=None,
                     delimiter=" ",
-                    names=["ald1",
-                           "ald2",
-                           "br",
-                           "bri",
-                           "antaar"])
+                    names=kolonnenavn)
 
 demo5 = pd.DataFrame()
 demo5 = pd.read_fwf(dem5, colspecs=kolonneposisjoner, header=None)
