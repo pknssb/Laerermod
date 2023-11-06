@@ -212,41 +212,15 @@ tabea = pd.DataFrame()
 
 kolonnenavn = ['andms', 'andks', 'andmt', 'andkt']
 
-for x in range(5):
-    tabea.insert(loc=x, column=kolonnenavn[3]+str(x+1),
-                 value=[(tabe.iloc[0 + x * 6, 3] / tabes.iloc[0, 3]),
-                        (tabe.iloc[1 + x * 6, 3] / tabes.iloc[1, 3]),
-                        (tabe.iloc[2 + x * 6, 3] / tabes.iloc[2, 3]),
-                        (tabe.iloc[3 + x * 6, 3] / tabes.iloc[3, 3]),
-                        (tabe.iloc[4 + x * 6, 3] / tabes.iloc[4, 3]),
-                        (tabe.iloc[5 + x * 6, 3] / tabes.iloc[5, 3])])
-
-for x in range(5):
-    tabea.insert(loc=x, column=kolonnenavn[2]+str(x+1),
-                 value=[(tabe.iloc[0 + x * 6, 2] / tabes.iloc[0, 2]),
-                        (tabe.iloc[1 + x * 6, 2] / tabes.iloc[1, 2]),
-                        (tabe.iloc[2 + x * 6, 2] / tabes.iloc[2, 2]),
-                        (tabe.iloc[3 + x * 6, 2] / tabes.iloc[3, 2]),
-                        (tabe.iloc[4 + x * 6, 2] / tabes.iloc[4, 2]),
-                        (tabe.iloc[5 + x * 6, 2] / tabes.iloc[5, 2])])
-
-for x in range(5):
-    tabea.insert(loc=x, column=kolonnenavn[1]+str(x+1),
-                 value=[(tabe.iloc[0 + x * 6, 1] / tabes.iloc[0, 1]),
-                        (tabe.iloc[1 + x * 6, 1] / tabes.iloc[1, 1]),
-                        (tabe.iloc[2 + x * 6, 1] / tabes.iloc[2, 1]),
-                        (tabe.iloc[3 + x * 6, 1] / tabes.iloc[3, 1]),
-                        (tabe.iloc[4 + x * 6, 1] / tabes.iloc[4, 1]),
-                        (tabe.iloc[5 + x * 6, 1] / tabes.iloc[5, 1])])
-
-for x in range(5):
-    tabea.insert(loc=x, column=kolonnenavn[0]+str(x+1),
-                 value=[(tabe.iloc[0 + x * 6, 0] / tabes.iloc[0, 0]),
-                        (tabe.iloc[1 + x * 6, 0] / tabes.iloc[1, 0]),
-                        (tabe.iloc[2 + x * 6, 0] / tabes.iloc[2, 0]),
-                        (tabe.iloc[3 + x * 6, 0] / tabes.iloc[3, 0]),
-                        (tabe.iloc[4 + x * 6, 0] / tabes.iloc[4, 0]),
-                        (tabe.iloc[5 + x * 6, 0] / tabes.iloc[5, 0])])
+for i in range(4):
+    for x in range(5):
+        tabea.insert(loc=x, column=kolonnenavn[i]+str(x+1),
+                     value=[(tabe.iloc[0 + x * 6, i] / tabes.iloc[0, i]),
+                            (tabe.iloc[1 + x * 6, i] / tabes.iloc[1, i]),
+                            (tabe.iloc[2 + x * 6, i] / tabes.iloc[2, i]),
+                            (tabe.iloc[3 + x * 6, i] / tabes.iloc[3, i]),
+                            (tabe.iloc[4 + x * 6, i] / tabes.iloc[4, i]),
+                            (tabe.iloc[5 + x * 6, i] / tabes.iloc[5, i])])
 
 # **********************
 # Opprettelse av taberg1
@@ -256,29 +230,11 @@ taber = taber.reset_index()
 
 taberg1 = pd.DataFrame()
 
-taberg1["syssma1"] = tabea.andms1 * taber.syssm
-taberg1["syssma2"] = tabea.andms2 * taber.syssm
-taberg1["syssma3"] = tabea.andms3 * taber.syssm
-taberg1["syssma4"] = tabea.andms4 * taber.syssm
-taberg1["syssma5"] = tabea.andms5 * taber.syssm
-
-taberg1["sysska1"] = tabea.andks1 * taber.syssk
-taberg1["sysska2"] = tabea.andks2 * taber.syssk
-taberg1["sysska3"] = tabea.andks3 * taber.syssk
-taberg1["sysska4"] = tabea.andks4 * taber.syssk
-taberg1["sysska5"] = tabea.andks5 * taber.syssk
-
-taberg1["aavma1"] = tabea.andmt1 * taber.aavm
-taberg1["aavma2"] = tabea.andmt2 * taber.aavm
-taberg1["aavma3"] = tabea.andmt3 * taber.aavm
-taberg1["aavma4"] = tabea.andmt4 * taber.aavm
-taberg1["aavma5"] = tabea.andmt5 * taber.aavm
-
-taberg1["aavka1"] = tabea.andkt1 * taber.aavk
-taberg1["aavka2"] = tabea.andkt2 * taber.aavk
-taberg1["aavka3"] = tabea.andkt3 * taber.aavk
-taberg1["aavka4"] = tabea.andkt4 * taber.aavk
-taberg1["aavka5"] = tabea.andkt5 * taber.aavk
+for i in range(1, 6):
+    taberg1["syssma"+str(i)] = tabea["andms"+str(i)] * taber.syssm
+    taberg1["sysska"+str(i)] = tabea["andks"+str(i)] * taber.syssk
+    taberg1["aavma"+str(i)] = tabea["andmt"+str(i)] * taber.aavm
+    taberg1["aavka"+str(i)] = tabea["andkt"+str(i)] * taber.aavk
 
 # *********************
 # Opprettelse av taberg
@@ -753,12 +709,8 @@ beh_syss.drop(['pers', 'syss', 'tp', 'aavs'], axis=1, inplace=True)
 
 arsvesp = pd.DataFrame({'yrke': ['ba', 'gr', 'fa', 'ph', 'py']})
 
-arsvesp['ar1'] = tabetot.aavt[tabetot.aavt.index.get_level_values('sektor') == 1].reset_index(drop=True)
-arsvesp['ar2'] = tabetot.aavt[tabetot.aavt.index.get_level_values('sektor') == 2].reset_index(drop=True)
-arsvesp['ar3'] = tabetot.aavt[tabetot.aavt.index.get_level_values('sektor') == 3].reset_index(drop=True)
-arsvesp['ar4'] = tabetot.aavt[tabetot.aavt.index.get_level_values('sektor') == 4].reset_index(drop=True)
-arsvesp['ar5'] = tabetot.aavt[tabetot.aavt.index.get_level_values('sektor') == 5].reset_index(drop=True)
-arsvesp['ar6'] = tabetot.aavt[tabetot.aavt.index.get_level_values('sektor') == 6].reset_index(drop=True)
+for i in range(1, 7):
+    arsvesp["ar"+str(i)] = tabetot.aavt[tabetot.aavt.index.get_level_values('sektor') == i].reset_index(drop=True)
 
 vakesp = pd.DataFrame()
 vakesp = pd.read_fwf(vak,
@@ -898,139 +850,32 @@ demo5.columns = kolonnenavn
 # gruppering i den aktuelle etterspørselsfil
 # ************************************************
 
-bef1 = pd.DataFrame()
+for i in range(1, 6):
+    locals()[f'bef{i}'] = pd.DataFrame()
+    
+    locals()[f'bef{i}'] = locals()[f'ald{i}'].merge(bef, how='inner', on='alder')
+    locals()[f'bef{i}'] = locals()[f'bef{i}'].groupby(["ald2"]).sum()
 
-bef1 = ald1.merge(bef, how='inner', on='alder')
-bef1 = bef1.groupby(["ald2"]).sum()
+    locals()[f'bef{i}'].drop(['alder'], axis=1, inplace=True)
+    locals()[f'bef{i}'].drop(['kjonn'], axis=1, inplace=True)
+    
+    locals()[f'demo{i}'] = locals()[f'demo{i}'].set_index(['ald2'])
 
-bef1.drop(['alder'], axis=1, inplace=True)
-bef1.drop(['kjonn'], axis=1, inplace=True)
+    for x in range(basisaar, sluttaar + 1):
+        locals()[f'demo{i}']['agr' + str(x)] =  locals()[f'bef{i}']['a' + str(x)]
 
-bef2 = pd.DataFrame()
+    locals()[f'demo{i}']["pg" + str(basisaar)] = locals()[f'demo{i}'].br * locals()[f'demo{i}'].bri
 
-bef2 = ald2.merge(bef, how='inner', on='alder')
-bef2 = bef2.groupby(["ald2"]).sum()
+    for x in range(basisaar + 1, sluttaar + 1):
+        locals()[f'demo{i}']['pg' + str(x)] = locals()[f'demo{i}']['pg' + str(x-1)] * (locals()[f'bef{i}']['a' + str(x)] /
+                                                         locals()[f'bef{i}']['a' + str(x-1)])
 
-bef2.drop(['alder'], axis=1, inplace=True)
-bef2.drop(['kjonn'], axis=1, inplace=True)
+    locals()[f'demo{i}']["mg" + str(basisaar)] = locals()[f'demo{i}'].br * locals()[f'demo{i}'].bri
 
-bef3 = pd.DataFrame()
-
-bef3 = ald3.merge(bef, how='inner', on='alder')
-bef3 = bef3.groupby(["ald2"]).sum()
-
-bef3.drop(['alder'], axis=1, inplace=True)
-bef3.drop(['kjonn'], axis=1, inplace=True)
-
-bef4 = pd.DataFrame()
-
-bef4 = ald4.merge(bef, how='inner', on='alder')
-bef4 = bef4.groupby(["ald2"]).sum()
-
-bef4.drop(['alder'], axis=1, inplace=True)
-bef4.drop(['kjonn'], axis=1, inplace=True)
-
-bef5 = pd.DataFrame()
-
-bef5 = ald5.merge(bef, how='inner', on='alder')
-bef5 = bef5.groupby(["ald2"]).sum()
-
-bef5.drop(['alder'], axis=1, inplace=True)
-bef5.drop(['kjonn'], axis=1, inplace=True)
-
-bef6 = pd.DataFrame()
-
-bef6 = ald6.merge(bef, how='inner', on='alder')
-bef6 = bef6.groupby(["ald2"]).sum()
-
-bef6.drop(['alder'], axis=1, inplace=True)
-bef6.drop(['kjonn'], axis=1, inplace=True)
-
-demo1 = demo1.set_index(['ald2'])
-
-for x in range(2020, 2041):
-    demo1['agr' + str(x)] = bef1['a' + str(x)]
-
-demo1['pg2020'] = demo1.br * demo1.bri
-
-for x in range(2021, 2041):
-    demo1['pg' + str(x)] = demo1['pg' + str(x-1)] * (bef1['a' + str(x)] /
-                                                     bef1['a' + str(x-1)])
-
-demo1['mg2020'] = demo1.br * demo1.bri
-
-for x in range(2021, 2041):
-    demo1['mg' + str(x)] = demo1['mg' + str(x-1)] * (bef1['a' + str(x)] /
-                                                     bef1['a' + str(x-1)])
-
-demo2 = demo2.set_index(['ald2'])
-
-for x in range(2020, 2041):
-    demo2['agr' + str(x)] = bef2['a' + str(x)]
-
-demo2['pg2020'] = demo2.br * demo2.bri
-
-for x in range(2021, 2041):
-    demo2['pg' + str(x)] = demo2['pg' + str(x-1)] * (bef2['a' + str(x)] /
-                                                     bef2['a' + str(x-1)])
-
-demo2['mg2020'] = demo2.br * demo2.bri
-
-for x in range(2021, 2041):
-    demo2['mg' + str(x)] = demo2['mg' + str(x-1)] * (bef2['a' + str(x)] /
-                                                     bef2['a' + str(x-1)])
-
-demo3 = demo3.set_index(['ald2'])
-
-for x in range(2020, 2041):
-    demo3['agr' + str(x)] = bef3['a' + str(x)]
-
-demo3['pg2020'] = demo3.br * demo3.bri
-
-for x in range(2021, 2041):
-    demo3['pg' + str(x)] = demo3['pg' + str(x-1)] * (bef3['a' + str(x)] /
-                                                     bef3['a' + str(x-1)])
-
-demo3['mg2020'] = demo3.br * demo3.bri
-
-for x in range(2021, 2041):
-    demo3['mg' + str(x)] = demo3['mg' + str(x-1)] * (bef3['a' + str(x)] /
-                                                     bef3['a' + str(x-1)])
-
-demo4 = demo4.set_index(['ald2'])
-
-for x in range(2020, 2041):
-    demo4['agr' + str(x)] = bef4['a' + str(x)]
-
-demo4['pg2020'] = demo4.br * demo4.bri
-
-for x in range(2021, 2041):
-    demo4['pg' + str(x)] = demo4['pg' + str(x-1)] * (bef4['a' + str(x)] /
-                                                     bef4['a' + str(x-1)])
-
-demo4['mg2020'] = demo4.br * demo4.bri
-
-for x in range(2021, 2041):
-    demo4['mg' + str(x)] = demo4['mg' + str(x-1)] * (bef4['a' + str(x)] /
-                                                     bef4['a' + str(x-1)])
-
-demo5 = demo5.set_index(['ald2'])
-
-for x in range(2020, 2041):
-    demo5['agr' + str(x)] = bef5['a' + str(x)]
-
-demo5['pg2020'] = demo5.br * demo5.bri
-
-for x in range(2021, 2041):
-    demo5['pg' + str(x)] = demo5['pg' + str(x-1)] * (bef5['a' + str(x)] /
-                                                     bef5['a' + str(x-1)])
-
-demo5['mg2020'] = demo5.br * demo5.bri
-
-for x in range(2021, 2041):
-    demo5['mg' + str(x)] = demo5['mg' + str(x-1)] * (bef5['a' + str(x)] /
-                                                     bef5['a' + str(x-1)])
-
+    for x in range(basisaar + 1, sluttaar + 1):
+        locals()[f'demo{i}']['mg' + str(x)] = locals()[f'demo{i}']['mg' + str(x-1)] * (locals()[f'bef{i}']['a' + str(x)] /
+                                                                                       locals()[f'bef{i}']['a' + str(x-1)])
+                                                     
 demo6 = demo5
 
 for i in range(1, 7):
