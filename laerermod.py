@@ -8,26 +8,24 @@ basisaar = 2020
 sluttaar = 2040
 
 
-befolkning = 'inndata/mmmm_2022.txt'
+befolkning = 'inndata/mmmm_2022_short.txt'
 stkap = 'inndata/fullforingsgrader.txt'
 oppta = 'inndata/opptak.txt'
 vak = 'inndata/vakanseoriginal.txt'
-
-dem3 = 'inndata/antall_elever_videregaende.txt'
-dem4 = 'inndata/antall_studenter_hoyereutdanning.txt'
-
-innpr = 'inndata/standard.txt'
-inplu = 'inndata/endring_timeverk.txt'
-
-# Filer produsert av demografi.py
-dem2 = 'inndata/grunnskole.dat'
-dem5 = 'inndata/andre_skoler.dat'
 
 sysselsatte = 'inndata/sysselsatte.txt'
 utdannede = 'inndata/utdannede.txt'
 st = 'inndata/nye_studenter.txt'
 
-i2 = 'inndata/antall_barn_barnehager.txt'
+dem1 = 'inndata/antall_barn_barnehager.txt'
+dem2 = 'inndata/antall_elever_grunnskole.dat'
+dem3 = 'inndata/antall_elever_videregaende.txt'
+dem4 = 'inndata/antall_studenter_hoyereutdanning.txt'
+dem5 = 'inndata/antall_personer_andreskoler.dat'
+dem6 = 'inndata/antall_personer_andreskoler.dat'
+
+innpr = 'inndata/standard.txt'
+inplu = 'inndata/endring_timeverk.txt'
 
 
 print()
@@ -166,7 +164,6 @@ tabe["gruppe"] = pd.to_numeric(tabe["gruppe"])
 index_andre = tabe[(tabe['gruppe'] > 5)].index
 tabe.drop(index_andre, inplace=True)
 
-tabe.sort_values(by=['gruppe', 'sektor'], inplace=True)
 tabe = tabe.reset_index()
 tabe.drop(['index'], axis=1, inplace=True)
 
@@ -181,7 +178,6 @@ taber = pd.DataFrame()
 taber = sysselsatte_laerere.copy()
 
 taber = taber[taber['studium'] == 'an']
-
 taber.drop(['studium'], axis=1, inplace=True)
 
 taber.set_index('sektor', inplace=True)
@@ -285,10 +281,8 @@ taberg["aavkr"] = pd.concat([taberg1.aavka1,
                             sort=False)
 
 taberg["sysstr"] = taberg.syssmr + taberg.sysskr
-
 taberg["aavtr"] = taberg.aavmr + taberg.aavkr
 
-taberg.sort_values(by=['gruppe', 'sektor'], inplace=True)
 taberg = taberg.reset_index()
 taberg.drop(['index'], axis=1, inplace=True)
 
@@ -381,8 +375,6 @@ taba.bk = taba.bk / taba.bss
 
 taba.drop(['bss'], axis=1, inplace=True)
 
-taba.sort_values(by=['studium', 'alder'], inplace=True)
-
 taba.rename(columns={"bs": "bss"}, inplace=True)
 
 taba = taba.reset_index()
@@ -401,7 +393,7 @@ bef1 = pd.read_csv(befolkning,
                           'a2020',
                           'a2021'],
                    skiprows=range(2, 200),
-                   usecols=[1, 2, 43, 44])
+                   usecols=[1, 2, 3, 4])
 
 bef2 = pd.DataFrame()
 
@@ -413,7 +405,7 @@ bef2 = pd.read_csv(befolkning,
                           'a2020',
                           'a2021'],
                    skiprows=range(6, 200),
-                   usecols=[1, 2, 43, 44])
+                   usecols=[1, 2, 3, 4])
 
 bef2 = bef2.drop([0, 1])
 
@@ -430,7 +422,7 @@ bef3 = pd.read_csv(befolkning,
                           'a2020',
                           'a2021'],
                    skiprows=range(8, 200),
-                   usecols=[1, 2, 43, 44])
+                   usecols=[1, 2, 3, 4])
 
 bef3.drop(bef3.index[:6], inplace=True)
 
@@ -447,7 +439,7 @@ bef4 = pd.read_csv(befolkning,
                           'a2020',
                           'a2021'],
                    skiprows=range(12, 200),
-                   usecols=[1, 2, 43, 44])
+                   usecols=[1, 2, 3, 4])
 
 bef4.drop(bef4.index[:8], inplace=True)
 
@@ -460,7 +452,7 @@ bef4.drop(['index'], axis=1, inplace=True)
 
 barnhin = pd.DataFrame()
 
-barnhin = pd.read_csv(i2,
+barnhin = pd.read_csv(dem1,
                       header=None,
                       delimiter=" ",
                       names=['aar',
@@ -598,31 +590,13 @@ bef5.drop(['index'], axis=1, inplace=True)
 bef6 = pd.DataFrame()
 bef6 = fwf
 
-# *************************************
-# Oppretter flere oppsummeringstabeller
-# *************************************
-
-befs5 = pd.DataFrame({'agr2020': bef5.a2020.sum(),
-                      'agr2021': bef5.a2021.sum(),
-                      'ald1': 6,
-                      'ald2': 15,
-                      'bri': 1,
-                      'antaar': 0}, index=[0])
-
-befs6 = pd.DataFrame({'agr2020': bef6.a2020.sum(),
-                      'agr2021': bef6.a2021.sum(),
-                      'ald1': 0,
-                      'ald2': 99,
-                      'bri': 1,
-                      'antaar': 0}, index=[0])
-
 # ********************
 # Innlesing av inndata
 # ********************
 
 kolonnenavn = ["alder"] + ["kjonn"]
 
-for x in range(1980, 2051):
+for x in range(basisaar, sluttaar+1):
     kolonnenavn = kolonnenavn + ["a" + str(x)]
 
 bef = pd.DataFrame()
@@ -688,16 +662,14 @@ nystud2['st_ald'] = nystud2.stk
 nystud = pd.concat([nystud1, nystud2])
 
 beh_pers = tabtot.copy()
-beh_pers.rename(columns={"bestand": "pers"}, inplace=True)
 beh_pers.rename(columns={"sysselsatte": "syss"}, inplace=True)
 beh_pers.rename(columns={"gruppe": "yrke"}, inplace=True)
 
-beh_pers["arsv"] = beh_pers.pers * beh_pers.yp * beh_pers.tpa
+beh_pers["arsv"] = beh_pers.bestand * beh_pers.yp * beh_pers.tpa
 
 beh_pers.drop(['syss', 'yp', 'tpa', 'tp', 'aavs'], axis=1, inplace=True)
 
 beh_syss = tabtot.copy()
-beh_syss.rename(columns={"bestand": "pers"}, inplace=True)
 beh_syss.rename(columns={"sysselsatte": "syss"}, inplace=True)
 beh_syss.rename(columns={"gruppe": "yrke"}, inplace=True)
 
@@ -705,7 +677,7 @@ beh_syss.rename(columns={"yp": "syssand",
                          "tpa": "garsv"},
                 inplace=True)
 
-beh_syss.drop(['pers', 'syss', 'tp', 'aavs'], axis=1, inplace=True)
+beh_syss.drop(['bestand', 'syss', 'tp', 'aavs'], axis=1, inplace=True)
 
 arsvesp = pd.DataFrame({'yrke': ['ba', 'gr', 'fa', 'ph', 'py']})
 
@@ -845,15 +817,21 @@ demo5 = pd.read_fwf(dem5, colspecs=kolonneposisjoner, header=None)
 
 demo5.columns = kolonnenavn
 
+demo6 = pd.DataFrame()
+demo6 = pd.read_fwf(dem6, colspecs=kolonneposisjoner, header=None)
+
+demo6.columns = kolonnenavn
+
 # ************************************************
 # LAGER ALDERSAGGREGATER av befolkningsfilen etter
 # gruppering i den aktuelle etterspørselsfil
 # ************************************************
 
-for i in range(1, 6):
+for i in range(1, 7):
     locals()[f'bef{i}'] = pd.DataFrame()
-    
+
     locals()[f'bef{i}'] = locals()[f'ald{i}'].merge(bef, how='inner', on='alder')
+
     locals()[f'bef{i}'] = locals()[f'bef{i}'].groupby(["ald2"]).sum()
 
     locals()[f'bef{i}'].drop(['alder'], axis=1, inplace=True)
@@ -862,7 +840,7 @@ for i in range(1, 6):
     locals()[f'demo{i}'] = locals()[f'demo{i}'].set_index(['ald2'])
 
     for x in range(basisaar, sluttaar + 1):
-        locals()[f'demo{i}']['agr' + str(x)] =  locals()[f'bef{i}']['a' + str(x)]
+        locals()[f'demo{i}']['agr' + str(x)] = locals()[f'bef{i}']['a' + str(x)]
 
     locals()[f'demo{i}']["pg" + str(basisaar)] = locals()[f'demo{i}'].br * locals()[f'demo{i}'].bri
 
@@ -875,10 +853,7 @@ for i in range(1, 6):
     for x in range(basisaar + 1, sluttaar + 1):
         locals()[f'demo{i}']['mg' + str(x)] = locals()[f'demo{i}']['mg' + str(x-1)] * (locals()[f'bef{i}']['a' + str(x)] /
                                                                                        locals()[f'bef{i}']['a' + str(x-1)])
-                                                     
-demo6 = demo5
 
-for i in range(1, 7):
     locals()[f'demos{i}'] = pd.DataFrame()
     
     for x in range(basisaar, sluttaar + 1):
@@ -886,126 +861,27 @@ for i in range(1, 7):
         locals()[f'demos{i}']['pgs' + str(x)] = [locals()[f'demo{i}']['pg' + str(x)].sum()]
         locals()[f'demos{i}']['mgs' + str(x)] = [locals()[f'demo{i}']['mg' + str(x)].sum()]
     
-x = demos1.pgs2020.loc[0]
-demy1 = pd.DataFrame({'gruppe': ['ba', 'gr', 'fa', 'ph', 'py'],
-                      'brind': [x, x, x, x, x]})
+    y = locals()[f'demos{i}']['pgs' + str(basisaar)].loc[0]
+    
+    locals()[f'demy{i}'] = pd.DataFrame({'gruppe': ['ba', 'gr', 'fa', 'ph', 'py'],
+                                         'brind': [y, y, y, y, y]})
+    
+    locals()[f'arsv{i}'] = pd.DataFrame()
+    locals()[f'arsv{i}'] = locals()[f'demy{i}']
+    
+    locals()[f'arsv{i}']['ar'] = arsvesp['ar' + str(i)]
+    locals()[f'arsv{i}']['stdrd'] = locals()[f'arsv{i}']['ar'] / locals()[f'arsv{i}']['brind']
+    
+    locals()[f'demaar{i}'] = pd.DataFrame({"aar": [basisaar], "dm" + str(i): [1], "dp" + str(i): [1], "dem" + str(i): locals()[f'demos{i}']['agrs' + str(basisaar)]})
 
-x = demos2.pgs2020.loc[0]
-demy2 = pd.DataFrame({'gruppe': ['ba', 'gr', 'fa', 'ph', 'py'],
-                      'brind': [x, x, x, x, x]})
-
-x = demos3.pgs2020.loc[0]
-demy3 = pd.DataFrame({'gruppe': ['ba', 'gr', 'fa', 'ph', 'py'],
-                      'brind': [x, x, x, x, x]})
-
-x = demos4.pgs2020.loc[0]
-demy4 = pd.DataFrame({'gruppe': ['ba', 'gr', 'fa', 'ph', 'py'],
-                      'brind': [x, x, x, x, x]})
-
-x = demos5.pgs2020.loc[0]
-demy5 = pd.DataFrame({'gruppe': ['ba', 'gr', 'fa', 'ph', 'py'],
-                      'brind': [x, x, x, x, x]})
-
-x = demos6.pgs2020.loc[0]
-demy6 = pd.DataFrame({'gruppe': ['ba', 'gr', 'fa', 'ph', 'py'],
-                      'brind': [x, x, x, x, x]})
-
-arsv1 = pd.DataFrame()
-arsv1 = demy1
-
-arsv1['ar'] = arsvesp.ar2
-arsv1['stdrd'] = arsv1['ar'] / arsv1['brind']
-
-arsv2 = pd.DataFrame()
-arsv2 = demy2
-
-arsv2['ar'] = arsvesp.ar2
-arsv2['stdrd'] = arsv2['ar'] / arsv2['brind']
-
-arsv3 = pd.DataFrame()
-arsv3 = demy3
-
-arsv3['ar'] = arsvesp.ar3
-arsv3['stdrd'] = arsv3['ar'] / arsv3['brind']
-
-arsv4 = pd.DataFrame()
-arsv4 = demy4
-
-arsv4['ar'] = arsvesp.ar4
-arsv4['stdrd'] = arsv4['ar'] / arsv4['brind']
-
-arsv5 = pd.DataFrame()
-arsv5 = demy5
-
-arsv5['ar'] = arsvesp.ar5
-arsv5['stdrd'] = arsv5['ar'] / arsv5['brind']
-
-arsv6 = pd.DataFrame()
-arsv6 = demy6
-
-arsv6['ar'] = arsvesp.ar6
-arsv6['stdrd'] = arsv6['ar'] / arsv6['brind']
-
-demaar1 = pd.DataFrame({"aar": [basisaar], "dm1": [1], "dp1": [1], "dem1": demos1['agrs' + str(basisaar)]})
-
-for x in range(basisaar + 1, sluttaar + 1):
-    nyrad = pd.DataFrame({"aar": x,
-                          "dm1": demos1['mgs' + str(x)] / demos1['mgs' + str(basisaar)],
-                          "dp1": (demos1['pgs' + str(x)] / demos1['pgs' + str(basisaar)]) /
-                                 (demos1['mgs' + str(x)] / demos1['mgs' + str(basisaar)]),
-                          "dem1": demos1['agrs' + str(x)]})
-    demaar1 = pd.concat([demaar1, nyrad], ignore_index=True)
-
-demaar2 = pd.DataFrame({"aar": [basisaar], "dm2": [1], "dp2": [1], "dem2": demos2['agrs' + str(basisaar)]})
-
-for x in range(basisaar + 1, sluttaar + 1):
-    nyrad = pd.DataFrame({"aar": x,
-                          "dm2": demos2['mgs' + str(x)] / demos2['mgs' + str(basisaar)],
-                          "dp2": (demos2['pgs' + str(x)] / demos2['pgs' + str(basisaar)]) /
-                                 (demos2['mgs' + str(x)] / demos2['mgs' + str(basisaar)]),
-                          "dem2": demos2['agrs' + str(x)]})
-    demaar2 = pd.concat([demaar2, nyrad], ignore_index=True)
-
-demaar3 = pd.DataFrame({"aar": [basisaar], "dm3": [1], "dp3": [1], "dem3": demos3['agrs' + str(basisaar)]})
-
-for x in range(basisaar + 1, sluttaar + 1):
-    nyrad = pd.DataFrame({"aar": x,
-                          "dm3": demos3['mgs' + str(x)] / demos3['mgs' + str(basisaar)],
-                          "dp3": (demos3['pgs' + str(x)] / demos3['pgs' + str(basisaar)]) /
-                                 (demos3['mgs' + str(x)] / demos3['mgs' + str(basisaar)]),
-                          "dem3": demos3['agrs' + str(x)]})
-    demaar3 = pd.concat([demaar3, nyrad], ignore_index=True)
-
-demaar4 = pd.DataFrame({"aar": [basisaar], "dm4": [1], "dp4": [1], "dem4": demos4['agrs' + str(basisaar)]})
-
-for x in range(basisaar + 1, sluttaar + 1):
-    nyrad = pd.DataFrame({"aar": x,
-                          "dm4": demos4['mgs' + str(x)] / demos4['mgs' + str(basisaar)],
-                          "dp4": (demos4['pgs' + str(x)] / demos4['pgs' + str(basisaar)]) /
-                                 (demos4['mgs' + str(x)] / demos4['mgs' + str(basisaar)]),
-                          "dem4": demos4['agrs' + str(x)]})
-    demaar4 = pd.concat([demaar4, nyrad], ignore_index=True)
-
-demaar5 = pd.DataFrame({"aar": [basisaar], "dm5": [1], "dp5": [1], "dem5": demos5['agrs' + str(basisaar)]})
-
-for x in range(basisaar + 1, sluttaar + 1):
-    nyrad = pd.DataFrame({"aar": x,
-                          "dm5": demos5['mgs' + str(x)] / demos5['mgs' + str(basisaar)],
-                          "dp5": (demos5['pgs' + str(x)] / demos5['pgs' + str(basisaar)]) /
-                                 (demos5['mgs' + str(x)] / demos5['mgs' + str(basisaar)]),
-                          "dem5": demos5['agrs' + str(x)]})
-    demaar5 = pd.concat([demaar5, nyrad], ignore_index=True)
-
-demaar6 = pd.DataFrame({"aar": [basisaar], "dm6": [1], "dp6": [1], "dem6": demos6['agrs' + str(basisaar)]})
-
-for x in range(basisaar + 1, sluttaar + 1):
-    nyrad = pd.DataFrame({"aar": x,
-                          "dm6": demos6['mgs' + str(x)] / demos6['mgs' + str(basisaar)],
-                          "dp6": (demos6['pgs' + str(x)] / demos6['pgs' + str(basisaar)]) /
-                                 (demos6['mgs' + str(x)] / demos6['mgs' + str(basisaar)]),
-                          "dem6": demos6['agrs' + str(x)]})
-    demaar6 = pd.concat([demaar6, nyrad], ignore_index=True)
-
+    for x in range(basisaar + 1, sluttaar + 1):
+        nyrad = pd.DataFrame({"aar": x,
+                              "dm" + str(i): locals()[f'demos{i}']['mgs' + str(x)] / locals()[f'demos{i}']['mgs' + str(basisaar)],
+                              "dp" + str(i): (locals()[f'demos{i}']['pgs' + str(x)] / locals()[f'demos{i}']['pgs' + str(basisaar)]) /
+                                     (locals()[f'demos{i}']['mgs' + str(x)] / locals()[f'demos{i}']['mgs' + str(basisaar)]),
+                              "dem" + str(i): locals()[f'demos{i}']['agrs' + str(x)]})
+        locals()[f'demaar{i}'] = pd.concat([locals()[f'demaar{i}'], nyrad], ignore_index=True)
+    
 # ******************************************************
 # Lager indeks for demografikomponenten i etterspørselen
 # etter tjenester
@@ -1017,16 +893,6 @@ dmindeks = dmindeks.merge(demaar3, how='inner', on='aar')
 dmindeks = dmindeks.merge(demaar4, how='inner', on='aar')
 dmindeks = dmindeks.merge(demaar5, how='inner', on='aar')
 dmindeks = dmindeks.merge(demaar6, how='inner', on='aar')
-
-dmindeks.rename(columns={"ds1": "barnplus",
-                         "ds2": "grskplus",
-                         "ds3": "viskplus",
-                         "ds4": "uhskplus",
-                         "ds5": "anskplus",
-                         "ds6": "utskplus"},
-                inplace=True)
-
-dmindeks['totm'] = dmindeks.dem6
 
 arsv = pd.concat([arsv1, arsv2, arsv3, arsv4, arsv5, arsv6])
 
@@ -1045,16 +911,12 @@ kandtot['uteks'] = kandtot.apply(lambda row: (row['oppfag'] * row['fullfob'])
                                  else (row['oppfag'] * row['fullfor']), axis=1)
 
 kandtot = kandtot.set_index(['yrke'])
-
 nystud = nystud.set_index(['yrke'])
 
 kand_ald = nystud.merge(kandtot, how='inner', on=['yrke'])
 
 kand_ald["alder"] = kand_ald.alder + kand_ald.norm
 kand_ald["eks_ald"] = kand_ald.uteks * kand_ald.st_ald
-
-kandidater = pd.DataFrame()
-kandidater = kand_ald
 
 # *************************************************************
 # NYBEHOLD: Fører strømmen av nyutdannete inn i beholdningen av
@@ -1068,38 +930,38 @@ beh_paar = beh_pers.copy()
 forrige_aar = beh_pers.copy()
 forrige_aar.alder += 1
 
-kand_aar = kandidater
+kand_aar = kand_ald
 kand_aar = kand_aar[kand_aar['aar'] == basisaar + 1]
 
 neste_aar = forrige_aar.merge(kand_aar, how='outer', on=['yrke', 'kjonn', 'alder'])
-neste_aar['pers'] = neste_aar['pers'].fillna(0)
+neste_aar['bestand'] = neste_aar['bestand'].fillna(0)
 neste_aar['eks_ald'] = neste_aar['eks_ald'].fillna(0)
 
-neste_aar.pers = neste_aar.pers + neste_aar.eks_ald
+neste_aar.bestand = neste_aar.bestand + neste_aar.eks_ald
 neste_aar['aar'] = basisaar + 1
 
-slutt = neste_aar[['yrke', 'kjonn', 'alder', 'pers', 'arsv', 'aar']]
+slutt = neste_aar[['yrke', 'kjonn', 'alder', 'bestand', 'arsv', 'aar']]
 
 beh_paar = pd.concat([beh_paar, slutt])
 beh_paar.sort_values(by=['yrke', 'kjonn', 'alder'], inplace=True)
 
-for x in range(2022, 2041):
+for x in range(basisaar + 2, sluttaar + 1):
     forrige_aar = beh_paar.copy()
     forrige_aar = forrige_aar[forrige_aar['aar'] == x-1]
     forrige_aar.alder += 1
 
-    kand_aar = kandidater
+    kand_aar = kand_ald
     kand_aar = kand_aar[kand_aar['aar'] == x]
 
     neste_aar = forrige_aar.merge(kand_aar, how='outer', on=['yrke', 'kjonn', 'alder'])
 
-    neste_aar['pers'] = neste_aar['pers'].fillna(0)
+    neste_aar['bestand'] = neste_aar['bestand'].fillna(0)
     neste_aar['eks_ald'] = neste_aar['eks_ald'].fillna(0)
 
-    neste_aar.pers = neste_aar.pers + neste_aar.eks_ald
+    neste_aar.bestand = neste_aar.bestand + neste_aar.eks_ald
     neste_aar['aar'] = x
 
-    slutt = neste_aar[['yrke', 'kjonn', 'alder', 'pers', 'arsv', 'aar']]
+    slutt = neste_aar[['yrke', 'kjonn', 'alder', 'bestand', 'arsv', 'aar']]
 
     beh_paar = pd.concat([beh_paar, slutt])
     beh_paar.sort_values(by=['yrke', 'kjonn', 'alder'], inplace=True)
@@ -1112,11 +974,11 @@ for x in range(2022, 2041):
 
 tilbud = beh_paar.merge(beh_syss, how='outer', on=['yrke', 'kjonn', 'alder'])
 
-tilbud['aarsverk'] = tilbud.pers * tilbud.syssand * tilbud.garsv
+tilbud['aarsverk'] = tilbud.bestand * tilbud.syssand * tilbud.garsv
 
 tilbud = tilbud.groupby(['yrke', 'aar']).sum()
 
-tilbud = tilbud.drop(['kjonn', 'alder', 'pers', 'arsv', 'syssand', 'garsv'], axis=1)
+tilbud = tilbud.drop(['kjonn', 'alder', 'bestand', 'arsv', 'syssand', 'garsv'], axis=1)
 
 # ******************************************
 # TILB-ESP: Sluttproduktet fra simuleringen.
