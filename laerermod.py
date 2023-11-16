@@ -7,14 +7,14 @@ basisaar = 2020
 sluttaar = 2040
 
 
-befolkning = 'inndata/mmmm_2022_short.txt'
+befolkning = 'inndata/mmmm_2022.txt'
 stkap = 'inndata/fullforingsgrader.txt'
 oppta = 'inndata/opptak.txt'
 vak = 'inndata/vakanseoriginal.txt'
 
 sysselsatte = 'inndata/sysselsatte.txt'
 utdannede = 'inndata/utdannede.txt'
-studenter = 'inndata/nye_studenter.txt'
+studenter = 'inndata/studenter.txt'
 
 dem1 = 'inndata/antall_barn_barnehager.txt'
 dem2 = 'inndata/antall_elever_grunnskole.txt'
@@ -23,14 +23,15 @@ dem4 = 'inndata/antall_studenter_hoyereutdanning.txt'
 dem5 = 'inndata/antall_personer_andreskoler.txt'
 dem6 = 'inndata/antall_personer_andreskoler.txt'
 
-innpr = 'inndata/standard.txt'
+innpr = 'inndata/endring_standard.txt'
 inplu = 'inndata/endring_timeverk.txt'
 
+
+starttid = time.time()
 
 print()
 print('Velkommen til Python-versjonen av Lærermod!')
 print()
-
 print('/********************************************************************/')
 print('/********************************************************************/')
 print('/* Modellen LÆRERMOD beregner tilbud av og etterspørsel etter       */')
@@ -43,8 +44,6 @@ print('/********************************************************************/')
 print('/********************************************************************/')
 print()
 
-starttid = time.time()
-
 # **********
 # Konstanter
 # **********
@@ -55,216 +54,168 @@ gruppeliste = [1, 1, 1, 1, 1, 1,
                3, 3, 3, 3, 3, 3,
                4, 4, 4, 4, 4, 4,
                5, 5, 5, 5, 5, 5]
+utdanningliste = ['ba', 'ba', 'ba', 'ba', 'ba', 'ba',
+                  'gr', 'gr', 'gr', 'gr', 'gr', 'gr',
+                  'fa', 'fa', 'fa', 'fa', 'fa', 'fa',
+                  'ph', 'ph', 'ph', 'ph', 'ph', 'ph',
+                  'py', 'py', 'py', 'py', 'py', 'py']
 
 # ********************************
 # Innlesing av sysselsatte lærere.
 # ********************************
 
-sysselsatte_laerere = pd.DataFrame()
+SysselsatteLærere = pd.DataFrame()
 
-sysselsatte_laerere = pd.read_csv(sysselsatte,
-                                  header=None,
-                                  delimiter=r"\s+",
-                                  names=['utdanning',
-                                         'sektor',
-                                         'syssm',
-                                         'syssk',
-                                         'gaavma',
-                                         'gaavka'],
-                                  usecols=list(range(6)),
-                                  dtype={'utdanning': 'string',
-                                         'sektor': 'int',
-                                         'syssm': 'int',
-                                         'syssk': 'int',
-                                         'gaavma': 'float',
-                                         'gaavka': 'float'})
+SysselsatteLærere = pd.read_csv(sysselsatte,
+                                 header=None,
+                                 delimiter=r"\s+",
+                                 names=['utdanning',
+                                        'sektor',
+                                        'sysselsattemenn',
+                                        'sysselsattekvinner',
+                                        'gjennomsnitteligeårsverkmenn',
+                                        'gjennomsnitteligeårsverkkvinner'],
+                                 usecols=list(range(6)),
+                                 dtype={'utdanning': 'string',
+                                        'sektor': 'int',
+                                        'sysselsattemenn': 'int',
+                                        'sysselsattekvinner': 'int',
+                                        'gjennomsnitteligeårsverkmenn': 'float',
+                                        'gjennomsnitteligeårsverkkvinner': 'float'})
 
-sysselsatte_laerere['sektor'] -= 1
-sysselsatte_laerere['sektor'].replace(to_replace=0, value=6, inplace=True)
+SysselsatteLærere['sektor'] -= 1
+SysselsatteLærere['sektor'].replace(to_replace=0, value=6, inplace=True)
 
-sysselsatte_laerere['aavm'] = sysselsatte_laerere.apply(lambda row:
-                                                        row['syssm'] *
-                                                        row['gaavma'], axis=1)
-sysselsatte_laerere['aavk'] = sysselsatte_laerere.apply(lambda row: 
-                                                        row['syssk'] *
-                                                        row['gaavka'], axis=1)
+SysselsatteLærere['ÅrsverkMenn'] = SysselsatteLærere.apply(lambda row: row['sysselsattemenn'] * row['gjennomsnitteligeårsverkmenn'], axis=1)
+SysselsatteLærere['ÅrsverkKvinner'] = SysselsatteLærere.apply(lambda row: row['sysselsattekvinner'] * row['gjennomsnitteligeårsverkkvinner'], axis=1)
+SysselsatteLærere['ÅrsverkTotalt'] = SysselsatteLærere['ÅrsverkMenn'] + SysselsatteLærere['ÅrsverkKvinner']
 
-sysselsatte_laerere.drop(['gaavma', 'gaavka'], axis=1, inplace=True)
-
-sysselsatte_laerere['sysst'] = sysselsatte_laerere.apply(lambda row: row['syssm'] + row['syssk']
-                             if row['syssm'] >= 0
-                             and row['syssk'] >= 0
-                             else row['syssm']
-                             if row['syssm'] >= 0
-                             else row['syssk'], axis=1)
-
-sysselsatte_laerere['aavt'] = sysselsatte_laerere.apply(lambda row: row['aavm'] + row['aavk']
-                            if row['aavm'] >= 0
-                            and row['aavk'] >= 0
-                            else row['aavm']
-                            if row['aavm'] >= 0
-                            else row['aavk'], axis=1)
-
-sysselsatte_laerere.sort_values(by=['utdanning', 'sektor'], inplace=True)
+SysselsatteLærere.drop(['gjennomsnitteligeårsverkmenn', 'gjennomsnitteligeårsverkkvinner'], axis=1, inplace=True)
+SysselsatteLærere.sort_values(by=['utdanning', 'sektor'], inplace=True)
 
 # ******************************
 # Innlesing av utdannede lærere.
 # ******************************
 
-utdannede_laerere = pd.DataFrame()
+UtdannedeLærere = pd.DataFrame()
 
-utdannede_laerere = pd.read_csv(utdannede,
-                                header=None,
-                                delimiter=r"\s+",
-                                na_values={'.', ' .'},
-                                names=['utdanning',
-                                       'kjonn',
-                                       'alder',
-                                       'bestand',
-                                       'sysselsatte',
-                                       'sysselsettingsandel',
-                                       'gjennomsnittelige_aarsverk'],
-                                usecols=list(range(7)),
-                                dtype={'utdanning': 'string',
-                                       'kjonn': 'int',
-                                       'alder': 'int',
-                                       'bestand': 'int',
-                                       'sysselsatte': 'int',
-                                       'sysselsettingsandel': 'float',
-                                       'gjennomsnittelige_aarsverk': 'float'})
+UtdannedeLærere = pd.read_csv(utdannede,
+                              header=None,
+                              delimiter=r"\s+",
+                              na_values={'.', ' .'},
+                              names=['utdanning',
+                                     'kjonn',
+                                     'alder',
+                                     'bestand',
+                                     'sysselsatte',
+                                     'sysselsettingsandel',
+                                     'gjennomsnittelige_aarsverk'],
+                              usecols=list(range(7)),
+                              dtype={'utdanning': 'string',
+                                     'kjonn': 'int',
+                                     'alder': 'int',
+                                     'bestand': 'int',
+                                     'sysselsatte': 'int',
+                                     'sysselsettingsandel': 'float',
+                                     'gjennomsnittelige_aarsverk': 'float'})
 
-utdannede_laerere['sysselsettingsandel'] = utdannede_laerere.apply(lambda row:
-                                                                   row['sysselsatte'] /
-                                                                   row['bestand']
-                                                                   if row['bestand'] > 0
-                                                                   else 0, axis=1)
+UtdannedeLærere['sysselsettingsandel'] = UtdannedeLærere.apply(lambda row: row['sysselsatte'] / row['bestand']
+                                                                           if row['bestand'] > 0
+                                                                           else 0, axis=1)
 
 # *******************
 # Opprettelse av tabe
 # *******************
 
-tabe = pd.DataFrame()
+OrdinæreLærere = pd.DataFrame()
 
-tabe = sysselsatte_laerere.copy()
+OrdinæreLærere = SysselsatteLærere.copy()
 
-tabe['utdanning'].replace(to_replace="ba", value="1", inplace=True)
-tabe['utdanning'].replace(to_replace="gr", value="2", inplace=True)
-tabe['utdanning'].replace(to_replace="fa", value="3", inplace=True)
-tabe['utdanning'].replace(to_replace="ph", value="4", inplace=True)
-tabe['utdanning'].replace(to_replace="py", value="5", inplace=True)
-tabe['utdanning'].replace(to_replace="an", value="6", inplace=True)
+OrdinæreLærere['utdanning'].replace(to_replace="ba", value="1", inplace=True)
+OrdinæreLærere['utdanning'].replace(to_replace="gr", value="2", inplace=True)
+OrdinæreLærere['utdanning'].replace(to_replace="fa", value="3", inplace=True)
+OrdinæreLærere['utdanning'].replace(to_replace="ph", value="4", inplace=True)
+OrdinæreLærere['utdanning'].replace(to_replace="py", value="5", inplace=True)
+OrdinæreLærere['utdanning'].replace(to_replace="an", value="6", inplace=True)
 
-tabe["utdanning"] = pd.to_numeric(tabe["utdanning"])
+OrdinæreLærere["utdanning"] = pd.to_numeric(OrdinæreLærere["utdanning"])
 
-index_andre = tabe[(tabe['utdanning'] > 5)].index
-tabe.drop(index_andre, inplace=True)
+OrdinæreLærere.drop(OrdinæreLærere[(OrdinæreLærere['utdanning'] > 5)].index, inplace=True)
 
-tabe = tabe.reset_index()
-tabe.drop(['index'], axis=1, inplace=True)
+OrdinæreLærere = OrdinæreLærere.reset_index()
+OrdinæreLærere.drop(['index'], axis=1, inplace=True)
+OrdinæreLærere = OrdinæreLærere.set_index(['utdanning', 'sektor'])
 
-tabe = tabe.set_index(['utdanning', 'sektor'])
+OrdinæreLærere = OrdinæreLærere.groupby(['utdanning', 'sektor']).sum()
 
 # ********************
 # Opprettelse av taber
 # ********************
 
-taber = pd.DataFrame()
+AndreLærere = pd.DataFrame()
 
-taber = sysselsatte_laerere.copy()
+AndreLærere = SysselsatteLærere.copy()
 
-taber = taber[taber['utdanning'] == 'an']
-taber.drop(['utdanning'], axis=1, inplace=True)
+AndreLærere = AndreLærere[AndreLærere['utdanning'] == 'an']
+AndreLærere.drop(['utdanning'], axis=1, inplace=True)
 
-taber.set_index('sektor', inplace=True)
-
-# *****************************
-# Proc Summary på tabet og tabe
-# *****************************
-
-sysselsatte_laerere = sysselsatte_laerere.groupby(['utdanning', 'sektor']).sum()
-
-tabe = tabe.groupby(['utdanning', 'sektor']).sum()
+AndreLærere = AndreLærere.reset_index()
 
 # ********************
 # Opprettelse av tabes
 # ********************
 
-tabes = pd.DataFrame()
+ÅrsverkPerSektor = pd.DataFrame()
 
-tabes = tabe.copy()
+ÅrsverkPerSektor = OrdinæreLærere.copy()
 
-tabes = tabes.groupby(['sektor']).sum()
+ÅrsverkPerSektor = ÅrsverkPerSektor.groupby(['sektor']).sum()
 
 # **************************************
 # Slår sammen tabe og tabes og får tabea
 # **************************************
 
-tabea = pd.DataFrame()
+DekomponerteÅrsverk = pd.DataFrame()
 
-kolonnenavn = ['andms', 'andks', 'andmt', 'andkt']
+kolonnenavn = ['andms', 'andks', 'AndelMenn', 'AndelKvinner']
 
 for i in range(4):
     for x in range(5):
-        tabea.insert(loc=x, column=kolonnenavn[i]+str(x+1),
-                     value=[(tabe.iloc[0 + x * 6, i] / tabes.iloc[0, i]),
-                            (tabe.iloc[1 + x * 6, i] / tabes.iloc[1, i]),
-                            (tabe.iloc[2 + x * 6, i] / tabes.iloc[2, i]),
-                            (tabe.iloc[3 + x * 6, i] / tabes.iloc[3, i]),
-                            (tabe.iloc[4 + x * 6, i] / tabes.iloc[4, i]),
-                            (tabe.iloc[5 + x * 6, i] / tabes.iloc[5, i])])
+        DekomponerteÅrsverk.insert(loc=x, column=kolonnenavn[i]+str(x+1),
+                     value=[(OrdinæreLærere.iloc[0 + x * 6, i] / ÅrsverkPerSektor.iloc[0, i]),
+                            (OrdinæreLærere.iloc[1 + x * 6, i] / ÅrsverkPerSektor.iloc[1, i]),
+                            (OrdinæreLærere.iloc[2 + x * 6, i] / ÅrsverkPerSektor.iloc[2, i]),
+                            (OrdinæreLærere.iloc[3 + x * 6, i] / ÅrsverkPerSektor.iloc[3, i]),
+                            (OrdinæreLærere.iloc[4 + x * 6, i] / ÅrsverkPerSektor.iloc[4, i]),
+                            (OrdinæreLærere.iloc[5 + x * 6, i] / ÅrsverkPerSektor.iloc[5, i])])
 
-# **********************
-# Opprettelse av taberg1
-# **********************
+# *********************************
+# Opprettelse av ÅrsverkAndreLærere
+# *********************************
 
-taber = taber.reset_index()
+ÅrsverkAndreLærere = pd.DataFrame()
 
-taberg1 = pd.DataFrame()
+ÅrsverkAndreLærere["sektor"] = sektorliste * 5
+ÅrsverkAndreLærere["utdanning"] = gruppeliste
 
-for i in range(1, 6):
-    taberg1["aavma"+str(i)] = tabea["andmt"+str(i)] * taber.aavm
-    taberg1["aavka"+str(i)] = tabea["andkt"+str(i)] * taber.aavk
+ÅrsverkAndreLærere["ÅrsverkTotalt"] = pd.concat(
+                            [(DekomponerteÅrsverk.AndelMenn1 * AndreLærere.ÅrsverkMenn) + (DekomponerteÅrsverk.AndelKvinner1 * AndreLærere.ÅrsverkKvinner),
+                             (DekomponerteÅrsverk.AndelMenn2 * AndreLærere.ÅrsverkMenn) + (DekomponerteÅrsverk.AndelKvinner2 * AndreLærere.ÅrsverkKvinner),
+                             (DekomponerteÅrsverk.AndelMenn3 * AndreLærere.ÅrsverkMenn) + (DekomponerteÅrsverk.AndelKvinner3 * AndreLærere.ÅrsverkKvinner),
+                             (DekomponerteÅrsverk.AndelMenn4 * AndreLærere.ÅrsverkMenn) + (DekomponerteÅrsverk.AndelKvinner4 * AndreLærere.ÅrsverkKvinner),
+                             (DekomponerteÅrsverk.AndelMenn5 * AndreLærere.ÅrsverkMenn) + (DekomponerteÅrsverk.AndelKvinner5 * AndreLærere.ÅrsverkKvinner)],
+                            ignore_index=True, sort=False)
 
-# *********************
-# Opprettelse av taberg
-# *********************
-
-taberg = pd.DataFrame()
-
-taberg["sektor"] = sektorliste * 5
-taberg["utdanning"] = gruppeliste
-
-taberg["aavtr"] = pd.concat([taberg1.aavma1 + taberg1.aavka1,
-                             taberg1.aavma2 + taberg1.aavka2,
-                             taberg1.aavma3 + taberg1.aavka3,
-                             taberg1.aavma4 + taberg1.aavka4,
-                             taberg1.aavma5 + taberg1.aavka5],
-                            ignore_index=True,
-                            sort=False)
-
-taberg = taberg.reset_index()
-taberg.drop(['index'], axis=1, inplace=True)
-
-taberg = taberg.set_index(['utdanning', 'sektor'])
+ÅrsverkAndreLærere = ÅrsverkAndreLærere.reset_index()
+ÅrsverkAndreLærere = ÅrsverkAndreLærere.set_index(['utdanning', 'sektor'])
 
 # **********************
 # Opprettelse av tabetot
 # **********************
 
-tabetot = pd.DataFrame()
+TotaleÅrsverk = pd.DataFrame()
 
-tabetot['aavt'] = tabe.aavt + taberg.aavtr
-
-# *********************
-# Opprettelse av tabtot
-# *********************
-
-tabtot = utdannede_laerere
-
-tabtot = tabtot.fillna('')
-
-tabtot['sysselsettingsandel'] = pd.to_numeric(tabtot['sysselsettingsandel'])
-tabtot['gjennomsnittelige_aarsverk'] = pd.to_numeric(tabtot['gjennomsnittelige_aarsverk'])
+TotaleÅrsverk['Årsverk'] = OrdinæreLærere.ÅrsverkTotalt + ÅrsverkAndreLærere.ÅrsverkTotalt
 
 # **************************
 # Innlesing av nye studenter
@@ -294,27 +245,20 @@ Studenter = Studenter.set_index(['utdanning'])
 # Opprettelse av studs
 # ********************
 
-studs = pd.DataFrame()
+StudenterTotalt = pd.DataFrame()
 
-studs = Studenter.groupby(["utdanning"]).sum()
-studs.rename(columns={"alle": "totalt"}, inplace=True)
+StudenterTotalt = Studenter.groupby(["utdanning"]).sum()
 
-studs.drop(['alder', 'kvinner', 'menn'], axis=1, inplace=True)
+StudenterTotalt.rename(columns={"alle": "totalt"}, inplace=True)
 
-# *******************
-# Opprettelse av taba
-# *******************
+StudenterTotalt.drop(['alder', 'kvinner', 'menn'], axis=1, inplace=True)
 
-taba = pd.DataFrame()
+Studenter = Studenter.merge(StudenterTotalt, how='outer', on='utdanning')
 
-taba = Studenter
+Studenter.menn = Studenter.menn / Studenter.totalt
+Studenter.kvinner = Studenter.kvinner / Studenter.totalt
 
-taba = taba.merge(studs, how='outer', on='utdanning')
-
-taba.menn = taba.menn / taba.totalt
-taba.kvinner = taba.kvinner / taba.totalt
-
-taba = taba.reset_index()
+Studenter = Studenter.reset_index()
 
 # ****************************************
 # Innlesing av folkemengden i alder 0-5 år
@@ -586,30 +530,30 @@ plussakt = pd.read_fwf(inplu,
                        delimiter=" ",
                        names=["alder", "plussm", "plussk"])
 
-nystud1 = taba.copy()
+nystud1 = Studenter.copy()
 nystud1['kjonn'] = 1
 nystud1['st_ald'] = nystud1.menn
 
-nystud2 = taba.copy()
+nystud2 = Studenter.copy()
 nystud2['kjonn'] = 2
 nystud2['st_ald'] = nystud2.kvinner
 
 nystud = pd.concat([nystud1, nystud2])
 
-beh_pers = tabtot.copy()
+beh_pers = UtdannedeLærere.copy()
 
 beh_pers["aarsverk"] = beh_pers.bestand * beh_pers.sysselsettingsandel * beh_pers.gjennomsnittelige_aarsverk
 
 beh_pers.drop(['sysselsatte', 'sysselsettingsandel', 'gjennomsnittelige_aarsverk'], axis=1, inplace=True)
 
-beh_syss = tabtot.copy()
+beh_syss = UtdannedeLærere.copy()
 
 beh_syss.drop(['bestand', 'sysselsatte'], axis=1, inplace=True)
 
 arsvesp = pd.DataFrame({'utdanning': ['ba', 'gr', 'fa', 'ph', 'py']})
 
 for i in range(1, 7):
-    arsvesp["ar"+str(i)] = tabetot.aavt[tabetot.aavt.index.get_level_values('sektor') == i].reset_index(drop=True)
+    arsvesp["ar"+str(i)] = TotaleÅrsverk.Årsverk[TotaleÅrsverk.Årsverk.index.get_level_values('sektor') == i].reset_index(drop=True)
 
 vakesp = pd.DataFrame()
 vakesp = pd.read_fwf(vak,
