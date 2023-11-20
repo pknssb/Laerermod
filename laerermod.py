@@ -100,36 +100,9 @@ UtdannedeLærere['sysselsettingsandel'] = UtdannedeLærere.apply(lambda row: row
                                                                            if row['bestand'] > 0
                                                                            else 0, axis=1)
 
-# ***************************************
-# Oppretter OrdinæreLærere og AndreLærere
-# ***************************************
-
-OrdinæreLærere = pd.DataFrame(SysselsatteLærere[SysselsatteLærere['utdanning'] != 'an'])
-OrdinæreLærere = OrdinæreLærere.set_index(['utdanning', 'sektor'])
-
-AndreLærere = pd.DataFrame(SysselsatteLærere[SysselsatteLærere['utdanning'] == 'an'])
-AndreLærere.drop(['utdanning'], axis=1, inplace=True)
-AndreLærere = AndreLærere.set_index(['sektor'])
-
-# *********************************
-# Opprettelse av ÅrsverkAndreLærere
-# *********************************
-
-ÅrsverkAndreLærere = pd.DataFrame(OrdinæreLærere.groupby(['utdanning', 'sektor'], sort=False).sum() / OrdinæreLærere.groupby(['sektor']).sum())
-ÅrsverkAndreLærere.drop(['ÅrsverkTotalt'], axis=1, inplace=True)
-ÅrsverkAndreLærere["ÅrsverkTotalt"] = (ÅrsverkAndreLærere.ÅrsverkMenn * AndreLærere.ÅrsverkMenn) + (ÅrsverkAndreLærere.ÅrsverkKvinner * AndreLærere.ÅrsverkKvinner)
-
-# ***********************
-# Oppretter TotaleÅrsverk
-# ***********************
-
-TotaleÅrsverk = pd.DataFrame(OrdinæreLærere.ÅrsverkTotalt + ÅrsverkAndreLærere.ÅrsverkTotalt)
-TotaleÅrsverk = TotaleÅrsverk.reset_index()
-TotaleÅrsverk = TotaleÅrsverk.set_index(['utdanning', 'sektor'])
-
-# **************************
-# Innlesing av nye studenter
-# **************************
+# **********************
+# Innlesing av studenter
+# **********************
 
 Studenter = pd.DataFrame(pd.read_csv(studenter,
                         header=None,
@@ -148,6 +121,24 @@ Studenter = pd.DataFrame(pd.read_csv(studenter,
                                'kvinner': 'int'}))
 
 Studenter = Studenter.set_index(['utdanning'])
+
+# **************************************************************************
+# Oppretter OrdinæreLærere, AndreLærere, ÅrsverkAndreLærere og TotaleÅrsverk
+# **************************************************************************
+
+OrdinæreLærere = pd.DataFrame(SysselsatteLærere[SysselsatteLærere['utdanning'] != 'an'])
+OrdinæreLærere = OrdinæreLærere.set_index(['utdanning', 'sektor'])
+
+AndreLærere = pd.DataFrame(SysselsatteLærere[SysselsatteLærere['utdanning'] == 'an'])
+AndreLærere.drop(['utdanning'], axis=1, inplace=True)
+AndreLærere = AndreLærere.set_index(['sektor'])
+
+ÅrsverkAndreLærere = pd.DataFrame(OrdinæreLærere.groupby(['utdanning', 'sektor'], sort=False).sum() / OrdinæreLærere.groupby(['sektor']).sum())
+ÅrsverkAndreLærere["ÅrsverkTotalt"] = (ÅrsverkAndreLærere.ÅrsverkMenn * AndreLærere.ÅrsverkMenn) + (ÅrsverkAndreLærere.ÅrsverkKvinner * AndreLærere.ÅrsverkKvinner)
+
+TotaleÅrsverk = pd.DataFrame(OrdinæreLærere.ÅrsverkTotalt + ÅrsverkAndreLærere.ÅrsverkTotalt)
+TotaleÅrsverk = TotaleÅrsverk.reset_index()
+TotaleÅrsverk = TotaleÅrsverk.set_index(['utdanning', 'sektor'])
 
 # **************************************
 # Oppretter StudenterTotalt og Studenter
@@ -718,17 +709,14 @@ for x in range(basisaar + 2, sluttaar + 1):
 #         og eventuell eksogen økning i yrkesdeltakelsen.
 # ************************************************************
 
-tilbud = beh_paar.merge(beh_syss, how='outer', on=['utdanning', 'kjonn', 'alder'])
+Tilbud = beh_paar.merge(beh_syss, how='outer', on=['utdanning', 'kjonn', 'alder'])
+Tilbud['Tilbud'] = Tilbud.bestand * Tilbud.sysselsettingsandel * Tilbud.gjennomsnittelige_aarsverk
+Tilbud = Tilbud.groupby(['utdanning', 'aar'], sort=False).sum()
+Tilbud = Tilbud.drop(['kjonn', 'alder', 'bestand', 'sysselsettingsandel', 'gjennomsnittelige_aarsverk'], axis=1)
 
-tilbud['Tilbud'] = tilbud.bestand * tilbud.sysselsettingsandel * tilbud.gjennomsnittelige_aarsverk
-
-tilbud = tilbud.groupby(['utdanning', 'aar'], sort=False).sum()
-
-tilbud = tilbud.drop(['kjonn', 'alder', 'bestand', 'sysselsettingsandel', 'gjennomsnittelige_aarsverk'], axis=1)
-
-# ******************************************
-# TILB-ESP: Sluttproduktet fra simuleringen.
-# ******************************************
+# ********************************
+# Sluttproduktet fra simuleringen.
+# ********************************
 
 dmindeks['utdanning'] = 'ba'
 ind1 = dmindeks.copy()
@@ -744,42 +732,40 @@ ind5 = dmindeks.copy()
 ind = pd.concat([ind1, ind2, ind3, ind4, ind5])
 ind = ind.reset_index()
 
-data_frames = [ind, arsvesp, vakesp]
+Etterspørsel = reduce(lambda left, right: pd.merge(left, right, on=['utdanning'], how='outer'), [ind, arsvesp, vakesp])
 
-esp = reduce(lambda left, right: pd.merge(left, right, on=['utdanning'], how='outer'), data_frames)
+Etterspørsel = Etterspørsel.reset_index()
+Etterspørsel = Etterspørsel.set_index(['utdanning', 'aar'])
 
-esp = esp.reset_index()
-esp = esp.set_index(['utdanning', 'aar'])
+Etterspørsel['ep1'] = (Etterspørsel.ar1 + Etterspørsel.vak1) * Etterspørsel.dm1 * Etterspørsel.barnplus
+Etterspørsel['ep2'] = (Etterspørsel.ar2 + Etterspørsel.vak2) * Etterspørsel.dm2 * Etterspørsel.grskplus
+Etterspørsel['ep3'] = (Etterspørsel.ar3 + Etterspørsel.vak3) * Etterspørsel.dm3 * Etterspørsel.viskplus
+Etterspørsel['ep4'] = (Etterspørsel.ar4 + Etterspørsel.vak4) * Etterspørsel.dm4 * Etterspørsel.uhskplus
+Etterspørsel['ep5'] = (Etterspørsel.ar5 + Etterspørsel.vak5) * Etterspørsel.dm5 * Etterspørsel.anskplus
+Etterspørsel['ep6'] = (Etterspørsel.ar6 + Etterspørsel.vak6) * Etterspørsel.dm6 * Etterspørsel.utskplus
 
-esp['ep1'] = (esp.ar1 + esp.vak1) * esp.dm1 * esp.barnplus
-esp['ep2'] = (esp.ar2 + esp.vak2) * esp.dm2 * esp.grskplus
-esp['ep3'] = (esp.ar3 + esp.vak3) * esp.dm3 * esp.viskplus
-esp['ep4'] = (esp.ar4 + esp.vak4) * esp.dm4 * esp.uhskplus
-esp['ep5'] = (esp.ar5 + esp.vak5) * esp.dm5 * esp.anskplus
-esp['ep6'] = (esp.ar6 + esp.vak6) * esp.dm6 * esp.utskplus
+Etterspørsel['Etterspørsel'] = Etterspørsel['ep1'] + Etterspørsel['ep2'] + Etterspørsel['ep3'] + Etterspørsel['ep4'] + Etterspørsel['ep5'] + Etterspørsel['ep6']
 
-esp['Etterspørsel'] = esp['ep1'] + esp['ep2'] + esp['ep3'] + esp['ep4'] + esp['ep5'] + esp['ep6']
+TilbudOgEtterspørsel = Tilbud.merge(Etterspørsel, how='outer', on=['utdanning', 'aar'])
 
-t_e = tilbud.merge(esp, how='outer', on=['utdanning', 'aar'])
+TilbudOgEtterspørsel['Vakanse'] = TilbudOgEtterspørsel.Tilbud - TilbudOgEtterspørsel.Etterspørsel
 
-t_e['Vakanse'] = t_e.Tilbud - t_e.Etterspørsel
+TilbudOgEtterspørsel = TilbudOgEtterspørsel[['Etterspørsel', 'Tilbud', 'Vakanse']]
 
-t_e = t_e[['Etterspørsel', 'Tilbud', 'Vakanse']]
+TilbudOgEtterspørsel.index.names = ['Utdanning', 'År']
 
-t_e.index.names = ['Utdanning', 'År']
-
-t_e.rename(index={'ba': 'Barnehagelærere'}, inplace=True)
-t_e.rename(index={'gr': 'Grunnskolelærere'}, inplace=True)
-t_e.rename(index={'fa': 'Faglærere'}, inplace=True)
-t_e.rename(index={'ph': 'PPU Universitet og høyskole'}, inplace=True)
-t_e.rename(index={'py': 'PPU Yrkesfag'}, inplace=True)
+TilbudOgEtterspørsel.rename(index={'ba': 'Barnehagelærere'}, inplace=True)
+TilbudOgEtterspørsel.rename(index={'gr': 'Grunnskolelærere'}, inplace=True)
+TilbudOgEtterspørsel.rename(index={'fa': 'Faglærere'}, inplace=True)
+TilbudOgEtterspørsel.rename(index={'ph': 'PPU Universitet og høyskole'}, inplace=True)
+TilbudOgEtterspørsel.rename(index={'py': 'PPU Yrkesfag'}, inplace=True)
 
 pd.options.display.multi_sparse = False
 
-t_e.round(0).astype(int).to_csv("resultater/Lærermod.csv")
-t_e.round(0).astype(int).to_excel("resultater/Lærermod.xlsx")
+TilbudOgEtterspørsel.round(0).astype(int).to_csv("resultater/Lærermod.csv")
+TilbudOgEtterspørsel.round(0).astype(int).to_excel("resultater/Lærermod.xlsx")
 
-print(t_e.round(0).astype(int).to_string())
+print(TilbudOgEtterspørsel.round(0).astype(int).to_string())
 
 totaltid = time.time() - starttid
 
