@@ -85,15 +85,13 @@ UtdannedeLærere = pd.DataFrame(pd.read_csv(
                                      'alder',
                                      'bestand',
                                      'sysselsatte',
-                                     'sysselsettingsandel',
                                      'gjennomsnittelige_aarsverk'],
-                              usecols=list(range(7)),
+                              usecols=list(range(6)),
                               dtype={'utdanning': 'string',
                                      'kjonn': 'int',
                                      'alder': 'int',
                                      'bestand': 'int',
                                      'sysselsatte': 'int',
-                                     'sysselsettingsandel': 'float',
                                      'gjennomsnittelige_aarsverk': 'float'}))
 
 UtdannedeLærere['sysselsettingsandel'] = UtdannedeLærere.apply(lambda row: row['sysselsatte'] / row['bestand']
@@ -748,9 +746,9 @@ Etterspørsel['Etterspørsel'] = Etterspørsel['ep1'] + Etterspørsel['ep2'] + E
 
 TilbudOgEtterspørsel = Tilbud.merge(Etterspørsel, how='outer', on=['utdanning', 'aar'])
 
-TilbudOgEtterspørsel['Vakanse'] = TilbudOgEtterspørsel.Tilbud - TilbudOgEtterspørsel.Etterspørsel
+TilbudOgEtterspørsel['Differanse'] = TilbudOgEtterspørsel.Tilbud - TilbudOgEtterspørsel.Etterspørsel
 
-TilbudOgEtterspørsel = TilbudOgEtterspørsel[['Etterspørsel', 'Tilbud', 'Vakanse']]
+TilbudOgEtterspørsel = TilbudOgEtterspørsel[['Etterspørsel', 'Tilbud', 'Differanse']]
 
 TilbudOgEtterspørsel.index.names = ['Utdanning', 'År']
 
