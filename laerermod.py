@@ -8,23 +8,20 @@ Sluttår = 2040
 
 
 befolkning = 'inndata/mmmm_2022.txt'
-stkap = 'inndata/fullforingsgrader.txt'
-oppta = 'inndata/opptak.txt'
-vak = 'inndata/vakansezero.txt'
 
 sysselsatte = 'inndata/sysselsatte.txt'
 utdannede = 'inndata/utdannede.txt'
 studenter = 'inndata/studenter.txt'
+stkap = 'inndata/fullforingsgrader.txt'
+oppta = 'inndata/opptak.txt'
 
 dem1 = 'inndata/antall_barn_barnehager.txt'
-dem2 = 'inndata/antall_elever_grunnskole.txt'
 dem3 = 'inndata/antall_elever_videregaende.txt'
 dem4 = 'inndata/antall_studenter_hoyereutdanning.txt'
-dem5 = 'inndata/antall_personer_andreskoler.txt'
-dem6 = 'inndata/antall_personer_andreskoler.txt'
 
 innpr = 'inndata/endring_standard.txt'
 inplu = 'inndata/endring_timeverk.txt'
+vak = 'inndata/vakanse.txt'
 
 
 starttid = time.time()
@@ -49,14 +46,12 @@ print()
 # ****************************************************************************
 
 kolonnenavn = ["Alder"] + ["Kjønn"]
-
 for x in range(Basisår, Sluttår+1):
     kolonnenavn = kolonnenavn + ["a" + str(x)]
 
 bef = pd.DataFrame(pd.read_fwf(befolkning,
                    header=None,
-                   delimiter=" ",
-                   col_names=kolonnenavn))
+                   delimiter=" "))
 
 bef.columns = kolonnenavn
 bef.set_index(['Alder', 'Kjønn'])
@@ -153,31 +148,6 @@ LærerStudenter.Menn = LærerStudenter.Menn / LærerStudenter.totalt
 LærerStudenter.Kvinner = LærerStudenter.Kvinner / LærerStudenter.totalt
 LærerStudenter = LærerStudenter.reset_index()
 
-# ****************************************
-# Innlesing av folkemengden i alder 0-5 år
-# ****************************************
-
-bef1 = bef[['Alder', 'Kjønn', 'a2020', 'a2021']].copy()
-bef1 = bef1[bef1['Alder'] == 0]
-
-bef2 = bef[['Alder', 'Kjønn', 'a2020', 'a2021']].copy()
-bef2 = bef2[bef2['Alder'] >= 0]
-bef2 = bef2[bef2['Alder'] <= 1]
-bef2 = bef2.reset_index()
-bef2.drop(['index'], axis=1, inplace=True)
-
-bef3 = bef[['Alder', 'Kjønn', 'a2020', 'a2021']].copy()
-bef3 = bef3[bef3['Alder'] == 3]
-
-bef3 = bef3.reset_index()
-bef3.drop(['index'], axis=1, inplace=True)
-
-bef4 = bef[['Alder', 'Kjønn', 'a2020', 'a2021']].copy()
-bef4 = bef4[bef4['Alder'] >= 4]
-bef4 = bef4[bef4['Alder'] <= 5]
-bef4 = bef4.reset_index()
-bef4.drop(['index'], axis=1, inplace=True)
-
 # ************************************
 # Innlesing av antall barn i barnehage
 # ************************************
@@ -185,58 +155,46 @@ bef4.drop(['index'], axis=1, inplace=True)
 barnhin = pd.DataFrame(pd.read_csv(dem1,
                       header=None,
                       delimiter=" ",
-                      names=['År', 'ti1', 'ti2', 'ba1', 'ba2', 'ba3', 'ba4', 'ba5', 'ba6'],
+                      names=['År', 'TimerMin', 'TinerMax', 'Alder0', 'Alder1', 'Alder2', 'Alder3', 'Alder4', 'Alder5'],
                       usecols=list(range(9))))
 
 barn1 = pd.DataFrame()
-
-barn1["b2021"] = barnhin.ba1
-barn1["tim"] = barnhin.ti1 + ((barnhin.ti2 - barnhin.ti1) / 2)
-barn1["ald1"] = 0
-barn1["ald2"] = 0
+barn1["b2021"] = barnhin.Alder0
+barn1["tim"] = barnhin.TimerMin + ((barnhin.TinerMax - barnhin.TimerMin) / 2)
 
 barn2 = pd.DataFrame()
-
-barn2["b2021"] = barnhin.ba2 + barnhin.ba3
-barn2["tim"] = barnhin.ti1 + ((barnhin.ti2 - barnhin.ti1) / 2)
-barn2["ald1"] = 1
-barn2["ald2"] = 2
+barn2["b2021"] = barnhin.Alder1 + barnhin.Alder2
+barn2["tim"] = barnhin.TimerMin + ((barnhin.TinerMax - barnhin.TimerMin) / 2)
 
 barn3 = pd.DataFrame()
-
-barn3["b2021"] = barnhin.ba4
-barn3["tim"] = barnhin.ti1 + ((barnhin.ti2 - barnhin.ti1) / 2)
-barn3["ald1"] = 3
-barn3["ald2"] = 3
+barn3["b2021"] = barnhin.Alder3
+barn3["tim"] = barnhin.TimerMin + ((barnhin.TinerMax - barnhin.TimerMin) / 2)
 
 barn4 = pd.DataFrame()
-
-barn4["b2021"] = barnhin.ba5 + barnhin.ba6
-barn4["tim"] = barnhin.ti1 + ((barnhin.ti2 - barnhin.ti1) / 2)
-barn4["ald1"] = 4
-barn4["ald2"] = 5
+barn4["b2021"] = barnhin.Alder4 + barnhin.Alder5
+barn4["tim"] = barnhin.TimerMin + ((barnhin.TinerMax - barnhin.TimerMin) / 2)
 
 # ************************************
 # Oppretter noen oppsummeringstabeller
 # ************************************
 
-befs1 = pd.DataFrame({'agr2020': bef1.a2020.sum(),
-                      'agr2021': bef1.a2021.sum(),
+befs1 = pd.DataFrame({'agr2020': bef.query('Alder == 0').a2020.sum(),
+                      'agr2021': bef.query('Alder == 0').a2021.sum(),
                       'ald1': 0,
                       'ald2': 0}, index=[0])
 
-befs2 = pd.DataFrame({'agr2020': bef2.a2020.sum(),
-                      'agr2021': bef2.a2021.sum(),
+befs2 = pd.DataFrame({'agr2020': bef.query('Alder >= 1 and Alder <= 2').a2020.sum(),
+                      'agr2021': bef.query('Alder >= 1 and Alder <= 2').a2021.sum(),
                       'ald1': 1,
                       'ald2': 2}, index=[0])
 
-befs3 = pd.DataFrame({'agr2020': bef3.a2020.sum(),
-                      'agr2021': bef3.a2021.sum(),
+befs3 = pd.DataFrame({'agr2020': bef.query('Alder == 3').a2020.sum(),
+                      'agr2021': bef.query('Alder == 3').a2021.sum(),
                       'ald1': 3,
                       'ald2': 3}, index=[0])
 
-befs4 = pd.DataFrame({'agr2020': bef4.a2020.sum(),
-                      'agr2021': bef4.a2021.sum(),
+befs4 = pd.DataFrame({'agr2020': bef.query('Alder >= 4 and Alder <= 5').a2020.sum(),
+                      'agr2021': bef.query('Alder >= 4 and Alder <= 5').a2021.sum(),
                       'ald1': 4,
                       'ald2': 5}, index=[0])
 
@@ -268,8 +226,6 @@ barna4 = pd.DataFrame({'ald1': 4,
 # Slår sammen tabeller
 # ********************
 
-barnr = pd.DataFrame
-
 barnr = pd.concat([befs1, befs2, befs3, befs4], ignore_index=True)
 barnar = pd.concat([barna1, barna2, barna3, barna4], ignore_index=True)
 
@@ -287,55 +243,19 @@ barnr['ans2'] = barnr.apply(lambda row: 0.97
                             if row['ans2'] > 0.95
                             else row['ans2'], axis=1)
 
-barnr["antår"] = 2
-
 # ******************************************************
 # Innlesing av folkemengden i grunnskole og andre skoler
 # ******************************************************
-
-bef5 = bef[['Alder', 'Kjønn', 'a2020', 'a2021']].copy()
-bef5 = bef5[bef5['Alder'] >= 6]
-bef5 = bef5[bef5['Alder'] <= 15]
-bef5 = bef5.reset_index()
-bef5.drop(['index'], axis=1, inplace=True)
-
-bef6 = bef[['Alder', 'Kjønn', 'a2020', 'a2021']].copy()
-bef6 = bef6.reset_index()
-bef6.drop(['index'], axis=1, inplace=True)
 
 Gjennomføring = pd.DataFrame(pd.read_fwf(stkap,
                      header=None,
                      delimiter=" ",
                      names=["Utdanning", "NormertTid", "fullfor", "fullfob"]))
 
-innles = pd.DataFrame(pd.read_fwf(oppta,
+OpptatteLærerStudenter = pd.DataFrame(pd.read_fwf(oppta,
                      header=None,
                      delimiter=" ",
-                     names=["År", "ba", "gr", "fa", "ph", "py"]))
-
-innles = innles.set_index(['År'])
-
-ba = pd.DataFrame()
-ba['oppfag'] = innles['ba']
-ba.loc[:, 'Utdanning'] = 'ba'
-
-gr = pd.DataFrame()
-gr['oppfag'] = innles['gr']
-gr.loc[:, 'Utdanning'] = 'gr'
-
-fa = pd.DataFrame()
-fa['oppfag'] = innles['fa']
-fa.loc[:, 'Utdanning'] = 'fa'
-
-ph = pd.DataFrame()
-ph['oppfag'] = innles['ph']
-ph.loc[:, 'Utdanning'] = 'ph'
-
-py = pd.DataFrame()
-py['oppfag'] = innles['py']
-py.loc[:, 'Utdanning'] = 'py'
-
-OpptatteLærerStudenter = pd.concat([ba, gr, fa, ph, py])
+                     names=["År", "Utdanning", "OpptatteStudenter"]))
 
 plussakt = pd.DataFrame(pd.read_fwf(inplu,
                        header=None,
@@ -449,7 +369,7 @@ for x in range(40, 45):
 for x in range(45, 50):
     nyrad = {'ald2': 49, 'Alder': x}
     ald4.loc[len(ald4)] = nyrad
-
+print(ald4)
 ald5 = pd.DataFrame(columns=['ald2', 'Alder'])
 
 for x in range(0, 100):
@@ -462,35 +382,34 @@ for x in range(0, 100):
     nyrad = {'ald2': 99, 'Alder': x}
     ald6.loc[len(ald6)] = nyrad
 
-kolonneposisjoner = [(0, 2), (4, 6), (7, 16), (17, 22), (23, 25)]
-kolonnenavn = ['ald1', 'ald2', 'br', 'bri', 'antår']
-
 demo1 = barnr
 
-demo2 = pd.DataFrame(pd.read_fwf(dem2,
+demo2 = pd.DataFrame({'ald1': 6,
+                      'ald2': 15,
+                      'br': bef.query('Alder >= 6 and Alder <= 15').a2021.sum(),
+                      'bri': 1.0}, index=[0])
+
+kolonnenavn = ['ald1', 'ald2', 'br', 'bri']
+
+demo3 = pd.DataFrame(pd.read_fwf(dem3,
                     header=None,
                     delimiter=" ",
                     names=kolonnenavn))
-
-demo3 = pd.DataFrame()
-
-kolonneposisjoner = [(0, 2), (3, 5), (6, 14), (15, 18), (19, 20)]
-
-demo3 = pd.read_fwf(dem3, colspecs=kolonneposisjoner, header=None)
-demo3.columns = kolonnenavn
-
+                     
 demo4 = pd.DataFrame(pd.read_fwf(dem4,
                     header=None,
                     delimiter=" ",
                     names=kolonnenavn))
 
-demo5 = pd.DataFrame(pd.read_fwf(dem5, colspecs=kolonneposisjoner, header=None))
+demo5 = pd.DataFrame({'ald1': 0,
+                      'ald2': 99,
+                      'br': bef.a2021.sum(),
+                      'bri': 1.0}, index=[0])
 
-demo5.columns = kolonnenavn
-
-demo6 = pd.DataFrame(pd.read_fwf(dem6, colspecs=kolonneposisjoner, header=None))
-
-demo6.columns = kolonnenavn
+demo6 = pd.DataFrame({'ald1': 0,
+                      'ald2': 99,
+                      'br': bef.a2021.sum(),
+                      'bri': 1.0}, index=[0])
 
 # ************************************************
 # LAGER ALDERSAGGREGATER av befolkningsfilen etter
@@ -571,17 +490,11 @@ dmindeks = dmindeks.merge(demår6, how='inner', on='År')
 # Disse fordeles så etter alder og kjønn (for hvert år).
 # ******************************************************************
 
-OpptatteLærerStudenter = OpptatteLærerStudenter.reset_index()
-OpptatteLærerStudenter = OpptatteLærerStudenter[OpptatteLærerStudenter['År'] > Basisår]
-
 LærerKandidaterTotalt = OpptatteLærerStudenter.merge(Gjennomføring, how='inner', on='Utdanning')
 
-LærerKandidaterTotalt['uteks'] = LærerKandidaterTotalt.apply(lambda row: (row['oppfag'] * row['fullfob'])
+LærerKandidaterTotalt['uteks'] = LærerKandidaterTotalt.apply(lambda row: (row['OpptatteStudenter'] * row['fullfob'])
                                  if row['År'] + row['NormertTid'] <= Basisår + 3
-                                 else (row['oppfag'] * row['fullfor']), axis=1)
-
-LærerKandidaterTotalt = LærerKandidaterTotalt.set_index(['Utdanning'])
-nystud = nystud.set_index(['Utdanning'])
+                                 else (row['OpptatteStudenter'] * row['fullfor']), axis=1)
 
 kand_ald = nystud.merge(LærerKandidaterTotalt, how='inner', on=['Utdanning'])
 
