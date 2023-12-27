@@ -45,40 +45,13 @@ print()
 # Innlesing av befolkningen til og med sluttåret fordelt etter alder og kjønn.
 # ****************************************************************************
 
-kolonnenavn = ["Alder"] + ["Kjønn"]
-for x in range(Basisår, Sluttår+1):
-    kolonnenavn = kolonnenavn + ["a" + str(x)]
-
-bef = pd.DataFrame(pd.read_fwf(befolkning,
-                   header=None,
-                   delimiter=" "))
-
-bef.columns = kolonnenavn
-bef.set_index(['Alder', 'Kjønn'])
+bef = pd.DataFrame(pd.read_fwf(befolkning, index_col=['Alder', 'Kjønn']))
 
 # ********************************
 # Innlesing av sysselsatte lærere.
 # ********************************
 
-SysselsatteLærere = pd.DataFrame(pd.read_csv(
-                                 sysselsatte,
-                                 header=None,
-                                 delimiter=r"\s+",
-                                 names=['Utdanning',
-                                        'Sektor',
-                                        'SysselsatteMenn',
-                                        'SysselsatteKvinner',
-                                        'GjennomsnitteligeÅrsverkMenn',
-                                        'GjennomsnitteligeÅrsverkKvinner'],
-                                 usecols=list(range(6)),
-                                 dtype={'Utdanning': 'string',
-                                        'Sektor': 'int',
-                                        'SysselsatteMenn': 'int',
-                                        'SysselsatteKvinner': 'int',
-                                        'GjennomsnitteligeÅrsverkMenn': 'float',
-                                        'GjennomsnitteligeÅrsverkKvinner': 'float'}))
-
-SysselsatteLærere = SysselsatteLærere.set_index(['Utdanning', 'Sektor'])
+SysselsatteLærere = pd.DataFrame(pd.read_fwf(sysselsatte, index_col=['Utdanning', 'Sektor']))
 
 # ******************************
 # Innlesing av utdannede lærere.
@@ -92,19 +65,19 @@ UtdannedeLærere = pd.DataFrame(pd.read_csv(
                               names=['Utdanning',
                                      'Kjønn',
                                      'Alder',
-                                     'Populasjon',
+                                     'Antall',
                                      'Sysselsatte',
                                      'GjennomsnitteligeÅrsverk'],
                               usecols=list(range(6)),
                               dtype={'Utdanning': 'string',
                                      'Kjønn': 'int',
                                      'Alder': 'int',
-                                     'Populasjon': 'int',
+                                     'Antall': 'int',
                                      'Sysselsatte': 'int',
                                      'GjennomsnitteligeÅrsverk': 'float'}))
 
-UtdannedeLærere['Sysselsettingsandel'] = UtdannedeLærere.apply(lambda row: row['Sysselsatte'] / row['Populasjon']
-                                                                           if row['Populasjon'] > 0
+UtdannedeLærere['Sysselsettingsandel'] = UtdannedeLærere.apply(lambda row: row['Sysselsatte'] / row['Antall']
+                                                                           if row['Antall'] > 0
                                                                            else 0, axis=1)
 
 # ***************************
@@ -127,7 +100,7 @@ LærerStudenter = pd.DataFrame(pd.read_csv(studenter,
                                'Menn': 'int',
                                'Kvinner': 'int'}))
 
-LærerStudenter = LærerStudenter.set_index(['Utdanning'])
+LærerStudenter.set_index(['Utdanning'])
 
 # ***********************
 # Beregner Årsverk totalt
@@ -139,30 +112,32 @@ SysselsatteLærere['ÅrsverkTotalt'] = SysselsatteLærere.SysselsatteMenn * Syss
 # Oppretter LærerStudenterTotalt og LærerStudenter
 # ************************************************
 
-LærerStudenterTotalt = pd.DataFrame(LærerStudenter.groupby(["Utdanning"]).sum())
-LærerStudenterTotalt.rename(columns={"Alle": "totalt"}, inplace=True)
-LærerStudenterTotalt.drop(['Alder', 'Kvinner', 'Menn'], axis=1, inplace=True)
+LærerStudenterTotalt = LærerStudenter.groupby(["Utdanning"]).sum()
+LærerStudenterTotalt.rename(columns={"Alle": "Totalt"}, inplace=True)
 
-LærerStudenter = LærerStudenter.merge(LærerStudenterTotalt, how='inner', on='Utdanning')
+LærerStudenter = LærerStudenter.merge(LærerStudenterTotalt['Totalt'], how='inner', on='Utdanning')
 
-LærerStudenter.Menn = LærerStudenter.Menn / LærerStudenter.totalt
-LærerStudenter.Kvinner = LærerStudenter.Kvinner / LærerStudenter.totalt
-LærerStudenter = LærerStudenter.reset_index()
+NyeStudenterMenn = LærerStudenter.copy()
+NyeStudenterMenn['Kjønn'] = 1
+NyeStudenterMenn['AndelStudenterEtterAlder'] = LærerStudenter.Menn / LærerStudenter.Totalt
+
+NyeStudenterKvinner = LærerStudenter.copy()
+NyeStudenterKvinner['Kjønn'] = 2
+NyeStudenterKvinner['AndelStudenterEtterAlder'] = LærerStudenter.Kvinner / LærerStudenter.Totalt
+
+NyeStudenter = pd.concat([NyeStudenterMenn, NyeStudenterKvinner])
+NyeStudenter = NyeStudenter.reset_index()
 
 # ************************************
 # Innlesing av antall barn i barnehage
 # ************************************
 
-barnhin = pd.DataFrame(pd.read_csv(dem1,
-                      header=None,
-                      delimiter="\s+",
-                      names=['TimerMin', 'TinerMax', 'Alder0', 'Alder1', 'Alder2', 'Alder3', 'Alder4', 'Alder5'],
-                      usecols=list(range(8))))
+barnhin = pd.DataFrame(pd.read_fwf(dem1))
 
-barn1 = pd.DataFrame({'b2021': barnhin.Alder0, 'tim': barnhin.TimerMin + ((barnhin.TinerMax - barnhin.TimerMin) / 2)})
-barn2 = pd.DataFrame({'b2021': barnhin.Alder1 + barnhin.Alder2, 'tim': barnhin.TimerMin + ((barnhin.TinerMax - barnhin.TimerMin) / 2)})
-barn3 = pd.DataFrame({'b2021': barnhin.Alder3, 'tim': barnhin.TimerMin + ((barnhin.TinerMax - barnhin.TimerMin) / 2)})
-barn4 = pd.DataFrame({'b2021': barnhin.Alder4 + barnhin.Alder5, 'tim': barnhin.TimerMin + ((barnhin.TinerMax - barnhin.TimerMin) / 2)})
+barn1 = pd.DataFrame({'b2021': barnhin.Alder0, 'Timer': barnhin.TimerMin + ((barnhin.TimerMax - barnhin.TimerMin) / 2)})
+barn2 = pd.DataFrame({'b2021': barnhin.Alder1 + barnhin.Alder2, 'Timer': barnhin.TimerMin + ((barnhin.TimerMax - barnhin.TimerMin) / 2)})
+barn3 = pd.DataFrame({'b2021': barnhin.Alder3, 'Timer': barnhin.TimerMin + ((barnhin.TimerMax - barnhin.TimerMin) / 2)})
+barn4 = pd.DataFrame({'b2021': barnhin.Alder4 + barnhin.Alder5, 'Timer': barnhin.TimerMin + ((barnhin.TimerMax - barnhin.TimerMin) / 2)})
 
 # ************************************
 # Oppretter noen oppsummeringstabeller
@@ -173,7 +148,7 @@ befs1 = pd.DataFrame({'agr2020': bef.query('Alder == 0').a2020.sum(),
                       'ald1': 0,
                       'ald2': 0,
                       'Populasjon': barn1.b2021.sum(),
-                      'Brukerindeks': (2 * barn1.b2021.mul(barn1.tim.values).sum()) /
+                      'Brukerindeks': (2 * barn1.b2021.mul(barn1.Timer.values).sum()) /
                                       (barn1.b2021.sum() * 42.5)}, index=[0])
 
 befs2 = pd.DataFrame({'agr2020': bef.query('Alder >= 1 and Alder <= 2').a2020.sum(),
@@ -181,7 +156,7 @@ befs2 = pd.DataFrame({'agr2020': bef.query('Alder >= 1 and Alder <= 2').a2020.su
                       'ald1': 1,
                       'ald2': 2,
                       'Populasjon': barn2.b2021.sum(),
-                      'Brukerindeks': (2 * barn2.b2021.mul(barn2.tim.values).sum()) /
+                      'Brukerindeks': (2 * barn2.b2021.mul(barn2.Timer.values).sum()) /
                                       (barn2.b2021.sum() * 42.5)}, index=[0])
 
 befs3 = pd.DataFrame({'agr2020': bef.query('Alder == 3').a2020.sum(),
@@ -189,7 +164,7 @@ befs3 = pd.DataFrame({'agr2020': bef.query('Alder == 3').a2020.sum(),
                       'ald1': 3,
                       'ald2': 3,
                       'Populasjon': barn3.b2021.sum(),
-                      'Brukerindeks': (1.5 * barn3.b2021.mul(barn3.tim.values).sum()) /
+                      'Brukerindeks': (1.5 * barn3.b2021.mul(barn3.Timer.values).sum()) /
                                       (barn3.b2021.sum() * 42.5)}, index=[0])
 
 befs4 = pd.DataFrame({'agr2020': bef.query('Alder >= 4 and Alder <= 5').a2020.sum(),
@@ -197,7 +172,7 @@ befs4 = pd.DataFrame({'agr2020': bef.query('Alder >= 4 and Alder <= 5').a2020.su
                       'ald1': 4,
                       'ald2': 5,
                       'Populasjon': barn4.b2021.sum(),
-                      'Brukerindeks': (1 * barn4.b2021.mul(barn4.tim.values).sum()) /
+                      'Brukerindeks': (1 * barn4.b2021.mul(barn4.Timer.values).sum()) /
                                       (barn4.b2021.sum() * 42.5)}, index=[0])
 
 # ********************
@@ -221,49 +196,30 @@ demo1['ans2'] = demo1.apply(lambda row: 0.97
 # Innlesing av folkemengden i grunnskole og andre skoler
 # ******************************************************
 
-Gjennomføring = pd.DataFrame(pd.read_fwf(stkap,
-                     header=None,
-                     delimiter=" ",
-                     names=["Utdanning", "NormertTid", "FullføringNye", "FullføringIgangværende"]))
+Gjennomføring = pd.DataFrame(pd.read_fwf(stkap))
 
 OpptatteLærerStudenter = pd.DataFrame(pd.read_fwf(oppta,
                      header=None,
                      delimiter=" ",
                      names=["År", "Utdanning", "OpptatteStudenter"]))
 
-plussakt = pd.DataFrame(pd.read_fwf(inplu,
-                       header=None,
-                       delimiter=" ",
-                       names=["Alder", "EndringMenn", "Endringkvinner"]))
-
-nystud1 = LærerStudenter.copy()
-nystud1['Kjønn'] = 1
-nystud1['st_ald'] = nystud1.Menn
-
-nystud2 = LærerStudenter.copy()
-nystud2['Kjønn'] = 2
-nystud2['st_ald'] = nystud2.Kvinner
-
-nystud = pd.concat([nystud1, nystud2])
+plussakt = pd.DataFrame(pd.read_fwf(inplu))
 
 PopulasjonUtdannedeLærere = UtdannedeLærere.copy()
 
-PopulasjonUtdannedeLærere["Årsverk"] = PopulasjonUtdannedeLærere.Populasjon * PopulasjonUtdannedeLærere.Sysselsettingsandel * PopulasjonUtdannedeLærere.GjennomsnitteligeÅrsverk
+PopulasjonUtdannedeLærere["Årsverk"] = PopulasjonUtdannedeLærere.Antall * PopulasjonUtdannedeLærere.Sysselsettingsandel * PopulasjonUtdannedeLærere.GjennomsnitteligeÅrsverk
 
 PopulasjonUtdannedeLærere.drop(['Sysselsatte', 'Sysselsettingsandel', 'GjennomsnitteligeÅrsverk'], axis=1, inplace=True)
 
 beh_syss = UtdannedeLærere.copy()
-beh_syss.drop(['Populasjon', 'Sysselsatte'], axis=1, inplace=True)
+beh_syss.drop(['Antall', 'Sysselsatte'], axis=1, inplace=True)
 
 EtterspørselLærere = pd.DataFrame({'Utdanning': ['ba', 'gr', 'fa', 'ph', 'py']})
 
 for i in range(1, 7):
     EtterspørselLærere["År"+str(i)] = SysselsatteLærere.ÅrsverkTotalt[SysselsatteLærere.ÅrsverkTotalt.index.get_level_values('Sektor') == i].reset_index(drop=True)
 
-VakanseEtterspørsel = pd.DataFrame(pd.read_fwf(vakanse,
-                     header=None,
-                     delimiter=" ",
-                     names=["Utdanning", "VakanseSektor1", "VakanseSektor2", "VakanseSektor3", "VakanseSektor4", "VakanseSektor5", "VakanseSektor6"]))
+VakanseEtterspørsel = pd.DataFrame(pd.read_fwf(vakanse))
 
 # ********************************************************
 # PROSENTVIS ENDRING I ANTALL ELEVER pr. 1000 INNBYGGERE
@@ -271,10 +227,7 @@ VakanseEtterspørsel = pd.DataFrame(pd.read_fwf(vakanse,
 # tallet 1.01 tolkes som 1 prosent økt elevtall pr. 1000
 # ********************************************************
 
-Standardendring = pd.DataFrame(pd.read_fwf(innpr,
-                    header=None,
-                    delimiter=" ",
-                    names=["År", "Sektor1", "Sektor2", "Sektor3", "Sektor4", "Sektor5", "Sektor6"]))
+Standardendring = pd.DataFrame(pd.read_fwf(innpr))
 
 # ****************************************
 # Oppretter datasett for senere utfylling.
@@ -312,17 +265,9 @@ demo2 = pd.DataFrame({'ald1': 6,
                       'Populasjon': bef.query('Alder >= 6 and Alder <= 15').a2021.sum(),
                       'Brukerindeks': 1.0}, index=[0])
 
-kolonnenavn = ['ald1', 'ald2', 'Populasjon', 'Brukerindeks']
-
-demo3 = pd.DataFrame(pd.read_fwf(dem3,
-                    header=None,
-                    delimiter=" ",
-                    names=kolonnenavn))
+demo3 = pd.DataFrame(pd.read_fwf(dem3))
                      
-demo4 = pd.DataFrame(pd.read_fwf(dem4,
-                    header=None,
-                    delimiter=" ",
-                    names=kolonnenavn))
+demo4 = pd.DataFrame(pd.read_fwf(dem4))
 
 demo5 = pd.DataFrame({'ald1': 0,
                       'ald2': 99,
@@ -344,8 +289,8 @@ for i in range(1, 7):
 
     locals()[f'bef{i}'] = locals()[f'bef{i}'].groupby(["ald2"]).sum()
 
-    locals()[f'bef{i}'].drop(['Alder'], axis=1, inplace=True)
-    locals()[f'bef{i}'].drop(['Kjønn'], axis=1, inplace=True)
+   # locals()[f'bef{i}'].drop(['Alder'], axis=1, inplace=True)
+  #  locals()[f'bef{i}'].drop(['Kjønn'], axis=1, inplace=True)
     
     locals()[f'demo{i}'] = locals()[f'demo{i}'].set_index(['ald2'])
 
@@ -416,10 +361,10 @@ LærerKandidaterTotalt['Uteksaminerte'] = LærerKandidaterTotalt.apply(lambda ro
                                  if row['År'] + row['NormertTid'] <= Basisår + 3
                                  else (row['OpptatteStudenter'] * row['FullføringNye']), axis=1)
 
-kand_ald = nystud.merge(LærerKandidaterTotalt, how='inner', on=['Utdanning'])
+kand_ald = NyeStudenter.merge(LærerKandidaterTotalt, how='inner', on=['Utdanning'])
 
 kand_ald["Alder"] = kand_ald.Alder + kand_ald.NormertTid
-kand_ald["eks_ald"] = kand_ald.Uteksaminerte * kand_ald.st_ald
+kand_ald["UteksaminerteEtterAlder"] = kand_ald.Uteksaminerte * kand_ald.AndelStudenterEtterAlder
 
 # *************************************************************
 # NYBEHOLD: Fører strømmen av nyutdannete inn i beholdningen av
@@ -437,13 +382,13 @@ kand_år = kand_ald
 kand_år = kand_år[kand_år['År'] == Basisår + 1]
 
 neste_år = forrige_år.merge(kand_år, how='outer', on=['Utdanning', 'Kjønn', 'Alder'])
-neste_år['Populasjon'] = neste_år['Populasjon'].fillna(0)
-neste_år['eks_ald'] = neste_år['eks_ald'].fillna(0)
+neste_år['Antall'] = neste_år['Antall'].fillna(0)
+neste_år['UteksaminerteEtterAlder'] = neste_år['UteksaminerteEtterAlder'].fillna(0)
 
-neste_år.Populasjon = neste_år.Populasjon + neste_år.eks_ald
+neste_år.Antall = neste_år.Antall + neste_år.UteksaminerteEtterAlder
 neste_år['År'] = Basisår + 1
 
-slutt = neste_år[['Utdanning', 'Kjønn', 'Alder', 'Populasjon', 'Årsverk', 'År']]
+slutt = neste_år[['Utdanning', 'Kjønn', 'Alder', 'Antall', 'Årsverk', 'År']]
 
 beh_paar = pd.concat([beh_paar, slutt])
 
@@ -457,13 +402,13 @@ for x in range(Basisår + 2, Sluttår + 1):
 
     neste_år = forrige_år.merge(kand_år, how='outer', on=['Utdanning', 'Kjønn', 'Alder'])
 
-    neste_år['Populasjon'] = neste_år['Populasjon'].fillna(0)
-    neste_år['eks_ald'] = neste_år['eks_ald'].fillna(0)
+    neste_år['Antall'] = neste_år['Antall'].fillna(0)
+    neste_år['UteksaminerteEtterAlder'] = neste_år['UteksaminerteEtterAlder'].fillna(0)
 
-    neste_år.Populasjon = neste_år.Populasjon + neste_år.eks_ald
+    neste_år.Antall = neste_år.Antall + neste_år.UteksaminerteEtterAlder
     neste_år['År'] = x
 
-    slutt = neste_år[['Utdanning', 'Kjønn', 'Alder', 'Populasjon', 'Årsverk', 'År']]
+    slutt = neste_år[['Utdanning', 'Kjønn', 'Alder', 'Antall', 'Årsverk', 'År']]
 
     beh_paar = pd.concat([beh_paar, slutt])
 
@@ -474,9 +419,9 @@ for x in range(Basisår + 2, Sluttår + 1):
 # ************************************************************
 
 Tilbud = beh_paar.merge(beh_syss, how='outer', on=['Utdanning', 'Kjønn', 'Alder'])
-Tilbud['Tilbud'] = Tilbud.Populasjon * Tilbud.Sysselsettingsandel * Tilbud.GjennomsnitteligeÅrsverk
+Tilbud['Tilbud'] = Tilbud.Antall * Tilbud.Sysselsettingsandel * Tilbud.GjennomsnitteligeÅrsverk
 Tilbud = Tilbud.groupby(['Utdanning', 'År'], sort=False).sum()
-Tilbud = Tilbud.drop(['Kjønn', 'Alder', 'Populasjon', 'Sysselsettingsandel', 'GjennomsnitteligeÅrsverk'], axis=1)
+Tilbud = Tilbud.drop(['Kjønn', 'Alder', 'Antall', 'Sysselsettingsandel', 'GjennomsnitteligeÅrsverk'], axis=1)
 
 # ********************************
 # Sluttproduktet fra simuleringen.
