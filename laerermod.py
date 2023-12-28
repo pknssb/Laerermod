@@ -47,66 +47,33 @@ print()
 
 bef = pd.DataFrame(pd.read_fwf(befolkning, index_col=['Alder', 'Kjønn']))
 
-# ********************************
-# Innlesing av sysselsatte lærere.
-# ********************************
-
 SysselsatteLærere = pd.DataFrame(pd.read_fwf(sysselsatte, index_col=['Utdanning', 'Sektor']))
+UtdannedeLærere = pd.DataFrame(pd.read_fwf(utdannede))
+LærerStudenter = pd.DataFrame(pd.read_fwf(studenter, index_col=['Utdanning']))
+Gjennomføring = pd.DataFrame(pd.read_fwf(stkap))
+OpptatteLærerStudenter = pd.DataFrame(pd.read_fwf(oppta))
 
-# ******************************
-# Innlesing av utdannede lærere.
-# ******************************
+barnhin = pd.DataFrame(pd.read_fwf(dem1))
+demo3 = pd.DataFrame(pd.read_fwf(dem3))                  
+demo4 = pd.DataFrame(pd.read_fwf(dem4))
 
-UtdannedeLærere = pd.DataFrame(pd.read_csv(
-                              utdannede,
-                              header=None,
-                              delimiter=r"\s+",
-                              na_values={'.', ' .'},
-                              names=['Utdanning',
-                                     'Kjønn',
-                                     'Alder',
-                                     'Antall',
-                                     'Sysselsatte',
-                                     'GjennomsnitteligeÅrsverk'],
-                              usecols=list(range(6)),
-                              dtype={'Utdanning': 'string',
-                                     'Kjønn': 'int',
-                                     'Alder': 'int',
-                                     'Antall': 'int',
-                                     'Sysselsatte': 'int',
-                                     'GjennomsnitteligeÅrsverk': 'float'}))
-
-UtdannedeLærere['Sysselsettingsandel'] = UtdannedeLærere.apply(lambda row: row['Sysselsatte'] / row['Antall']
-                                                                           if row['Antall'] > 0
-                                                                           else 0, axis=1)
-
-# ***************************
-# Innlesing av lærerstudenter
-# ***************************
-
-LærerStudenter = pd.DataFrame(pd.read_csv(studenter,
-                        header=None,
-                        delimiter=r"\s+",
-                        na_values={'.', ' .'},
-                        names=['Utdanning',
-                               'Alder',
-                               'Alle',
-                               'Menn',
-                               'Kvinner'],
-                        usecols=list(range(5)),
-                        dtype={'Utdanning': 'string',
-                               'Alder': 'int',
-                               'Alle': 'int',
-                               'Menn': 'int',
-                               'Kvinner': 'int'}))
-
-LærerStudenter.set_index(['Utdanning'])
+Standardendring = pd.DataFrame(pd.read_fwf(innpr))
+plussakt = pd.DataFrame(pd.read_fwf(inplu))
+VakanseEtterspørsel = pd.DataFrame(pd.read_fwf(vakanse))
 
 # ***********************
 # Beregner Årsverk totalt
 # ***********************
 
 SysselsatteLærere['ÅrsverkTotalt'] = SysselsatteLærere.SysselsatteMenn * SysselsatteLærere.GjennomsnitteligeÅrsverkMenn + SysselsatteLærere.SysselsatteKvinner * SysselsatteLærere.GjennomsnitteligeÅrsverkKvinner
+
+# ****************************
+# Beregner Sysselsettingsandel
+# ****************************
+
+UtdannedeLærere['Sysselsettingsandel'] = UtdannedeLærere.apply(lambda row: row['Sysselsatte'] / row['Antall']
+                                                                           if row['Antall'] > 0
+                                                                           else 0, axis=1)
 
 # ************************************************
 # Oppretter LærerStudenterTotalt og LærerStudenter
@@ -129,10 +96,8 @@ NyeStudenter = pd.concat([NyeStudenterMenn, NyeStudenterKvinner])
 NyeStudenter = NyeStudenter.reset_index()
 
 # ************************************
-# Innlesing av antall barn i barnehage
+# Beregning av antall barn i barnehage
 # ************************************
-
-barnhin = pd.DataFrame(pd.read_fwf(dem1))
 
 barn1 = pd.DataFrame({'b2021': barnhin.Alder0, 'Timer': barnhin.TimerMin + ((barnhin.TimerMax - barnhin.TimerMin) / 2)})
 barn2 = pd.DataFrame({'b2021': barnhin.Alder1 + barnhin.Alder2, 'Timer': barnhin.TimerMin + ((barnhin.TimerMax - barnhin.TimerMin) / 2)})
@@ -182,28 +147,14 @@ befs4 = pd.DataFrame({'agr2020': bef.query('Alder >= 4 and Alder <= 5').a2020.su
 demo1 = pd.concat([befs1, befs2, befs3, befs4], ignore_index=True)
 
 demo1["ans1"] = demo1.Populasjon / demo1.agr2021
+
 demo1["ans2"] = 1.12 * demo1.ans1
-
-demo1['ans2'] = demo1.apply(lambda row: 1.05 * row['ans1']
-                            if row['ald1'] == 0
-                            else row['ans2'], axis=1)
-
-demo1['ans2'] = demo1.apply(lambda row: 0.97
-                            if row['ans2'] > 0.95
-                            else row['ans2'], axis=1)
+demo1['ans2'] = demo1.apply(lambda row: 1.05 * row['ans1'] if row['ald1'] == 0 else row['ans2'], axis=1)
+demo1['ans2'] = demo1.apply(lambda row: 0.97 if row['ans2'] > 0.95 else row['ans2'], axis=1)
 
 # ******************************************************
 # Innlesing av folkemengden i grunnskole og andre skoler
 # ******************************************************
-
-Gjennomføring = pd.DataFrame(pd.read_fwf(stkap))
-
-OpptatteLærerStudenter = pd.DataFrame(pd.read_fwf(oppta,
-                     header=None,
-                     delimiter=" ",
-                     names=["År", "Utdanning", "OpptatteStudenter"]))
-
-plussakt = pd.DataFrame(pd.read_fwf(inplu))
 
 PopulasjonUtdannedeLærere = UtdannedeLærere.copy()
 
@@ -218,16 +169,6 @@ EtterspørselLærere = pd.DataFrame({'Utdanning': ['ba', 'gr', 'fa', 'ph', 'py']
 
 for i in range(1, 7):
     EtterspørselLærere["År"+str(i)] = SysselsatteLærere.ÅrsverkTotalt[SysselsatteLærere.ÅrsverkTotalt.index.get_level_values('Sektor') == i].reset_index(drop=True)
-
-VakanseEtterspørsel = pd.DataFrame(pd.read_fwf(vakanse))
-
-# ********************************************************
-# PROSENTVIS ENDRING I ANTALL ELEVER pr. 1000 INNBYGGERE
-# ved de ulike aktivitetsområdene over simuleringsperioden
-# tallet 1.01 tolkes som 1 prosent økt elevtall pr. 1000
-# ********************************************************
-
-Standardendring = pd.DataFrame(pd.read_fwf(innpr))
 
 # ****************************************
 # Oppretter datasett for senere utfylling.
@@ -265,10 +206,6 @@ demo2 = pd.DataFrame({'ald1': 6,
                       'Populasjon': bef.query('Alder >= 6 and Alder <= 15').a2021.sum(),
                       'Brukerindeks': 1.0}, index=[0])
 
-demo3 = pd.DataFrame(pd.read_fwf(dem3))
-                     
-demo4 = pd.DataFrame(pd.read_fwf(dem4))
-
 demo5 = pd.DataFrame({'ald1': 0,
                       'ald2': 99,
                       'Populasjon': bef.a2021.sum(),
@@ -283,14 +220,9 @@ demo6 = pd.DataFrame({'ald1': 0,
 # LAGER ALDERSAGGREGATER av befolkningsfilen etter
 # gruppering i den aktuelle etterspørselsfil
 # ************************************************
-
+        
 for i in range(1, 7):
-    locals()[f'bef{i}'] = locals()[f'ald{i}'].merge(bef, how='inner', on='Alder')
-
-    locals()[f'bef{i}'] = locals()[f'bef{i}'].groupby(["ald2"]).sum()
-
-   # locals()[f'bef{i}'].drop(['Alder'], axis=1, inplace=True)
-  #  locals()[f'bef{i}'].drop(['Kjønn'], axis=1, inplace=True)
+    locals()[f'bef{i}'] = locals()[f'ald{i}'].merge(bef, how='inner', on='Alder').groupby(["ald2"]).sum()
     
     locals()[f'demo{i}'] = locals()[f'demo{i}'].set_index(['ald2'])
 
@@ -317,15 +249,15 @@ for i in range(1, 7):
         locals()[f'demos{i}']['mgs' + str(x)] = [locals()[f'demo{i}']['mg' + str(x)].sum()]
     
     y = locals()[f'demos{i}']['pgs' + str(Basisår)].loc[0]
-    
+    """
     locals()[f'demy{i}'] = pd.DataFrame({'Utdanning': ['ba', 'gr', 'fa', 'ph', 'py'],
                                          'Brukerindeks': [y, y, y, y, y]})
-    
+
     locals()[f'Årsverk{i}'] = locals()[f'demy{i}']
     
     locals()[f'Årsverk{i}']['År'] = EtterspørselLærere['År' + str(i)]
     locals()[f'Årsverk{i}']['stdrd'] = locals()[f'Årsverk{i}']['År'] / locals()[f'Årsverk{i}']['Brukerindeks']
-    
+    """
     locals()[f'demår{i}'] = pd.DataFrame({"År": [Basisår], "dm" + str(i): [1], "dp" + str(i): [1], "dem" + str(i): locals()[f'demos{i}']['agrs' + str(Basisår)]})
 
     for x in range(Basisår + 1, Sluttår + 1):
@@ -341,14 +273,9 @@ for i in range(1, 7):
 # etter tjenester
 # ******************************************************
 
-dmindeks = Standardendring.merge(demår1, how='inner', on='År')
-dmindeks = dmindeks.merge(demår2, how='inner', on='År')
-dmindeks = dmindeks.merge(demår3, how='inner', on='År')
-dmindeks = dmindeks.merge(demår4, how='inner', on='År')
-dmindeks = dmindeks.merge(demår5, how='inner', on='År')
-dmindeks = dmindeks.merge(demår6, how='inner', on='År')
+dmindeks = Standardendring.merge(demår1).merge(demår2).merge(demår3).merge(demår4).merge(demår5).merge(demår6)
 
-Årsverk = pd.concat([Årsverk1, Årsverk2, Årsverk3, Årsverk4, Årsverk5, Årsverk6])
+#Årsverk = pd.concat([Årsverk1, Årsverk2, Årsverk3, Årsverk4, Årsverk5, Årsverk6])
 
 # ******************************************************************
 # NYKAND: Beregner antall uteksaminerte studenter over sim.perioden.
@@ -443,7 +370,6 @@ ind = ind.reset_index()
 
 Etterspørsel = reduce(lambda left, right: pd.merge(left, right, on=['Utdanning'], how='outer'), [ind, EtterspørselLærere, VakanseEtterspørsel])
 
-Etterspørsel = Etterspørsel.reset_index()
 Etterspørsel = Etterspørsel.set_index(['Utdanning', 'År'])
 
 Etterspørsel['Etterspørsel'] = (Etterspørsel.År1 + Etterspørsel.VakanseSektor1) * Etterspørsel.dm1 * Etterspørsel.Sektor1
@@ -458,7 +384,6 @@ TilbudOgEtterspørsel = Tilbud.merge(Etterspørsel, how='outer', on=['Utdanning'
 TilbudOgEtterspørsel['Differanse'] = TilbudOgEtterspørsel.Tilbud - TilbudOgEtterspørsel.Etterspørsel
 
 TilbudOgEtterspørsel = TilbudOgEtterspørsel[['Etterspørsel', 'Tilbud', 'Differanse']]
-
 TilbudOgEtterspørsel.index.names = ['Utdanning', 'År']
 
 TilbudOgEtterspørsel.rename(index={'ba': 'Barnehagelærere'}, inplace=True)
