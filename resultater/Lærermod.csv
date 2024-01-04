@@ -1,106 +1,106 @@
-Utdanning,År,Etterspørsel,Tilbud,Differanse
-Barnehagelærere,2020,47134,47126,-8
-Barnehagelærere,2021,46522,48005,1483
-Barnehagelærere,2022,45972,49055,3083
-Barnehagelærere,2023,45818,50112,4294
-Barnehagelærere,2024,45550,51175,5624
-Barnehagelærere,2025,45403,52234,6831
-Barnehagelærere,2026,45343,53293,7950
-Barnehagelærere,2027,45380,54325,8945
-Barnehagelærere,2028,45504,55330,9826
-Barnehagelærere,2029,45709,56277,10568
-Barnehagelærere,2030,45945,57146,11201
-Barnehagelærere,2031,46196,57939,11743
-Barnehagelærere,2032,46444,58633,12188
-Barnehagelærere,2033,46698,59232,12533
-Barnehagelærere,2034,46989,59752,12763
-Barnehagelærere,2035,47311,60185,12874
-Barnehagelærere,2036,47656,60574,12918
-Barnehagelærere,2037,48017,60940,12923
-Barnehagelærere,2038,48352,61317,12966
-Barnehagelærere,2039,48612,61723,13111
-Barnehagelærere,2040,48798,62181,13383
-Grunnskolelærere,2020,52497,52381,-116
-Grunnskolelærere,2021,52460,52773,313
-Grunnskolelærere,2022,52490,53233,743
-Grunnskolelærere,2023,52350,53749,1399
-Grunnskolelærere,2024,52089,54321,2232
-Grunnskolelærere,2025,51644,54931,3288
-Grunnskolelærere,2026,51101,55547,4446
-Grunnskolelærere,2027,50608,56193,5586
-Grunnskolelærere,2028,50174,56819,6645
-Grunnskolelærere,2029,49736,57406,7670
-Grunnskolelærere,2030,49415,57928,8514
-Grunnskolelærere,2031,49137,58391,9254
-Grunnskolelærere,2032,48916,58778,9861
-Grunnskolelærere,2033,48755,59083,10328
-Grunnskolelærere,2034,48754,59331,10577
-Grunnskolelærere,2035,48860,59522,10662
-Grunnskolelærere,2036,49030,59689,10659
-Grunnskolelærere,2037,49248,59849,10600
-Grunnskolelærere,2038,49514,60004,10490
-Grunnskolelærere,2039,49834,60182,10348
-Grunnskolelærere,2040,50172,60374,10203
-Faglærere,2020,16600,16557,-43
-Faglærere,2021,16625,17578,953
-Faglærere,2022,16686,18647,1960
-Faglærere,2023,16732,19746,3014
-Faglærere,2024,16759,20847,4088
-Faglærere,2025,16792,21949,5157
-Faglærere,2026,16814,23031,6217
-Faglærere,2027,16815,24103,7288
-Faglærere,2028,16763,25145,8383
-Faglærere,2029,16689,26173,9484
-Faglærere,2030,16613,27167,10554
-Faglærere,2031,16559,28127,11567
-Faglærere,2032,16521,29061,12540
-Faglærere,2033,16508,29976,13468
-Faglærere,2034,16470,30886,14416
-Faglærere,2035,16419,31782,15363
-Faglærere,2036,16381,32658,16277
-Faglærere,2037,16388,33531,17143
-Faglærere,2038,16420,34404,17984
-Faglærere,2039,16459,35275,18815
-Faglærere,2040,16508,36130,19622
-PPU Universitet og høyskole,2020,30789,30733,-57
-PPU Universitet og høyskole,2021,30830,30793,-37
-PPU Universitet og høyskole,2022,30941,30890,-51
-PPU Universitet og høyskole,2023,31020,31004,-16
-PPU Universitet og høyskole,2024,31065,31130,64
-PPU Universitet og høyskole,2025,31124,31256,132
-PPU Universitet og høyskole,2026,31163,31384,221
-PPU Universitet og høyskole,2027,31158,31496,339
-PPU Universitet og høyskole,2028,31043,31594,550
-PPU Universitet og høyskole,2029,30887,31672,785
-PPU Universitet og høyskole,2030,30725,31717,993
-PPU Universitet og høyskole,2031,30605,31726,1121
-PPU Universitet og høyskole,2032,30514,31699,1185
-PPU Universitet og høyskole,2033,30472,31633,1161
-PPU Universitet og høyskole,2034,30374,31553,1179
-PPU Universitet og høyskole,2035,30247,31437,1191
-PPU Universitet og høyskole,2036,30145,31322,1177
-PPU Universitet og høyskole,2037,30134,31190,1056
-PPU Universitet og høyskole,2038,30174,31069,895
-PPU Universitet og høyskole,2039,30226,30946,721
-PPU Universitet og høyskole,2040,30298,30834,536
-PPU Yrkesfag,2020,13299,13248,-51
-PPU Yrkesfag,2021,13329,13226,-103
-PPU Yrkesfag,2022,13392,13190,-202
-PPU Yrkesfag,2023,13454,13140,-314
-PPU Yrkesfag,2024,13503,13091,-412
-PPU Yrkesfag,2025,13575,13024,-551
-PPU Yrkesfag,2026,13641,12945,-697
-PPU Yrkesfag,2027,13677,12866,-812
-PPU Yrkesfag,2028,13642,12763,-878
-PPU Yrkesfag,2029,13580,12664,-917
-PPU Yrkesfag,2030,13506,12555,-951
-PPU Yrkesfag,2031,13455,12434,-1021
-PPU Yrkesfag,2032,13417,12321,-1097
-PPU Yrkesfag,2033,13406,12191,-1215
-PPU Yrkesfag,2034,13348,12080,-1268
-PPU Yrkesfag,2035,13265,11961,-1304
-PPU Yrkesfag,2036,13192,11852,-1340
-PPU Yrkesfag,2037,13170,11748,-1422
-PPU Yrkesfag,2038,13176,11635,-1541
-PPU Yrkesfag,2039,13184,11542,-1643
-PPU Yrkesfag,2040,13204,11443,-1761
+Utdanning,År,Tilbud,Etterspørsel,Differanse
+Barnehagelærere,2020,47134,47134,0
+Barnehagelærere,2021,48005,46522,1484
+Barnehagelærere,2022,49055,45972,3084
+Barnehagelærere,2023,50112,45817,4295
+Barnehagelærere,2024,51175,45549,5625
+Barnehagelærere,2025,52234,45402,6832
+Barnehagelærere,2026,53293,45341,7951
+Barnehagelærere,2027,54325,45379,8946
+Barnehagelærere,2028,55330,45502,9827
+Barnehagelærere,2029,56277,45707,10570
+Barnehagelærere,2030,57146,45943,11203
+Barnehagelærere,2031,57939,46193,11746
+Barnehagelærere,2032,58633,46442,12191
+Barnehagelærere,2033,59232,46696,12536
+Barnehagelærere,2034,59752,46986,12766
+Barnehagelærere,2035,60185,47308,12878
+Barnehagelærere,2036,60574,47652,12922
+Barnehagelærere,2037,60940,48013,12927
+Barnehagelærere,2038,61317,48348,12970
+Barnehagelærere,2039,61723,48608,13115
+Barnehagelærere,2040,62181,48793,13387
+Faglærere,2020,16600,16600,0
+Faglærere,2021,17578,16622,956
+Faglærere,2022,18647,16681,1966
+Faglærere,2023,19746,16724,3022
+Faglærere,2024,20847,16749,4098
+Faglærere,2025,21949,16780,5169
+Faglærere,2026,23031,16801,6230
+Faglærere,2027,24103,16800,7303
+Faglærere,2028,25145,16746,8400
+Faglærere,2029,26173,16669,9503
+Faglærere,2030,27167,16591,10576
+Faglærere,2031,28127,16535,11592
+Faglærere,2032,29061,16495,12567
+Faglærere,2033,29976,16480,13496
+Faglærere,2034,30886,16440,14447
+Faglærere,2035,31782,16386,15396
+Faglærere,2036,32658,16345,16313
+Faglærere,2037,33531,16350,17181
+Faglærere,2038,34404,16381,18024
+Faglærere,2039,35275,16417,18858
+Faglærere,2040,36130,16463,19667
+Grunnskolelærere,2020,52497,52497,0
+Grunnskolelærere,2021,52773,52459,314
+Grunnskolelærere,2022,53233,52487,746
+Grunnskolelærere,2023,53749,52346,1403
+Grunnskolelærere,2024,54321,52084,2237
+Grunnskolelærere,2025,54931,51638,3294
+Grunnskolelærere,2026,55547,51095,4453
+Grunnskolelærere,2027,56193,50601,5593
+Grunnskolelærere,2028,56819,50166,6653
+Grunnskolelærere,2029,57406,49727,7679
+Grunnskolelærere,2030,57928,49404,8524
+Grunnskolelærere,2031,58391,49125,9266
+Grunnskolelærere,2032,58778,48904,9874
+Grunnskolelærere,2033,59083,48741,10342
+Grunnskolelærere,2034,59331,48739,10592
+Grunnskolelærere,2035,59522,48844,10678
+Grunnskolelærere,2036,59689,49013,10676
+Grunnskolelærere,2037,59849,49230,10618
+Grunnskolelærere,2038,60004,49495,10509
+Grunnskolelærere,2039,60182,49814,10369
+Grunnskolelærere,2040,60374,50150,10224
+PPU Universitet og høyskole,2020,30789,30789,0
+PPU Universitet og høyskole,2021,30793,30824,-31
+PPU Universitet og høyskole,2022,30890,30930,-40
+PPU Universitet og høyskole,2023,31004,31004,0
+PPU Universitet og høyskole,2024,31130,31044,85
+PPU Universitet og høyskole,2025,31256,31100,157
+PPU Universitet og høyskole,2026,31384,31135,249
+PPU Universitet og høyskole,2027,31496,31127,369
+PPU Universitet og høyskole,2028,31594,31009,585
+PPU Universitet og høyskole,2029,31672,30847,825
+PPU Universitet og høyskole,2030,31717,30680,1037
+PPU Universitet og høyskole,2031,31726,30555,1170
+PPU Universitet og høyskole,2032,31699,30461,1239
+PPU Universitet og høyskole,2033,31633,30414,1219
+PPU Universitet og høyskole,2034,31553,30312,1241
+PPU Universitet og høyskole,2035,31437,30180,1258
+PPU Universitet og høyskole,2036,31322,30072,1250
+PPU Universitet og høyskole,2037,31190,30057,1133
+PPU Universitet og høyskole,2038,31069,30093,976
+PPU Universitet og høyskole,2039,30946,30139,807
+PPU Universitet og høyskole,2040,30834,30207,627
+PPU Yrkesfag,2020,13299,13299,0
+PPU Yrkesfag,2021,13226,13325,-100
+PPU Yrkesfag,2022,13190,13386,-196
+PPU Yrkesfag,2023,13140,13444,-304
+PPU Yrkesfag,2024,13091,13491,-400
+PPU Yrkesfag,2025,13024,13561,-536
+PPU Yrkesfag,2026,12945,13626,-681
+PPU Yrkesfag,2027,12866,13660,-794
+PPU Yrkesfag,2028,12763,13622,-858
+PPU Yrkesfag,2029,12664,13558,-894
+PPU Yrkesfag,2030,12555,13480,-925
+PPU Yrkesfag,2031,12434,13426,-992
+PPU Yrkesfag,2032,12321,13386,-1066
+PPU Yrkesfag,2033,12191,13372,-1181
+PPU Yrkesfag,2034,12080,13312,-1232
+PPU Yrkesfag,2035,11961,13226,-1265
+PPU Yrkesfag,2036,11852,13150,-1298
+PPU Yrkesfag,2037,11748,13126,-1377
+PPU Yrkesfag,2038,11635,13129,-1494
+PPU Yrkesfag,2039,11542,13135,-1593
+PPU Yrkesfag,2040,11443,13152,-1709

@@ -60,7 +60,7 @@ VakanseEtterspørsel = pd.DataFrame(pd.read_fwf(vakanse))
 # Beregner Tilbud.
 # ****************
 
-SysselsatteLærere['ÅrsverkTotalt'] = SysselsatteLærere.SysselsatteMenn * SysselsatteLærere.GjennomsnitteligeÅrsverkMenn + SysselsatteLærere.SysselsatteKvinner * SysselsatteLærere.GjennomsnitteligeÅrsverkKvinner
+SysselsatteLærere['Tilbud'] = SysselsatteLærere.SysselsatteMenn * SysselsatteLærere.GjennomsnitteligeÅrsverkMenn + SysselsatteLærere.SysselsatteKvinner * SysselsatteLærere.GjennomsnitteligeÅrsverkKvinner
 
 UtdannedeLærere['Sysselsettingsandel'] = UtdannedeLærere.apply(lambda row: row['Sysselsatte'] / row['Antall'] if row['Antall'] > 0 else 0, axis=1)
 
@@ -78,10 +78,6 @@ PopulasjonUtdannedeLærere.drop(['Sysselsatte', 'Sysselsettingsandel', 'Gjennoms
 
 PopulasjonSysselsatteLærere = UtdannedeLærere.copy()
 PopulasjonSysselsatteLærere.drop(['Antall', 'Sysselsatte'], axis=1, inplace=True)
-
-EtterspørselLærere = pd.DataFrame({'Utdanning': ['ba', 'gr', 'fa', 'ph', 'py'], 'Etterspørsel': 0})
-for i in range(1, 7):
-    EtterspørselLærere["År"+str(i)] = SysselsatteLærere.ÅrsverkTotalt[SysselsatteLærere.ÅrsverkTotalt.index.get_level_values('Sektor') == i].reset_index(drop=True)
 
 LærerKandidaterTotalt = OpptatteLærerStudenter.merge(Gjennomføring, how='inner', on='Utdanning')
 LærerKandidaterTotalt['Uteksaminerte'] = LærerKandidaterTotalt.apply(lambda row: (row['OpptatteStudenter'] * row['FullføringIgangværende'])
@@ -112,6 +108,19 @@ for x in range(Basisår + 1, Sluttår + 1):
 Tilbud = LærerVekst.merge(PopulasjonSysselsatteLærere, how='outer', on=['Utdanning', 'Kjønn', 'Alder'])
 Tilbud['Tilbud'] = Tilbud.Antall * Tilbud.Sysselsettingsandel * Tilbud.GjennomsnitteligeÅrsverk
 Tilbud = Tilbud.groupby(['Utdanning', 'År'], sort=False).sum()
+Tilbud = Tilbud['Tilbud']
+Tilbud = Tilbud.reset_index()
+Tilbud = Tilbud.set_index(['Utdanning', 'År'])
+
+fett = SysselsatteLærere.groupby('Utdanning', sort=False).sum()
+
+fett['År'] = Basisår
+fett = fett.reset_index()
+fett = fett.set_index(['Utdanning', 'År'])
+fett = fett[['Tilbud']]
+Tilbud = Tilbud.query('År > 2020')
+Tilbud = pd.concat([Tilbud, fett])
+Tilbud = Tilbud.sort_index()
 
 # **********************
 # Beregner Etterspørsel.
@@ -119,7 +128,7 @@ Tilbud = Tilbud.groupby(['Utdanning', 'År'], sort=False).sum()
 
 ald1 = pd.DataFrame({"ald2": [0, 2, 2, 3, 5, 5], "Alder": range(0, 6)})
 ald2 = pd.DataFrame({"ald2": [15] * 10, "Alder": range(6, 16)})
-ald3 = pd.DataFrame({"ald2": [15] * 16 + list(range(16, 25)) + [99] * 75, "Alder": range(0, 100)})
+ald3 = pd.DataFrame({"ald2": [15] * 16 + list(range(16, 25)) + [49] * 25, "Alder": range(0, 50)})
 ald4 = pd.DataFrame({"ald2": list(range(19, 30)) + [34] * 5 + [39] * 5 + [44] * 5 + [49] * 5, "Alder": range(19, 50)})
 ald5 = pd.DataFrame({"ald2": 99, "Alder": range(0, 100)})
 ald6 = pd.DataFrame({"ald2": 99, "Alder": range(0, 100)})
@@ -159,6 +168,10 @@ for i in range(1, 7):
 DemografiIndeks = Standardendring.merge(demår1).merge(demår2).merge(demår3).merge(demår4).merge(demår5).merge(demår6)
 Indeks = pd.concat([DemografiIndeks, DemografiIndeks, DemografiIndeks, DemografiIndeks, DemografiIndeks], keys=['ba', 'gr', 'fa', 'ph', 'py'], names=['Utdanning'])
 
+EtterspørselLærere = pd.DataFrame({'Utdanning': ['ba', 'gr', 'fa', 'ph', 'py'], 'Etterspørsel': 0})
+for i in range(1, 7):
+    EtterspørselLærere["År"+str(i)] = SysselsatteLærere.Tilbud[SysselsatteLærere.Tilbud.index.get_level_values('Sektor') == i].reset_index(drop=True)
+
 Etterspørsel = reduce(lambda left, right: pd.merge(left, right, on=['Utdanning'], how='outer'), [Indeks, EtterspørselLærere, VakanseEtterspørsel]).set_index(['Utdanning', 'År'])
 for i in range(1, 7):
    Etterspørsel['Etterspørsel'] = Etterspørsel['Etterspørsel'] + (Etterspørsel['År' + str(i)] + Etterspørsel['VakanseSektor' + str(i)]) * Etterspørsel['dm' + str(i)] * Etterspørsel['Sektor' + str(i)]
@@ -169,7 +182,7 @@ for i in range(1, 7):
 
 TilbudOgEtterspørsel = Tilbud.merge(Etterspørsel, how='outer', on=['Utdanning', 'År'])
 TilbudOgEtterspørsel['Differanse'] = TilbudOgEtterspørsel.Tilbud - TilbudOgEtterspørsel.Etterspørsel
-TilbudOgEtterspørsel = TilbudOgEtterspørsel[['Etterspørsel', 'Tilbud', 'Differanse']]
+TilbudOgEtterspørsel = TilbudOgEtterspørsel[['Tilbud', 'Etterspørsel', 'Differanse']]
 TilbudOgEtterspørsel.rename(index={'ba': 'Barnehagelærere', 'gr': 'Grunnskolelærere', 'fa': 'Faglærere', 'ph': 'PPU Universitet og høyskole', 'py': 'PPU Yrkesfag'}, inplace=True)
 
 TilbudOgEtterspørsel.round(0).astype(int).to_csv("resultater/Lærermod.csv")
