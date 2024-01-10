@@ -1,4 +1,5 @@
 import pandas as pd
+#import dapla as dp
 from functools import reduce
 pd.options.display.multi_sparse = False
 
@@ -7,8 +8,8 @@ Sluttår = 2040
 
 befolkning = 'inndata/mmmm_2022.txt'
 
-sysselsatte = 'inndata/sysselsatte.txt'
-utdannede = 'inndata/utdannede.txt'
+sektorfordelt = 'inndata/sektorfordelt.txt'
+sysselsatt = 'inndata/sysselsatt.txt'
 studenter = 'inndata/studenter.txt'
 stkap = 'inndata/fullforingsgrader.txt'
 oppta = 'inndata/opptak.txt'
@@ -27,11 +28,11 @@ print()
 print('/********************************************************************/')
 print('/********************************************************************/')
 print('/* Modellen LÆRERMOD beregner tilbud av og etterspørsel etter       */')
-print('/* følgende 5 grupper av undervisningspersonell.                    */')
+print('/* følgende 7 grupper av lærere.                                    */')
 print('/*                                                                  */')
 print('/* ba:Barnehagelærere    gr:Grunnskolelærere                        */')
-print('/* fa:Faglærere          ph:PPU Universitet og høyskole             */')
-print('/* py:PPU Yrkesfag                                                  */')
+print('/* lu:Lektorutdannede    fa:Faglærere                               */')
+print('/* yr:Yrkesfaglærere     ph:PPU         py:PPU Yrkesfag             */')
 print('/********************************************************************/')
 print('/********************************************************************/')
 print()
@@ -42,8 +43,8 @@ print()
 
 Bef = pd.DataFrame(pd.read_fwf(befolkning, index_col=['Alder', 'Kjønn']))
 
-SysselsatteLærere = pd.DataFrame(pd.read_fwf(sysselsatte, index_col=['Utdanning', 'Sektor']))
-UtdannedeLærere = pd.DataFrame(pd.read_fwf(utdannede))
+SysselsatteLærere = pd.DataFrame(pd.read_fwf(sektorfordelt, index_col=['Utdanning', 'Sektor']))
+UtdannedeLærere = pd.DataFrame(pd.read_fwf(sysselsatt))
 LærerStudenter = pd.DataFrame(pd.read_fwf(studenter, index_col=['Utdanning']))
 Gjennomføring = pd.DataFrame(pd.read_fwf(stkap))
 OpptatteLærerStudenter = pd.DataFrame(pd.read_fwf(oppta))
@@ -171,7 +172,7 @@ TilbudOgEtterspørsel = Tilbud.merge(Etterspørsel, how='outer', on=['Utdanning'
 TilbudOgEtterspørsel['Differanse'] = TilbudOgEtterspørsel.Tilbud - TilbudOgEtterspørsel.Etterspørsel
 TilbudOgEtterspørsel = TilbudOgEtterspørsel[['Tilbud', 'Etterspørsel', 'Differanse']]
 TilbudOgEtterspørsel = TilbudOgEtterspørsel.sort_values(by=['Utdanning', 'År'], key=lambda x: x.map({'ba': 1, 'gr': 2, 'fa': 3, 'ph': 4, 'py': 5}))
-TilbudOgEtterspørsel.rename(index={'ba': 'Barnehagelærere', 'gr': 'Grunnskolelærere', 'fa': 'Faglærere', 'ph': 'PPU Universitet og høyskole', 'py': 'PPU Yrkesfag'}, inplace=True)
+TilbudOgEtterspørsel.rename(index={'ba': 'Barnehagelærere', 'gr': 'Grunnskolelærere', 'fa': 'Faglærere', 'ph': 'PPU', 'py': 'PPU Yrkesfag'}, inplace=True)
 
 TilbudOgEtterspørsel.round(0).astype(int).to_csv("resultater/Lærermod.csv")
 TilbudOgEtterspørsel.round(0).astype(int).to_excel("resultater/Lærermod.xlsx")
