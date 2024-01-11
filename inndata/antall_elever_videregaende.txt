@@ -9,4 +9,4 @@ FraAlder TilAlder Populasjon Brukerindeks
      22        22       1781       1.0000
      23        23       1343       1.0000
      24        24        969       1.0000
-     25        49      11645       1.0000
+     25        49      13043       1.0000
