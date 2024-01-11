@@ -160,9 +160,9 @@ for i in range(1, 7):
         locals()[f'Demografiår{i}'] = pd.concat([locals()[f'Demografiår{i}'], NesteÅrgang], ignore_index=True)
     
 DemografiIndeks = Standardendring.merge(Demografiår1).merge(Demografiår2).merge(Demografiår3).merge(Demografiår4).merge(Demografiår5).merge(Demografiår6)
-DemografiIndeks = pd.concat([DemografiIndeks, DemografiIndeks, DemografiIndeks, DemografiIndeks, DemografiIndeks], keys=['ba', 'gr', 'fa', 'ph', 'py'], names=['Utdanning'])
+DemografiIndeks = pd.concat([DemografiIndeks, DemografiIndeks, DemografiIndeks, DemografiIndeks, DemografiIndeks, DemografiIndeks, DemografiIndeks], keys=['ba', 'gr', 'lu', 'fa', 'yr', 'ph', 'py'], names=['Utdanning'])
 
-EtterspørselLærere = pd.DataFrame({'Utdanning': ['ba', 'gr', 'fa', 'ph', 'py'], 'Etterspørsel': 0})
+EtterspørselLærere = pd.DataFrame({'Utdanning': ['ba', 'gr', 'lu', 'fa', 'yr', 'ph', 'py'], 'Etterspørsel': 0})
 for i in range(1, 7):
     EtterspørselLærere["År"+str(i)] = SysselsatteLærere.Tilbud[SysselsatteLærere.Tilbud.index.get_level_values('Sektor') == i].reset_index(drop=True)
 
@@ -177,8 +177,8 @@ for i in range(1, 7):
 TilbudOgEtterspørsel = Tilbud.merge(Etterspørsel, how='outer', on=['Utdanning', 'År'])
 TilbudOgEtterspørsel['Differanse'] = TilbudOgEtterspørsel.Tilbud - TilbudOgEtterspørsel.Etterspørsel
 TilbudOgEtterspørsel = TilbudOgEtterspørsel[['Tilbud', 'Etterspørsel', 'Differanse']]
-TilbudOgEtterspørsel = TilbudOgEtterspørsel.sort_values(by=['Utdanning', 'År'], key=lambda x: x.map({'ba': 1, 'gr': 2, 'fa': 3, 'ph': 4, 'py': 5}))
-TilbudOgEtterspørsel.rename(index={'ba': 'Barnehagelærere', 'gr': 'Grunnskolelærere', 'fa': 'Faglærere', 'ph': 'PPU', 'py': 'PPU Yrkesfag'}, inplace=True)
+TilbudOgEtterspørsel = TilbudOgEtterspørsel.sort_values(by=['Utdanning', 'År'], key=lambda x: x.map({'ba': 1, 'gr': 2, 'lu': 3, 'fa': 4, 'yr': 5, 'ph': 6, 'py': 7}))
+TilbudOgEtterspørsel.rename(index={'ba': 'Barnehagelærere', 'gr': 'Grunnskolelærere', 'lu': 'Lektorutdannede', 'fa': 'Faglærere', 'yr': 'Yrkesfaglærere', 'ph': 'PPU', 'py': 'PPU Yrkesfag'}, inplace=True)
 
 TilbudOgEtterspørsel.round(0).astype(int).to_csv("resultater/Lærermod.csv")
 TilbudOgEtterspørsel.round(0).astype(int).to_excel("resultater/Lærermod.xlsx")
