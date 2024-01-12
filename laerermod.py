@@ -85,10 +85,12 @@ PopulasjonUtdannedeLærere['År'] = Basisår
 PopulasjonSysselsatteLærere = UtdannedeLærere.copy()
 PopulasjonSysselsatteLærere.drop(['Antall', 'Sysselsatte'], axis=1, inplace=True)
 
-LærerKandidaterTotalt = OpptatteLærerStudenter.merge(Gjennomføring, how='inner', on='Utdanning')
+Gjennom = pd.DataFrame({"År": range(2020, 2041), 'Utdanning': 'ba'})
+Gjennom = pd.concat([Gjennom, pd.DataFrame({"År": range(2020, 2041), 'Utdanning': 'gr'}), pd.DataFrame({"År": range(2020, 2041), 'Utdanning': 'lu'}), pd.DataFrame({"År": range(2020, 2041), 'Utdanning': 'fa'}), pd.DataFrame({"År": range(2020, 2041), 'Utdanning': 'yr'}), pd.DataFrame({"År": range(2020, 2041), 'Utdanning': 'ph'}), pd.DataFrame({"År": range(2020, 2041), 'Utdanning': 'py'})])
 
-#Gjennomføring = pd.DataFrame({"År": range(2020, 2041), })
-#print(Gjennomføring.to_string())
+OpptatteLærerStudenter = OpptatteLærerStudenter.merge(Gjennom)
+
+LærerKandidaterTotalt = OpptatteLærerStudenter.merge(Gjennomføring, how='inner', on='Utdanning')
 LærerKandidaterTotalt['Uteksaminerte'] = LærerKandidaterTotalt.apply(lambda row: (row['OpptatteStudenter'] * row['FullføringIgangværende'])
                                  if row['År'] + row['NormertTid'] <= Basisår + 3 else (row['OpptatteStudenter'] * row['FullføringNye']), axis=1)
 
