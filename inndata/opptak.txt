@@ -1,8 +1,0 @@
-Utdanning OpptatteStudenter
-       ba              3123
-       gr              2877
-       lu               529
-       fa               929
-       yr               729
-       ph              1144
-       py               561
