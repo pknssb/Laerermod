@@ -1,11 +1,4 @@
 # ******************************************************************************************** #
-# Start- og sluttår for framskrivningen.                                                       #
-# ******************************************************************************************** #
-
-Basisår = 2020
-Sluttår = 2040
-
-# ******************************************************************************************** #
 # Import av Python-biblioteker samt utskrift av en hyggelig velkomstmelding.                   #
 # ******************************************************************************************** #
 
@@ -30,6 +23,13 @@ print('/*   * PPU Yrkesfag                                         
 print('/********************************************************************/')
 print('/********************************************************************/')
 print()
+
+# ******************************************************************************************** #
+# Start- og sluttår for framskrivningen.                                                       #
+# ******************************************************************************************** #
+
+Basisår = 2020
+Sluttår = 2040
 
 # ******************************************************************************************** #
 # Innlesing av kildedata. Filene er dokumentert i Vedlegg 1 i den tekniske dokumentasjonen.    #
@@ -102,10 +102,12 @@ AldersFordeltStudenterTotalt = AldersFordeltStudenter.groupby(['Utdanning']).sum
 AldersFordeltStudenterTotalt.rename(columns={'Alle': 'Totalt'}, inplace=True)
 
 AldersFordeltStudenter = AldersFordeltStudenter.merge(AldersFordeltStudenterTotalt['Totalt'],
-                                                      how='inner', on='Utdanning')
+                                                      how='inner',
+                                                      on='Utdanning')
 
 NyeStudenter = pd.concat([AldersFordeltStudenter, AldersFordeltStudenter],
-                         keys=[1, 2], names=['Kjønn']).reset_index()
+                         keys=[1, 2],
+                         names=['Kjønn']).reset_index()
 
 # ******************************************************************************************** #
 # Beregner andel studenter for hver alder og hvert kjønn                                       #
@@ -113,7 +115,7 @@ NyeStudenter = pd.concat([AldersFordeltStudenter, AldersFordeltStudenter],
 # ******************************************************************************************** #
 
 NyeStudenter['AndelStudenterEtterAlder'] = NyeStudenter.apply(lambda row: row['Menn'] /
-                                                              row['Totalt'] if row['Kjønn'] == 1 
+                                                              row['Totalt'] if row['Kjønn']==1 
                                                               else row['Kvinner'] /
                                                               row['Totalt'], axis=1)
 
@@ -121,7 +123,12 @@ NyeStudenter['AndelStudenterEtterAlder'] = NyeStudenter.apply(lambda row: row['M
 # Kandidatproduksjon.
 # *******************
 
-KandidatProduksjon = KandidatProduksjon.merge(pd.concat([pd.DataFrame({"År": list(range(Basisår, Sluttår+1))})] * 7, keys=['ba', 'gr', 'lu', 'fa', 'yr', 'ph', 'py'], names=['Utdanning']), how='inner', on='Utdanning')
+KandidatProduksjon = KandidatProduksjon.merge(
+    pd.concat([pd.DataFrame({"År": list(range(Basisår, Sluttår+1))})] * 7,
+              keys=['ba', 'gr', 'lu', 'fa', 'yr', 'ph', 'py'],
+              names=['Utdanning']),
+    how='inner',
+    on='Utdanning')
 
 # ******************************************************************************************** #
 # Beregner antall uteksaminerte.                                                               #
@@ -153,7 +160,7 @@ PopulasjonForrigeÅr = Populasjon.copy()
 PopulasjonForrigeÅr.Alder += 1
 
 for x in range(Basisår + 1, Sluttår + 1):
-    PopulasjonNesteÅr = PopulasjonForrigeÅr.merge(NyeKandidater[NyeKandidater['År'] == x].copy(),
+    PopulasjonNesteÅr = PopulasjonForrigeÅr.merge(NyeKandidater[NyeKandidater['År']==x].copy(),
                                                   how='outer',
                                                   on=['Utdanning', 'Kjønn', 'Alder'])
     PopulasjonNesteÅr.Antall = (PopulasjonNesteÅr.Antall.fillna(0) +
@@ -167,7 +174,7 @@ for x in range(Basisår + 1, Sluttår + 1):
                                                  'Årsverk',
                                                  'År']]])
 
-    PopulasjonForrigeÅr = Vekst[Vekst['År'] == x].copy()
+    PopulasjonForrigeÅr = Vekst[Vekst['År']==x].copy()
     PopulasjonForrigeÅr.Alder += 1
 
 Tilbud = Vekst.merge(AldersFordelt, how='left', on=['Utdanning', 'Kjønn', 'Alder'])
@@ -206,41 +213,102 @@ Brukergruppe6 = pd.DataFrame({'TilAlder': 99,
 # Dette er Likning xx i modellen.                                                              #
 # ******************************************************************************************** #
 
-BarnGruppe1 = pd.DataFrame({'Brukere': DemografiGruppe1.Alder0, 'Timer': DemografiGruppe1.TimerMin + ((DemografiGruppe1.TimerMax - DemografiGruppe1.TimerMin) / 2)})
-BarnGruppe2 = pd.DataFrame({'Brukere': DemografiGruppe1.Alder1 + DemografiGruppe1.Alder2, 'Timer': DemografiGruppe1.TimerMin + ((DemografiGruppe1.TimerMax - DemografiGruppe1.TimerMin) / 2)})
-BarnGruppe3 = pd.DataFrame({'Brukere': DemografiGruppe1.Alder3, 'Timer': DemografiGruppe1.TimerMin + ((DemografiGruppe1.TimerMax - DemografiGruppe1.TimerMin) / 2)})
-BarnGruppe4 = pd.DataFrame({'Brukere': DemografiGruppe1.Alder4 + DemografiGruppe1.Alder5, 'Timer': DemografiGruppe1.TimerMin + ((DemografiGruppe1.TimerMax - DemografiGruppe1.TimerMin) / 2)})
+BarnGruppe1 = pd.DataFrame({'Brukere': DemografiGruppe1.Alder0,
+                            'Timer': DemografiGruppe1.TimerMin + ((DemografiGruppe1.TimerMax -
+                                                                   DemografiGruppe1.TimerMin)
+                                                                  / 2)})
+BarnGruppe2 = pd.DataFrame({'Brukere': DemografiGruppe1.Alder1 + DemografiGruppe1.Alder2,
+                            'Timer': DemografiGruppe1.TimerMin + ((DemografiGruppe1.TimerMax -
+                                                                   DemografiGruppe1.TimerMin)
+                                                                   / 2)})
+BarnGruppe3 = pd.DataFrame({'Brukere': DemografiGruppe1.Alder3,
+                            'Timer': DemografiGruppe1.TimerMin + ((DemografiGruppe1.TimerMax -
+                                                                   DemografiGruppe1.TimerMin)
+                                                                  / 2)})
+BarnGruppe4 = pd.DataFrame({'Brukere': DemografiGruppe1.Alder4 + DemografiGruppe1.Alder5,
+                            'Timer': DemografiGruppe1.TimerMin + ((DemografiGruppe1.TimerMax -
+                                                                   DemografiGruppe1.TimerMin)
+                                                                  / 2)})
 
-DemografiGruppe1 = pd.DataFrame(columns=['Brukere', 'FraAlder', 'TilAlder', 'Populasjon', 'Brukerindeks'])
-DemografiGruppe1.loc[len(DemografiGruppe1.index)] = [Befolkning.query('Alder == 0')[str(Basisår)].sum(), 0, 0, BarnGruppe1.Brukere.sum(), (2 * BarnGruppe1.Brukere.mul(BarnGruppe1.Timer.values).sum()) / (BarnGruppe1.Brukere.sum() * 42.5)]
-DemografiGruppe1.loc[len(DemografiGruppe1.index)] = [Befolkning.query('Alder >= 1 and Alder <= 2')[str(Basisår)].sum(), 1, 2, BarnGruppe2.Brukere.sum(), (2 * BarnGruppe2.Brukere.mul(BarnGruppe2.Timer.values).sum()) / (BarnGruppe2.Brukere.sum() * 42.5)]
-DemografiGruppe1.loc[len(DemografiGruppe1.index)] = [Befolkning.query('Alder == 3')[str(Basisår)].sum(), 3, 3, BarnGruppe3.Brukere.sum(), (1.5 * BarnGruppe3.Brukere.mul(BarnGruppe3.Timer.values).sum()) / (BarnGruppe3.Brukere.sum() * 42.5)]
-DemografiGruppe1.loc[len(DemografiGruppe1.index)] = [Befolkning.query('Alder >= 4 and Alder <= 5')[str(Basisår)].sum(), 4, 5, BarnGruppe4.Brukere.sum(), (1 * BarnGruppe4.Brukere.mul(BarnGruppe4.Timer.values).sum()) / (BarnGruppe4.Brukere.sum() * 42.5)]
+DemografiGruppe1 = pd.DataFrame(columns=['Brukere',
+                                         'FraAlder',
+                                         'TilAlder',
+                                         'Populasjon',
+                                         'Brukerindeks'])
+DemografiGruppe1.loc[len(DemografiGruppe1.index)] = [Befolkning.query('Alder==0')
+                                                     [str(Basisår)].sum(), 0, 0,
+                                                     BarnGruppe1.Brukere.sum(),
+                                                     (2 * BarnGruppe1.Brukere.
+                                                      mul(BarnGruppe1.Timer.values).sum())
+                                                     / (BarnGruppe1.Brukere.sum() * 42.5)]
+DemografiGruppe1.loc[len(DemografiGruppe1.index)] = [Befolkning.
+                                                     query('Alder>=1 and Alder<=2')
+                                                     [str(Basisår)].sum(), 1, 2,
+                                                     BarnGruppe2.Brukere.sum(),
+                                                     (2 * BarnGruppe2.Brukere.
+                                                      mul(BarnGruppe2.Timer.values).sum()) /
+                                                     (BarnGruppe2.Brukere.sum() * 42.5)]
+DemografiGruppe1.loc[len(DemografiGruppe1.index)] = [Befolkning.query('Alder==3')
+                                                     [str(Basisår)].sum(), 3, 3,
+                                                     BarnGruppe3.Brukere.sum(),
+                                                     (1.5 * BarnGruppe3.Brukere.
+                                                      mul(BarnGruppe3.Timer.values).sum()) /
+                                                     (BarnGruppe3.Brukere.sum() * 42.5)]
+DemografiGruppe1.loc[len(DemografiGruppe1.index)] = [Befolkning.query('Alder>=4 and Alder<=5')
+                                                     [str(Basisår)].sum(), 4, 5,
+                                                     BarnGruppe4.Brukere.sum(),
+                                                     (1 * BarnGruppe4.Brukere.
+                                                      mul(BarnGruppe4.Timer.values).sum()) /
+                                                     (BarnGruppe4.Brukere.sum() * 42.5)]
 
-DemografiGruppe2 = pd.DataFrame({'FraAlder': 6, 'TilAlder': 15, 'Populasjon': Befolkning.query('Alder >= 6 and Alder <= 15')[str(Basisår)].sum(), 'Brukerindeks': 1.0}, index=[0])
-DemografiGruppe5 = pd.DataFrame({'FraAlder': 0, 'TilAlder': 99, 'Populasjon': Befolkning[str(Basisår)].sum(), 'Brukerindeks': 1.0}, index=[0])
-DemografiGruppe6 = pd.DataFrame({'FraAlder': 0, 'TilAlder': 99, 'Populasjon': Befolkning[str(Basisår)].sum(), 'Brukerindeks': 1.0}, index=[0])
+DemografiGruppe2 = pd.DataFrame({'FraAlder': 6,
+                                 'TilAlder': 15,
+                                 'Populasjon': Befolkning.query('Alder>=6 and Alder<=15')
+                                 [str(Basisår)].sum(), 'Brukerindeks': 1.0}, index=[0])
+DemografiGruppe5 = pd.DataFrame({'FraAlder': 0,
+                                 'TilAlder': 99,
+                                 'Populasjon': Befolkning[str(Basisår)].sum(),
+                                 'Brukerindeks': 1.0}, index=[0])
+DemografiGruppe6 = pd.DataFrame({'FraAlder': 0,
+                                 'TilAlder': 99,
+                                 'Populasjon': Befolkning[str(Basisår)].sum(),
+                                 'Brukerindeks': 1.0}, index=[0])
 
 # ***********************************
 # Vekst (befolkningsframskrivninger).
 # ***********************************
 
 for i in range(1, 7):
-    locals()[f'Befolkning{i}'] = locals()[f'Brukergruppe{i}'].merge(Befolkning, how='inner', on='Alder').groupby(["TilAlder"]).sum()
+    locals()[f'Befolkning{i}'] = \
+    locals()[f'Brukergruppe{i}'].merge(Befolkning,
+                                       how='inner',
+                                       on='Alder').groupby(["TilAlder"]).sum()
      
     locals()[f'DemografiGruppe{i}'] = locals()[f'DemografiGruppe{i}'].set_index(["TilAlder"])
-    locals()[f'DemografiGruppe{i}']["RelativeBrukere" + str(Basisår)] = locals()[f'DemografiGruppe{i}'].Populasjon * locals()[f'DemografiGruppe{i}'].Brukerindeks
+    locals()[f'DemografiGruppe{i}']["RelativeBrukere" + str(Basisår)] = \
+    locals()[f'DemografiGruppe{i}'].Populasjon * locals()[f'DemografiGruppe{i}'].Brukerindeks
     for x in range(Basisår + 1, Sluttår + 1):
-        locals()[f'DemografiGruppe{i}']['RelativeBrukere' + str(x)] = locals()[f'DemografiGruppe{i}']['RelativeBrukere' + str(x-1)] * (locals()[f'Befolkning{i}'][str(x)] / locals()[f'Befolkning{i}'][str(x-1)])
+        locals()[f'DemografiGruppe{i}']['RelativeBrukere' + str(x)] = \
+        (locals()[f'DemografiGruppe{i}']['RelativeBrukere' + str(x-1)] *
+         (locals()[f'Befolkning{i}'][str(x)] /
+          locals()[f'Befolkning{i}'][str(x-1)]))
         
     locals()[f'SumDemografiGruppe{i}'] = pd.DataFrame()
     for x in range(Basisår, Sluttår + 1):
-        locals()[f'SumDemografiGruppe{i}']['SumRelativeBrukere' + str(x)] = [locals()[f'DemografiGruppe{i}']['RelativeBrukere' + str(x)].sum()]
+        locals()[f'SumDemografiGruppe{i}']['SumRelativeBrukere' + str(x)] = \
+        [locals()[f'DemografiGruppe{i}']['RelativeBrukere' + str(x)].sum()]
 
-    locals()[f'DemografiSektor{i}'] = pd.DataFrame({"År": [Basisår], "DemografiKomponent" + str(i): [1]})
+    locals()[f'DemografiSektor{i}'] = pd.DataFrame({"År": [Basisår],
+                                                    "DemografiKomponent" + str(i): [1]})
     for x in range(Basisår + 1, Sluttår + 1):
-        NesteÅrgang = pd.DataFrame({"År": x, "DemografiKomponent" + str(i): locals()[f'SumDemografiGruppe{i}']['SumRelativeBrukere' + str(x)] / locals()[f'SumDemografiGruppe{i}']['SumRelativeBrukere' + str(Basisår)]})
-        locals()[f'DemografiSektor{i}'] = pd.concat([locals()[f'DemografiSektor{i}'], NesteÅrgang], ignore_index=True)
+        NesteÅrgang = pd.DataFrame({"År": x,
+                                    "DemografiKomponent" + str(i): \
+                                    locals()[f'SumDemografiGruppe{i}'] \
+                                     ['SumRelativeBrukere' + str(x)] / \
+                                    locals()[f'SumDemografiGruppe{i}'] \
+                                    ['SumRelativeBrukere' + str(Basisår)]})
+        locals()[f'DemografiSektor{i}'] = pd.concat([locals()[f'DemografiSektor{i}'],
+                                                     NesteÅrgang], ignore_index=True)
     
 DemografiIndeks = Standardendring.merge((DemografiSektor1).merge
                                         (DemografiSektor2).merge
@@ -276,7 +344,8 @@ SektorFordelt = pd.DataFrame({'Etterspørsel': ((SektorFordelt.SysselsatteMenn *
 Etterspørsel = pd.DataFrame({'Utdanning': ['ba', 'gr', 'lu', 'fa', 'yr', 'ph', 'py'],
                              'Etterspørsel': 0})
 for i in range(1, 7):
-    Etterspørsel["EtterspørselSektor"+str(i)] = SektorFordelt.Etterspørsel[SektorFordelt.Etterspørsel.index.get_level_values('Sektor') == i].reset_index(drop=True)
+    Etterspørsel["EtterspørselSektor"+str(i)] = SektorFordelt.Etterspørsel[
+        SektorFordelt.Etterspørsel.index.get_level_values('Sektor') == i].reset_index(drop=True)
 
 Etterspørsel = reduce(lambda left, right: pd.merge(left, right, on=['Utdanning'], how='outer'),
                       [DemografiIndeks,
@@ -294,10 +363,14 @@ for i in range(1, 7):
                                     Etterspørsel['DemografiKomponent' + str(i)] *
                                     Etterspørsel['StandardEndring' + str(i)])
 
-TilbudBasisår = SektorFordelt.copy()
-TilbudBasisår.rename(columns={'Etterspørsel': 'Tilbud'}, inplace=True)
-
-TilbudOgEtterspørsel = pd.concat([TilbudBasisår.groupby(['Utdanning', 'År'], as_index=True).sum(), Tilbud.groupby(['Utdanning', 'År'], as_index=True).sum().query('År > @Basisår')]).merge(Etterspørsel, how='outer', on=['Utdanning', 'År'])
+TilbudOgEtterspørsel = pd.concat([pd.DataFrame({'Tilbud': SektorFordelt.Etterspørsel,
+                                                'År': Basisår}).groupby(['Utdanning', 'År'],
+                                                                        as_index=True).sum(),
+                                  Tilbud.groupby(['Utdanning', 'År'],
+                                                 as_index=True).sum().
+                                  query('År > @Basisår')]).merge(Etterspørsel, 
+                                                                 how='outer', 
+                                                                 on=['Utdanning', 'År'])
 
 # ******************************************************************************************** #
 # Beregner differansen.                                                                        #
@@ -308,11 +381,10 @@ TilbudOgEtterspørsel['Differanse'] = (TilbudOgEtterspørsel.Tilbud -
                                       TilbudOgEtterspørsel.Etterspørsel)
 
 # ******************************************************************************************** #
-# Skriver ut resultatene og en hyggelig hilsen.                                                #
+# Skriver ut resultatene og en hyggelig avskjedshilsen.                                        #
 # ******************************************************************************************** #
 
 TilbudOgEtterspørsel = TilbudOgEtterspørsel[['Tilbud', 'Etterspørsel', 'Differanse']]
-
 TilbudOgEtterspørsel = TilbudOgEtterspørsel.sort_values(by=['Utdanning', 'År'],
                                                         key=lambda x: x.map({'ba': 1,
                                                                              'gr': 2,
