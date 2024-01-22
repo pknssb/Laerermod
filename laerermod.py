@@ -67,6 +67,10 @@ KandidatProduksjon.set_index(['Utdanning'], inplace=True)
 Utdanninger = ['ba', 'gr', 'lu', 'fa', 'yr', 'ph', 'py']
 
 # ******************************************************************************************** #
+# Tilbud.                                                                                      #
+# ******************************************************************************************** #
+
+# ******************************************************************************************** #
 # Utgangspopulasjon av lærere.                                                                 #
 # ******************************************************************************************** #
 
@@ -246,9 +250,13 @@ Tilbud = NyPopulasjon.merge(AldersFordelt, how='left', on=['Utdanning', 'Kjønn'
 
 Tilbud['Tilbud'] = Tilbud.Antall * Tilbud.Sysselsettingsandel * Tilbud.GjennomsnitteligeÅrsverk
 
-# ********
-# Brukere.
-# ********
+# ******************************************************************************************** #
+# Etterspørsel.                                                                                #
+# ******************************************************************************************** #
+
+# ******************************************************************************************** #
+# Oppretter 6 tomme tabeller som skal fylles med antall brukere i hver sektor.                 #
+# ******************************************************************************************** #
 
 Brukergruppe1 = pd.DataFrame({'TilAlder': [0, 2, 2, 3, 5, 5],
                               'Alder': range(0, 6)})
@@ -286,11 +294,21 @@ BarnGruppe4 = pd.DataFrame({'Brukere': DemografiGruppe1.Alder4 + DemografiGruppe
                                                                    DemografiGruppe1.TimerMin)
                                                                   / 2)})
 
+# ******************************************************************************************** #
+# Oppretter en tom tabell som skal fylles med antall brukere i barnehagesektoren.              #
+# ******************************************************************************************** #
+
 DemografiGruppe1 = pd.DataFrame(columns=['Brukere',
                                          'FraAlder',
                                          'TilAlder',
                                          'Populasjon',
                                          'Brukerindeks'])
+
+# ******************************************************************************************** #
+# Beregner brukere av Barnehager i hver av de 4 aldersgruppene for disse.                      #
+# Dette er Likning xx i modellen.                                                              #
+# ******************************************************************************************** #
+
 DemografiGruppe1.loc[len(DemografiGruppe1.index)] = [Befolkning.query('Alder==0')
                                                      [str(Basisår)].sum(), 0, 0,
                                                      BarnGruppe1.Brukere.sum(),
@@ -317,45 +335,104 @@ DemografiGruppe1.loc[len(DemografiGruppe1.index)] = [Befolkning.query('Alder>=4 
                                                       mul(BarnGruppe4.Timer.values).sum()) /
                                                      (BarnGruppe4.Brukere.sum() * 42.5)]
 
+# ******************************************************************************************** #
+# Beregner brukere av Grunnskole.                                                              #
+# Dette er Likning xx i modellen.                                                              #
+# ******************************************************************************************** #
+
 DemografiGruppe2 = pd.DataFrame({'FraAlder': 6,
                                  'TilAlder': 15,
                                  'Populasjon': Befolkning.query('Alder>=6 and Alder<=15')
                                  [str(Basisår)].sum(), 'Brukerindeks': 1.0}, index=[0])
+
+# ******************************************************************************************** #
+# Beregner brukere av Annet i sektoren (voksenopplæring, fagskoler etc.).                      #
+# Dette er Likning xx i modellen.                                                              #
+# ******************************************************************************************** #
+
 DemografiGruppe5 = pd.DataFrame({'FraAlder': 0,
                                  'TilAlder': 99,
                                  'Populasjon': Befolkning[str(Basisår)].sum(),
                                  'Brukerindeks': 1.0}, index=[0])
+
+# ******************************************************************************************** #
+# Beregner brukere Utenfor sektoren.                                                           #
+# Dette er Likning xx i modellen.                                                              #
+# ******************************************************************************************** #
+
 DemografiGruppe6 = pd.DataFrame({'FraAlder': 0,
                                  'TilAlder': 99,
                                  'Populasjon': Befolkning[str(Basisår)].sum(),
                                  'Brukerindeks': 1.0}, index=[0])
 
-# ***********************************
-# Vekst (befolkningsframskrivninger).
-# ***********************************
+# ******************************************************************************************** #
+# Vekst (befolkningsframskrivninger).                                                          #
+# ******************************************************************************************** #
 
 for i in range(1, 7):
+    
+    # **************************************************************************************** #
+    # Finner folkemengden fra befolkningsframskrivningene for aldersgruppene i brukergruppen.  #
+    # Dette er Likning xx i modellen.                                                          #
+    # **************************************************************************************** #
+    
     locals()[f'Befolkning{i}'] = \
     locals()[f'Brukergruppe{i}'].merge(Befolkning,
                                        how='inner',
                                        on='Alder').groupby(["TilAlder"]).sum()
-     
+
+    # **************************************************************************************** #
+    # Angir en indeks for maksimumsalderen til bukergruppen.                                   #
+    # **************************************************************************************** #
+
     locals()[f'DemografiGruppe{i}'] = locals()[f'DemografiGruppe{i}'].set_index(["TilAlder"])
+    
+    # **************************************************************************************** #
+    # Beregner antall relative brukere i basisåret.                                            #
+    # Dette er Likning xx i modellen.                                                          #
+    # **************************************************************************************** #
+    
     locals()[f'DemografiGruppe{i}']["RelativeBrukere" + str(Basisår)] = \
     locals()[f'DemografiGruppe{i}'].Populasjon * locals()[f'DemografiGruppe{i}'].Brukerindeks
+    
+    # **************************************************************************************** #
+    # Beregner antall relative brukere i hvert simuleringsår.                                  #
+    # Dette er Likning xx i modellen.                                                          #
+    # **************************************************************************************** #
+
     for x in range(Basisår + 1, Sluttår + 1):
         locals()[f'DemografiGruppe{i}']['RelativeBrukere' + str(x)] = \
         (locals()[f'DemografiGruppe{i}']['RelativeBrukere' + str(x-1)] *
          (locals()[f'Befolkning{i}'][str(x)] /
           locals()[f'Befolkning{i}'][str(x-1)]))
-        
+
+    # **************************************************************************************** #
+    # Oppretter en tom tabell som summerer de relative brukerne i hvert simuleringsår.         #
+    # **************************************************************************************** #
+
     locals()[f'SumDemografiGruppe{i}'] = pd.DataFrame()
+    
+    # **************************************************************************************** #
+    # Beregner summen av de relative brukerne i hvert simuleringsår.                           #
+    # Dette er Likning xx i modellen.                                                          #
+    # **************************************************************************************** #
+    
     for x in range(Basisår, Sluttår + 1):
         locals()[f'SumDemografiGruppe{i}']['SumRelativeBrukere' + str(x)] = \
         [locals()[f'DemografiGruppe{i}']['RelativeBrukere' + str(x)].sum()]
 
+    # **************************************************************************************** #
+    # Oppretter en tom tabell som skal inneholde den demografiske utviklingen i sektoren.      #
+    # **************************************************************************************** #
+
     locals()[f'DemografiSektor{i}'] = pd.DataFrame({"År": [Basisår],
                                                     "DemografiKomponent" + str(i): [1]})
+
+    # **************************************************************************************** #
+    # Beregner den demografiske utviklingen for hvert simuleringsår.                           #
+    # Dette er Likning xx i modellen.                                                          #
+    # **************************************************************************************** #
+
     for x in range(Basisår + 1, Sluttår + 1):
         NesteÅrgang = pd.DataFrame({"År": x,
                                     "DemografiKomponent" + str(i): \
@@ -363,15 +440,31 @@ for i in range(1, 7):
                                      ['SumRelativeBrukere' + str(x)] / \
                                     locals()[f'SumDemografiGruppe{i}'] \
                                     ['SumRelativeBrukere' + str(Basisår)]})
+       
+        # ************************************************************************************ #
+        # Den demografiske utviklingen i simuleringsåret legges til som en ny årgang i         #
+        # tabellen med den demografiske utviklingen i sektoren..                               #
+        # ************************************************************************************ #
+
         locals()[f'DemografiSektor{i}'] = pd.concat([locals()[f'DemografiSektor{i}'],
                                                      NesteÅrgang], ignore_index=True)
-    
+
+# ******************************************************************************************** #
+# Kopierer tabellene med den demografiske utviklingen i hver sektor sammen med spesifiksjonen. #
+# av eventuell standardendring inn i en og samme tabell.                                       #
+# ******************************************************************************************** #
+
 DemografiIndeks = Standardendring.merge((DemografiSektor1).merge
                                         (DemografiSektor2).merge
                                         (DemografiSektor3).merge
                                         (DemografiSektor4).merge
                                         (DemografiSektor5).merge
                                         (DemografiSektor6))
+
+# ******************************************************************************************** #
+# Legger til konstanten som angir de 7 utdanningene i modellen inn i tabellen.                 #
+# ******************************************************************************************** #
+
 DemografiIndeks = pd.concat([DemografiIndeks,
                              DemografiIndeks,
                              DemografiIndeks,
@@ -382,13 +475,13 @@ DemografiIndeks = pd.concat([DemografiIndeks,
                             keys=Utdanninger,
                             names=['Utdanning'])
 
-# ********************
-# Utgangspopulasjonen.
-# ********************
+# ******************************************************************************************** #
+# Utgangspopulasjonen.                                                                         #
+# ******************************************************************************************** #
 
 # ******************************************************************************************** #
 # Beregner sysselsatte i basisåret. Etterspørselen i basisåret blir satt lik dette.            #
-# Dette er Likning xx i modellen.                                                              #
+# Dette er Likning zz i modellen.                                                              #
 # ******************************************************************************************** #
 
 SektorFordelt = pd.DataFrame({'Etterspørsel': ((SektorFordelt.SysselsatteMenn *
@@ -397,20 +490,40 @@ SektorFordelt = pd.DataFrame({'Etterspørsel': ((SektorFordelt.SysselsatteMenn *
                                                 SektorFordelt.GjennomsnitteligeÅrsverkKvinner)),
                               'År' : Basisår})
 
+# ******************************************************************************************** #
+# Oppretter en tom tabell for etterspørselen der hver av de 7 utdanningene inngår.             #
+# ******************************************************************************************** #
+
 Etterspørsel = pd.DataFrame({'Utdanning': Utdanninger,
                              'Etterspørsel': 0})
+
+# ******************************************************************************************** #
+# For hver av de 7 utdanningene og hver av de 6 sektorene kopieres verdiene som ble funnet     #
+# i likning zz inn i tabellen med etterspørselen. Dette transponerer tabellen.                 #
+# ******************************************************************************************** #
+
 for i in range(1, 7):
     Etterspørsel["EtterspørselSektor"+str(i)] = SektorFordelt.Etterspørsel[
         SektorFordelt.Etterspørsel.index.get_level_values('Sektor') == i].reset_index(drop=True)
+
+# ******************************************************************************************** #
+# Kopierer tabellen med den demografiske utviklingen i hver sektor, den transponerte tabellen  #
+# med etterspørselen funnet i likning zz og eventuell angitt vakanse inn i samme tabell.       #
+# ******************************************************************************************** #
 
 Etterspørsel = reduce(lambda left, right: pd.merge(left, right, on=['Utdanning'], how='outer'),
                       [DemografiIndeks,
                        Etterspørsel,
                        Vakanse]).set_index(['Utdanning', 'År'])
 
-# ********
-# Tetthet.
-# ********
+# ******************************************************************************************** #
+# Tetthet.                                                                                     #
+# ******************************************************************************************** #
+
+# ******************************************************************************************** #
+# Beregner etterspørselen.                                                                     #
+# Dette er Likning xx i modellen.                                                              #
+# ******************************************************************************************** #
 
 for i in range(1, 7):
     Etterspørsel['Etterspørsel'] = (Etterspørsel['Etterspørsel'] +
@@ -418,6 +531,11 @@ for i in range(1, 7):
                                      Etterspørsel['VakanseSektor' + str(i)]) *
                                     Etterspørsel['DemografiKomponent' + str(i)] *
                                     Etterspørsel['StandardEndring' + str(i)])
+
+# ******************************************************************************************** #
+# Setter sammen tilbud og etterspørsel.                                                        #
+# Dette er Likning xx i modellen.                                                              #
+# ******************************************************************************************** #
 
 TilbudOgEtterspørsel = pd.concat([pd.DataFrame({'Tilbud': SektorFordelt.Etterspørsel,
                                                 'År': Basisår}).groupby(['Utdanning', 'År'],
@@ -462,5 +580,5 @@ TilbudOgEtterspørsel.round(0).astype(int).to_excel("resultater/Lærermod.xlsx")
 print(TilbudOgEtterspørsel.round(0).astype(int).to_string())
 
 print()
-print('Lærermod er nå ferdig. Velkommen tilbake.')
+print('Lærermod er nå ferdig, velkommen tilbake. Marching on together!')
 print()
