@@ -1,4 +1,4 @@
-Utdanning AntallNyeStudenter FullføringsProsent StudieLengde
+Utdanning AntallNyeStudenter Fullføringsprosent Studielengde
        ba              3123                0.73            3
        gr              2877                0.68            5
        lu              1167                0.55            5
