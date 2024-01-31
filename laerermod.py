@@ -256,6 +256,36 @@ Tilbud['Tilbud'] = Tilbud.Antall * Tilbud.Sysselsettingsandel * Tilbud.Gjennomsn
 # ******************************************************************************************** #
 
 # ******************************************************************************************** #
+# Utgangspopulasjonen.                                                                         #
+# ******************************************************************************************** #
+
+# ******************************************************************************************** #
+# Beregner sysselsatte i basisåret, dvs. tilbudet. Etterspørselen i basisåret blir satt lik    #
+# dette. Dette er Likning zz i modellen.                                                       #
+# ******************************************************************************************** #
+
+Sektorfordelt = pd.DataFrame({'Etterspørsel': ((Sektorfordelt.SysselsatteMenn *
+                                                Sektorfordelt.GjennomsnitteligeÅrsverkMenn) +
+                                               (Sektorfordelt.SysselsatteKvinner *
+                                                Sektorfordelt.GjennomsnitteligeÅrsverkKvinner)),
+                              'År' : Basisår})
+
+# ******************************************************************************************** #
+# Oppretter en tom tabell for etterspørselen der hver av de 7 utdanningene inngår.             #
+# ******************************************************************************************** #
+
+Etterspørsel = pd.DataFrame({'Utdanning': Utdanninger, 'Etterspørsel': 0})
+
+# ******************************************************************************************** #
+# For hver av de 7 utdanningene og hver av de 6 sektorene kopieres verdiene som ble funnet     #
+# i likning zz inn i tabellen med etterspørselen. Dette transponerer tabellen.                 #
+# ******************************************************************************************** #
+
+for i in range(1, 7):
+    Etterspørsel["EtterspørselSektor"+str(i)] = Sektorfordelt.Etterspørsel[
+        Sektorfordelt.Etterspørsel.index.get_level_values('Sektor') == i].reset_index(drop=True)
+
+# ******************************************************************************************** #
 # Oppretter 6 tomme tabeller som skal fylles med antall brukere i hver sektor.                 #
 # ******************************************************************************************** #
 
@@ -475,36 +505,6 @@ DemografiIndeks = pd.concat([DemografiIndeks,
                              DemografiIndeks],
                             keys=Utdanninger,
                             names=['Utdanning'])
-
-# ******************************************************************************************** #
-# Utgangspopulasjonen.                                                                         #
-# ******************************************************************************************** #
-
-# ******************************************************************************************** #
-# Beregner sysselsatte i basisåret, dvs. tilbudet. Etterspørselen i basisåret blir satt lik    #
-# dette. Dette er Likning zz i modellen.                                                       #
-# ******************************************************************************************** #
-
-Sektorfordelt = pd.DataFrame({'Etterspørsel': ((Sektorfordelt.SysselsatteMenn *
-                                                Sektorfordelt.GjennomsnitteligeÅrsverkMenn) +
-                                               (Sektorfordelt.SysselsatteKvinner *
-                                                Sektorfordelt.GjennomsnitteligeÅrsverkKvinner)),
-                              'År' : Basisår})
-
-# ******************************************************************************************** #
-# Oppretter en tom tabell for etterspørselen der hver av de 7 utdanningene inngår.             #
-# ******************************************************************************************** #
-
-Etterspørsel = pd.DataFrame({'Utdanning': Utdanninger, 'Etterspørsel': 0})
-
-# ******************************************************************************************** #
-# For hver av de 7 utdanningene og hver av de 6 sektorene kopieres verdiene som ble funnet     #
-# i likning zz inn i tabellen med etterspørselen. Dette transponerer tabellen.                 #
-# ******************************************************************************************** #
-
-for i in range(1, 7):
-    Etterspørsel["EtterspørselSektor"+str(i)] = Sektorfordelt.Etterspørsel[
-        Sektorfordelt.Etterspørsel.index.get_level_values('Sektor') == i].reset_index(drop=True)
 
 # ******************************************************************************************** #
 # Tetthet.                                                                                     #
