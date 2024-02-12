@@ -2,7 +2,7 @@ Utdanning VakanseSektor1 VakanseSektor2 VakanseSektor3 VakanseSektor4 VakanseSek
        ba              0              0              0              0              0              0 
        gr              0              0              0              0              0              0 
        lu              0              0              0              0              0              0
-       fa              0              0              0              0              0              0
-       yr              0              0              0              0              0              0
        ph              0              0              0              0              0              0 
+       pe              0              0              0              0              0              0
+       yr              0              0              0              0              0              0
        py              0              0              0              0              0              0 

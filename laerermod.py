@@ -16,9 +16,9 @@ print('/* følgende 7 grupper av lærere:                           �
 print('/*   - Barnehagelærere                                              */')
 print('/*   - Grunnskolelærere                                             */')
 print('/*   - Lektorutdannede                                              */')
-print('/*   - Faglærere                                                    */')
-print('/*   - Yrkesfaglærere                                               */')
-print('/*   - PPU                                                          */')
+print('/*   - PPU                                                          */')
+print('/*   - Lærerutdanning i praktiske og estetiske fag                  */')
+print('/*   - Yrkesfaglærere                                               */')
 print('/*   - PPU Yrkesfag                                                 */')
 print('/********************************************************************/')
 print('/********************************************************************/')
@@ -66,7 +66,7 @@ Befolkning.set_index(['Alder', 'Kjønn'], inplace=True)
 # Oppretter en konstant med forkortelsene for de utdanningene som er inkludert i modellen.     #
 # ******************************************************************************************** #
 
-Utdanninger = ['ba', 'gr', 'lu', 'fa', 'yr', 'ph', 'py']
+Utdanninger = ['ba', 'gr', 'lu', 'ph', 'pe', 'yr', 'py']
 
 # ******************************************************************************************** #
 # Tilbud.                                                                                      #
@@ -129,7 +129,7 @@ NyeStudenter = pd.concat([AldersfordeltStudenter, AldersfordeltStudenter],
 
 # ******************************************************************************************** #
 # Beregner andel studenter for hver alder og hvert kjønn.                                      #
-# Dette er Likning xx i modellen.                                                              #
+# Dette er Likning 4 i modellen.                                                               #
 # ******************************************************************************************** #
 
 NyeStudenter['AndelStudenterEtterAlder'] = NyeStudenter.apply(lambda row: row['Menn'] /
@@ -151,7 +151,7 @@ Kandidatproduksjon = Kandidatproduksjon.merge(
 
 # ******************************************************************************************** #
 # Beregner antall uteksaminerte.                                                               #
-# Dette er Likning xx i modellen.                                                              #
+# Dette er Likning 5 i modellen.                                                               #
 # ******************************************************************************************** #
 
 Kandidatproduksjon['Uteksaminerte'] = (Kandidatproduksjon.AntallNyeStudenter *
@@ -165,7 +165,7 @@ Kandidater = NyeStudenter.merge(Kandidatproduksjon, how='inner', on=['Utdanning'
 
 # ******************************************************************************************** #
 # Beregner antall uteksaminerte etter alder og kjønn.                                          #
-# Dette er Likning xx i modellen.                                                              #
+# Dette er Likning 6 og Likning 7 i modellen.                                                  #
 # ******************************************************************************************** #
 
 Kandidater['Alder'] = (Kandidater.Alder +
@@ -192,13 +192,13 @@ for x in range(Basisår + 1, Sluttår + 1):
 
     # **************************************************************************************** #
     # For hvert år inkrementeres nå alderen i populasjonen. De eldste blir da pensjonert.      #
-    # Dette er Likning xx i modellen.                                                          #
+    # Dette er Likning 8 i modellen.                                                           #
     # **************************************************************************************** #
     
     PopulasjonAktueltÅr.Alder += 1
 
     # **************************************************************************************** #
-    # Uteksaminerte etter alder og kjønn som ble funnet i likning xx legges til i tabellen.    #
+    # Uteksaminerte etter alder og kjønn som ble funnet i likning 7 legges til i tabellen.     #
     # **************************************************************************************** #
 
     PopulasjonAktueltÅr = PopulasjonAktueltÅr.merge(Kandidater
@@ -207,8 +207,8 @@ for x in range(Basisår + 1, Sluttår + 1):
                                                     on=['Utdanning', 'Kjønn', 'Alder'])
 
     # **************************************************************************************** #
-    # Uteksaminerte etter alder og kjønn legges til populasjonen.                              #
-    # Dette er Likning xx i modellen.                                                          #
+    # Uteksaminerte etter alder og kjønn funnet i Likning 7 legges til populasjonen.           #
+    # Dette er Likning 9 i modellen.                                                           #
     # **************************************************************************************** #
     
     PopulasjonAktueltÅr.Antall = (PopulasjonAktueltÅr.Antall.fillna(0) +
@@ -239,14 +239,14 @@ for x in range(Basisår + 1, Sluttår + 1):
     
 # ******************************************************************************************** #
 # Henter inn Sysselsettingsandel og Gjennomsnittelige årsverk som ble beregnet for             #
-# utgangspopulasjonen i likning xx. Angir at dette skal bli tabellen for tilbudet.             #
+# utgangspopulasjonen i Likning 6 og 7. Angir at dette skal bli tabellen for tilbudet.         #
 # ******************************************************************************************** #
 
 Tilbud = Populasjon.merge(Aldersfordelt, how='left', on=['Utdanning', 'Kjønn', 'Alder'])
 
 # ******************************************************************************************** #
 # Beregner tilbudet.                                                                           #
-# Dette er Likning xx i modellen.                                                              #
+# Dette er Likning 10 i modellen.                                                             #
 # ******************************************************************************************** #
 
 Tilbud['Tilbud'] = Tilbud.Antall * Tilbud.Sysselsettingsandel * Tilbud.GjennomsnitteligeÅrsverk
@@ -551,8 +551,7 @@ TilbudEtterspørsel = pd.concat([pd.DataFrame({'Tilbud': Sektorfordelt.Etterspø
 # Dette er Likning xx i modellen.                                                              #
 # ******************************************************************************************** #
 
-TilbudEtterspørsel['Differanse'] = (TilbudEtterspørsel.Tilbud -
-                                    TilbudEtterspørsel.Etterspørsel)
+TilbudEtterspørsel['Differanse'] = TilbudEtterspørsel.Tilbud - TilbudEtterspørsel.Etterspørsel
     
 # ******************************************************************************************** #
 # Skriver ut resultatene og en hyggelig avskjedshilsen.                                        #
@@ -563,22 +562,20 @@ TilbudEtterspørsel = TilbudEtterspørsel.sort_values(by=['Utdanning', 'År'],
                                                         key=lambda x: x.map({'ba': 1,
                                                                              'gr': 2,
                                                                              'lu': 3,
-                                                                             'fa': 4,
-                                                                             'yr': 5,
-                                                                             'ph': 6,
+                                                                             'ph': 4,
+                                                                             'pe': 5,
+                                                                             'yr': 6,
                                                                              'py': 7}))
 TilbudEtterspørsel.rename(index={'ba': 'Barnehagelærere',
                                  'gr': 'Grunnskolelærere',
                                  'lu': 'Lektorutdannede',
-                                 'fa': 'Faglærere',
-                                 'yr': 'Yrkesfaglærere',
                                  'ph': 'PPU',
+                                 'pe': 'Praktiske og estetiske fag',
+                                 'yr': 'Yrkesfaglærere',
                                  'py': 'PPU Yrkesfag'}, inplace=True)
 
 TilbudEtterspørsel.round(0).astype(int).to_csv("resultater/Lærermod.csv")
 TilbudEtterspørsel.round(0).astype(int).to_excel("resultater/Lærermod.xlsx")
 print(TilbudEtterspørsel.round(0).astype(int).to_string())
 
-print()
-print('Lærermod er nå ferdig, velkommen tilbake.')
-print()
+print('\nLærermod er nå ferdig, velkommen tilbake.\n')
