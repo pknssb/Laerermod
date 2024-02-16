@@ -268,7 +268,7 @@ Sektorfordelt = pd.DataFrame({'Etterspørsel': ((Sektorfordelt.SysselsatteMenn *
                                                 Sektorfordelt.GjennomsnitteligeÅrsverkMenn) +
                                                (Sektorfordelt.SysselsatteKvinner *
                                                 Sektorfordelt.GjennomsnitteligeÅrsverkKvinner)),
-                              'År' : Basisår})
+                              'År': Basisår})
 
 # ******************************************************************************************** #
 # Oppretter en tom tabell for etterspørselen der hver av de 7 utdanningene inngår.             #
@@ -331,7 +331,7 @@ BarnGruppe4 = pd.DataFrame({'Brukere': DemografiGruppe1.Alder4 + DemografiGruppe
 
 DemografiGruppe1 = pd.DataFrame(columns=['FraAlder',
                                          'TilAlder',
-                                         'Populasjon',
+                                         'Brukere',
                                          'Brukerindeks'])
 
 # ******************************************************************************************** #
@@ -363,7 +363,7 @@ DemografiGruppe1.loc[len(DemografiGruppe1.index)] = [4, 5, BarnGruppe4.Brukere.s
 
 DemografiGruppe2 = pd.DataFrame({'FraAlder': 6,
                                  'TilAlder': 15,
-                                 'Populasjon': Befolkning.query('Alder>=6 and Alder<=15')
+                                 'Brukere': Befolkning.query('Alder>=6 and Alder<=15')
                                  [str(Basisår)].sum(), 'Brukerindeks': 1.0}, index=[0])
 
 # ******************************************************************************************** #
@@ -373,17 +373,17 @@ DemografiGruppe2 = pd.DataFrame({'FraAlder': 6,
 
 DemografiGruppe5 = pd.DataFrame({'FraAlder': 0,
                                  'TilAlder': 99,
-                                 'Populasjon': Befolkning[str(Basisår)].sum(),
+                                 'Brukere': Befolkning[str(Basisår)].sum(),
                                  'Brukerindeks': 1.0}, index=[0])
 
 # ******************************************************************************************** #
-# Beregner brukere utenfor sektoren.                                                           #
+# Beregner brukere av utenfor sektoren.                                                        #
 # Dette er Likning 18 i modellen.                                                              #
 # ******************************************************************************************** #
 
 DemografiGruppe6 = pd.DataFrame({'FraAlder': 0,
                                  'TilAlder': 99,
-                                 'Populasjon': Befolkning[str(Basisår)].sum(),
+                                 'Brukere': Befolkning[str(Basisår)].sum(),
                                  'Brukerindeks': 1.0}, index=[0])
 
 # ******************************************************************************************** #
@@ -414,7 +414,7 @@ for i in range(1, 7):
     # **************************************************************************************** #
     
     locals()[f'DemografiGruppe{i}']["RelativeBrukere" + str(Basisår)] = \
-    locals()[f'DemografiGruppe{i}'].Populasjon * locals()[f'DemografiGruppe{i}'].Brukerindeks
+    locals()[f'DemografiGruppe{i}'].Brukere * locals()[f'DemografiGruppe{i}'].Brukerindeks
     
     # **************************************************************************************** #
     # Beregner antall relative brukere i hvert framskrivningsår.                               #
