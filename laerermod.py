@@ -6,24 +6,20 @@ import pandas as pd
 from functools import reduce
 pd.options.display.multi_sparse = False
 
-Velkomstmelding = """
-Velkommen til Python-versjonen av Lærermod!
-
-+---------------------------------------------------------------+
-|    Modellen LÆRERMOD beregner tilbud av og                    |
-|    etterspørsel for følgende 7 grupper av lærere:             |
-+---------------------------------------------------------------+
-| 1. Barnehagelærere                                            |
-| 2. Grunnskolelærere                                           |
-| 3. Lektorutdannede                                            |
-| 4. PPU                                                        |
-| 5. Lærerutdanning i praktiske og estetiske fag                |
-| 6. Yrkesfaglærere                                             |
-| 7. PPU Yrkesfag                                               |
-+---------------------------------------------------------------+
-"""
-
-print(Velkomstmelding)
+print('\nVelkommen til Python-versjonen av Lærermod!\n')
+print('/********************************************************************/')
+print('/********************************************************************/')
+print('/* Modellen LÆRERMOD beregner tilbud av og etterspørsel for         */')
+print('/* følgende 7 grupper av lærere:                                    */')
+print('/*   - Barnehagelærere                                              */')
+print('/*   - Grunnskolelærere                                             */')
+print('/*   - Lektorutdannede                                              */')
+print('/*   - PPU                                                          */')
+print('/*   - Lærerutdanning i praktiske og estetiske fag                  */')
+print('/*   - Yrkesfaglærere                                               */')
+print('/*   - PPU Yrkesfag                                                 */')
+print('/********************************************************************/')
+print('/********************************************************************/\n')
 
 # ******************************************************************************************** #
 # Start- og sluttår for framskrivningen.                                                       #
@@ -137,10 +133,10 @@ NyeStudenter = pd.concat([AldersfordeltStudenter, AldersfordeltStudenter],
 # Dette er Likning 4 i modellen.                                                               #
 # ******************************************************************************************** #
 
-NyeStudenter['AndelStudenterEtterAlder'] = NyeStudenter.apply(
-    lambda row: row['Menn'] / row['Totalt'] if row['Totalt'] > 0 and row['Kjønn'] == 1
-    else row['Kvinner'] / row['Totalt'] if row['Totalt'] > 0 and row['Kjønn'] == 2 else 0,
-    axis=1)
+NyeStudenter['AndelStudenterEtterAlder'] = NyeStudenter.apply(lambda row: row['Menn'] /
+                                                              row['Totalt'] if row['Kjønn']==1 
+                                                              else row['Kvinner'] /
+                                                              row['Totalt'], axis=1)
 
 # ******************************************************************************************** #
 # Angir at antall studenter er konstant i hvert framskrivningsår.                              #
@@ -533,7 +529,7 @@ Rekkefølge = {'ba': 1, 'gr': 2, 'lu': 3, 'ph': 4, 'pe': 5, 'yr': 6, 'py': 7}
 
 TilbudEtterspørsel = TilbudEtterspørsel[['Tilbud', 'Etterspørsel', 'Differanse']]
 TilbudEtterspørsel = TilbudEtterspørsel.sort_values(by=['Utdanning', 'År'],
-                                                        key=lambda x: x.map(Rekkefølge))
+                                                        key=lambda x: x.map(Rekkefølge))                         
 TilbudEtterspørsel.rename(index={'ba': 'Barnehagelærere',
                                  'gr': 'Grunnskolelærere',
                                  'lu': 'Lektorutdannede',
