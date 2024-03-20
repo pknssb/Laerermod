@@ -246,8 +246,8 @@ for t in range(Basisår + 1, Sluttår + 1):
     # **************************************************************************************** #
 
     PopulasjonAktueltÅr = Populasjon[Populasjon['År']==t].copy()
-    
-# ******************************************************************************************** #
+       
+# ******************************************************************************************** # 
 # Henter inn Sysselsettingsandel og Gjennomsnittelige årsverk som ble beregnet for             #
 # utgangspopulasjonen i Likning 6 og 7. Angir at dette skal bli tabellen for tilbudet.         #
 # ******************************************************************************************** #
@@ -307,18 +307,18 @@ for S in range(1, 7):
 # ******************************************************************************************** #
 
 Brukergruppe[1] = pd.DataFrame({'TilAlder': [0, 2, 2, 3, 5, 5],
-                              'Alder': range(0, 6)})
+                                'Alder': range(0, 6)})
 Brukergruppe[2] = pd.DataFrame({'TilAlder': [15] * 10,
-                              'Alder': range(6, 16)})
+                                'Alder': range(6, 16)})
 Brukergruppe[3] = pd.DataFrame({'TilAlder': [15] * 16 + list(range(16, 25)) + [49] * 25,
-                              'Alder': range(0, 50)})
+                                'Alder': range(0, 50)})
 Brukergruppe[4] = pd.DataFrame({'TilAlder': list(range(19, 30)) + [34] * 5 + [39] * 5 +
                                                                   [44] * 5 + [49] * 5,
-                              'Alder': range(19, 50)})
+                                'Alder': range(19, 50)})
 Brukergruppe[5] = pd.DataFrame({'TilAlder': 99,
-                              'Alder': range(0, 100)})
+                                'Alder': range(0, 100)})
 Brukergruppe[6] = pd.DataFrame({'TilAlder': 99,
-                              'Alder': range(0, 100)})
+                                'Alder': range(0, 100)})
 
 # ******************************************************************************************** #
 # Summerer antall barn i barnehager i hver brukergruppe etter gjennomsnittelig oppholdstid.    #
@@ -377,7 +377,7 @@ DemografiGruppe[2] = pd.DataFrame({'FraAlder': 6,
                                    [str(Basisår)].sum(), 'Brukerindeks': 1.0}, index=[0])
 
 # ******************************************************************************************** #
-# Kopierer brukere i Sektor 3 og 4 som ble lest inne tidligere.                                #
+# Kopierer brukerne i Sektor 3 og 4 som ble lest inn tidligere.                                #
 # ******************************************************************************************** #
 
 DemografiGruppe[3] = DemografiGruppe3.copy()
@@ -467,7 +467,7 @@ for S in range(1, 7):
     for t in range(Basisår, Sluttår + 1):
         SumDemografiGruppe[S][f'SumRelativeBrukere{t}'] = [DemografiGruppe[S]
                                                            [f'RelativeBrukere{t}'].sum()]
-    
+
     # **************************************************************************************** #
     # Oppretter en tom tabell som skal inneholde den demografiske utviklingen i sektoren.      #
     # **************************************************************************************** #
@@ -483,8 +483,7 @@ for S in range(1, 7):
         NesteÅrgang = pd.DataFrame({
             'År': t,
             f'DemografiKomponent{S}': (SumDemografiGruppe[S][f'SumRelativeBrukere{t}'] /
-                                       SumDemografiGruppe[S][f'SumRelativeBrukere{Basisår}'])
-        })
+                                       SumDemografiGruppe[S][f'SumRelativeBrukere{Basisår}'])})
         
         # ************************************************************************************ #
         # Den demografiske utviklingen i framskrivningsåret legges til som en ny årgang i      #
@@ -492,7 +491,7 @@ for S in range(1, 7):
         # ************************************************************************************ #
 
         DemografiSektor[S] = pd.concat([DemografiSektor[S], NesteÅrgang], ignore_index=True)
-
+        
 # ******************************************************************************************** #
 # Kopierer tabellene med den demografiske utviklingen i hver sektor sammen med                 #
 # spesifikasjonen av eventuell standardendring inn i en og samme tabell (alternativ bane).     #
@@ -540,10 +539,8 @@ for S in range(1, 7):
 TilbudEtterspørsel = pd.concat([pd.DataFrame({'Tilbud': Sektorfordelt.Etterspørsel,
                                               'År': Basisår}).groupby(['Utdanning', 'År'],
                                                                       as_index=True).sum(),
-                                Tilbud.groupby(['Utdanning', 'År'],
-                                               as_index=True).sum().
-                                query('År > @Basisår')]).merge(Etterspørsel, 
-                                                               how='outer', 
+                                Tilbud.groupby(['Utdanning', 'År'],as_index=True).sum().
+                                query('År > @Basisår')]).merge(Etterspørsel, how='outer', 
                                                                on=['Utdanning', 'År'])
 
 # ******************************************************************************************** #

@@ -1,0 +1,8 @@
+Education NumberNewStudents CompletionPercentage StudyLength
+       ba              3123                0.73            3
+       gr              2877                0.68            5
+       lu              1167                0.55            5
+       ph              1144                0.84            1
+       pe               619                0.74            5
+       yr               400                0.74            3
+       py               561                0.78            1

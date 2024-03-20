@@ -41,3 +41,4 @@ Utdanning Sektor SysselsatteMenn SysselsatteKvinner GjennomsnitteligeÅrsverkMen
        py     4              358                461                      0.96505                         0.96168
        py     5              189                363                      0.83466                         0.85886
        py     6             2493               2856                      0.87146                         0.88028
+       
