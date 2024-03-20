@@ -499,7 +499,7 @@ for (S in 1:6) {
     # Oppretter en tom tabell for summering av de relative brukerne i hvert framskrivningsår.  #
     # **************************************************************************************** #
 
-        SumDemografiGruppe[[S]] <- data.frame(t(Basisår:Sluttår))
+    SumDemografiGruppe[[S]] <- data.frame(t(Basisår:Sluttår))
 
     # **************************************************************************************** #
     # Beregner summen av brukerne i hvert framskrivningsår.                                    #
@@ -587,31 +587,33 @@ for(S in 1:6) {
                                             !!sym(paste0("StandardEndring", S)))
 }
 
-
+# ******************************************************************************************** #
+# Setter sammen tilbud og etterspørsel.                                                        #
+# Dette er Likning 26 og Likning 27 i modellen.                                                #
+# ******************************************************************************************** #
 
 Tilbud$År <- paste0("X", as.character(Tilbud$År))
 
-first_aggregate <- aggregate(Etterspørsel ~ Utdanning + År, data = Sektorfordelt, FUN = sum)
-first_aggregate$År <- paste0("X", as.character(Basisår)) # Adjust all rows to have the modified year
-#print(first_aggregate)
-first_aggregate <- first_aggregate[, c("Utdanning", "År", "Etterspørsel")]
+FørsteAggregat <- aggregate(Etterspørsel ~ Utdanning + År, data = Sektorfordelt, FUN = sum)
+FørsteAggregat$År <- paste0("X", as.character(Basisår))
+names(FørsteAggregat)[names(FørsteAggregat) == "Etterspørsel"] <- "Tilbud"
 
-second_aggregate <- aggregate(Tilbud ~ Utdanning + År, data = Tilbud, FUN = sum, subset = År > paste0("X", as.character(Basisår)))
-#print(second_aggregate)
-names(second_aggregate) <- c("Utdanning", "År", "Etterspørsel")
-second_aggregate <- second_aggregate[, names(first_aggregate)]
+AndreAggregat <- aggregate(Tilbud ~ Utdanning + År,
+                           data = Tilbud,
+                           FUN = sum,
+                           subset = År > paste0("X", as.character(Basisår)))
 
-combined <- rbind(first_aggregate, second_aggregate)
-#print(second_aggregate)
+TilbudEtterspørsel <- merge(rbind(FørsteAggregat, AndreAggregat),
+                            Etterspørsel,
+                            by = c("Utdanning", "År"),
+                            all = TRUE)
 
-TilbudEtterspørsel <- merge(combined, Etterspørsel, by = c("Utdanning", "År"), all = TRUE)
-# Combine supply and demand (Equation 26 and 27)
-
-# Calculate the difference (Equation 28)
-names(TilbudEtterspørsel)[names(TilbudEtterspørsel) == "Etterspørsel.x"] <- "Tilbud"
-names(TilbudEtterspørsel)[names(TilbudEtterspørsel) == "Etterspørsel.y"] <- "Etterspørsel"
-# Assuming df is your dataframe and År is the column with values like X2020, X2021, etc.
 TilbudEtterspørsel$År <- sub("X", "", TilbudEtterspørsel$År, fixed = TRUE)
+
+# ******************************************************************************************** #
+# Beregner differansen.                                                                        #
+# Dette er Likning 28 i modellen.                                                              #
+# ******************************************************************************************** #
 
 TilbudEtterspørsel$Differanse <- with(TilbudEtterspørsel, Tilbud - Etterspørsel)
 
