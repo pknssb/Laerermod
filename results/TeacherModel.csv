@@ -1,0 +1,148 @@
+Education,Year,Supply,Demand,Difference
+Kindergarten teachers,2020,47134,47134,0
+Kindergarten teachers,2021,48006,46522,1484
+Kindergarten teachers,2022,49060,45972,3088
+Kindergarten teachers,2023,50122,45817,4304
+Kindergarten teachers,2024,51189,45549,5640
+Kindergarten teachers,2025,52255,45402,6853
+Kindergarten teachers,2026,53320,45341,7979
+Kindergarten teachers,2027,54361,45379,8982
+Kindergarten teachers,2028,55376,45502,9874
+Kindergarten teachers,2029,56336,45707,10629
+Kindergarten teachers,2030,57221,45943,11278
+Kindergarten teachers,2031,58032,46193,11839
+Kindergarten teachers,2032,58747,46442,12305
+Kindergarten teachers,2033,59369,46696,12673
+Kindergarten teachers,2034,59914,46986,12928
+Kindergarten teachers,2035,60372,47308,13065
+Kindergarten teachers,2036,60786,47652,13134
+Kindergarten teachers,2037,61179,48013,13165
+Kindergarten teachers,2038,61582,48348,13234
+Kindergarten teachers,2039,62014,48608,13406
+Kindergarten teachers,2040,62497,48793,13704
+Primary school teachers,2020,52497,52497,0
+Primary school teachers,2021,52777,52459,318
+Primary school teachers,2022,53242,52487,755
+Primary school teachers,2023,53765,52346,1418
+Primary school teachers,2024,54345,52084,2261
+Primary school teachers,2025,54965,51638,3327
+Primary school teachers,2026,55593,51095,4498
+Primary school teachers,2027,56253,50601,5652
+Primary school teachers,2028,56894,50166,6728
+Primary school teachers,2029,57499,49727,7773
+Primary school teachers,2030,58042,49404,8637
+Primary school teachers,2031,58526,49125,9401
+Primary school teachers,2032,58935,48904,10031
+Primary school teachers,2033,59263,48741,10521
+Primary school teachers,2034,59534,48739,10795
+Primary school teachers,2035,59748,48844,10905
+Primary school teachers,2036,59940,49013,10926
+Primary school teachers,2037,60123,49230,10893
+Primary school teachers,2038,60302,49495,10807
+Primary school teachers,2039,60504,49814,10690
+Primary school teachers,2040,60720,50150,10570
+Teachers with a master's degree,2020,5534,5534,0
+Teachers with a master's degree,2021,5962,5541,421
+Teachers with a master's degree,2022,6432,5561,872
+Teachers with a master's degree,2023,6903,5575,1328
+Teachers with a master's degree,2024,7374,5583,1791
+Teachers with a master's degree,2025,7844,5594,2251
+Teachers with a master's degree,2026,8308,5601,2707
+Teachers with a master's degree,2027,8769,5601,3168
+Teachers with a master's degree,2028,9220,5582,3638
+Teachers with a master's degree,2029,9668,5557,4111
+Teachers with a master's degree,2030,10103,5531,4572
+Teachers with a master's degree,2031,10533,5512,5021
+Teachers with a master's degree,2032,10954,5499,5455
+Teachers with a master's degree,2033,11370,5494,5876
+Teachers with a master's degree,2034,11782,5480,6302
+Teachers with a master's degree,2035,12191,5462,6729
+Teachers with a master's degree,2036,12590,5449,7142
+Teachers with a master's degree,2037,12990,5450,7539
+Teachers with a master's degree,2038,13389,5460,7929
+Teachers with a master's degree,2039,13786,5473,8313
+Teachers with a master's degree,2040,14177,5488,8689
+Practical Pedagogical Education,2020,30789,30789,0
+Practical Pedagogical Education,2021,30791,30824,-33
+Practical Pedagogical Education,2022,30887,30930,-43
+Practical Pedagogical Education,2023,31002,31004,-1
+Practical Pedagogical Education,2024,31131,31044,86
+Practical Pedagogical Education,2025,31262,31100,162
+Practical Pedagogical Education,2026,31395,31135,259
+Practical Pedagogical Education,2027,31514,31127,387
+Practical Pedagogical Education,2028,31621,31009,612
+Practical Pedagogical Education,2029,31711,30847,864
+Practical Pedagogical Education,2030,31771,30680,1091
+Practical Pedagogical Education,2031,31797,30555,1241
+Practical Pedagogical Education,2032,31791,30461,1330
+Practical Pedagogical Education,2033,31748,30414,1334
+Practical Pedagogical Education,2034,31695,30312,1383
+Practical Pedagogical Education,2035,31610,30180,1430
+Practical Pedagogical Education,2036,31526,30072,1454
+Practical Pedagogical Education,2037,31428,30057,1372
+Practical Pedagogical Education,2038,31343,30093,1250
+Practical Pedagogical Education,2039,31256,30139,1117
+Practical Pedagogical Education,2040,31181,30207,974
+Practical and aesthetic subjects,2020,5534,5534,0
+Practical and aesthetic subjects,2021,5812,5541,270
+Practical and aesthetic subjects,2022,6123,5561,562
+Practical and aesthetic subjects,2023,6431,5575,856
+Practical and aesthetic subjects,2024,6738,5583,1155
+Practical and aesthetic subjects,2025,7043,5594,1449
+Practical and aesthetic subjects,2026,7341,5601,1741
+Practical and aesthetic subjects,2027,7637,5601,2037
+Practical and aesthetic subjects,2028,7924,5582,2342
+Practical and aesthetic subjects,2029,8208,5557,2651
+Practical and aesthetic subjects,2030,8481,5531,2951
+Practical and aesthetic subjects,2031,8750,5512,3238
+Practical and aesthetic subjects,2032,9011,5499,3512
+Practical and aesthetic subjects,2033,9267,5494,3773
+Practical and aesthetic subjects,2034,9521,5480,4041
+Practical and aesthetic subjects,2035,9773,5462,4311
+Practical and aesthetic subjects,2036,10017,5449,4568
+Practical and aesthetic subjects,2037,10263,5450,4812
+Practical and aesthetic subjects,2038,10510,5460,5049
+Practical and aesthetic subjects,2039,10756,5473,5283
+Practical and aesthetic subjects,2040,10999,5488,5511
+Vocational teachers,2020,5534,5534,0
+Vocational teachers,2021,5629,5541,88
+Vocational teachers,2022,5775,5561,214
+Vocational teachers,2023,5921,5575,346
+Vocational teachers,2024,6073,5583,490
+Vocational teachers,2025,6228,5594,634
+Vocational teachers,2026,6379,5601,778
+Vocational teachers,2027,6530,5601,929
+Vocational teachers,2028,6673,5582,1091
+Vocational teachers,2029,6816,5557,1259
+Vocational teachers,2030,6951,5531,1420
+Vocational teachers,2031,7081,5512,1569
+Vocational teachers,2032,7203,5499,1704
+Vocational teachers,2033,7321,5494,1827
+Vocational teachers,2034,7438,5480,1958
+Vocational teachers,2035,7555,5462,2093
+Vocational teachers,2036,7668,5449,2219
+Vocational teachers,2037,7784,5450,2334
+Vocational teachers,2038,7901,5460,2441
+Vocational teachers,2039,8019,5473,2547
+Vocational teachers,2040,8136,5488,2648
+PPU Vocational,2020,13299,13299,0
+PPU Vocational,2021,13226,13325,-99
+PPU Vocational,2022,13193,13386,-194
+PPU Vocational,2023,13145,13444,-299
+PPU Vocational,2024,13099,13491,-391
+PPU Vocational,2025,13037,13561,-523
+PPU Vocational,2026,12964,13626,-661
+PPU Vocational,2027,12893,13660,-767
+PPU Vocational,2028,12801,13622,-821
+PPU Vocational,2029,12715,13558,-843
+PPU Vocational,2030,12623,13480,-857
+PPU Vocational,2031,12523,13426,-903
+PPU Vocational,2032,12434,13386,-952
+PPU Vocational,2033,12335,13372,-1037
+PPU Vocational,2034,12258,13312,-1054
+PPU Vocational,2035,12177,13226,-1049
+PPU Vocational,2036,12107,13150,-1043
+PPU Vocational,2037,12046,13126,-1080
+PPU Vocational,2038,11975,13129,-1153
+PPU Vocational,2039,11925,13135,-1209
+PPU Vocational,2040,11869,13152,-1282

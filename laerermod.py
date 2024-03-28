@@ -10,7 +10,7 @@ Velkomstmelding = """
 Velkommen til Python-versjonen av Lærermod!
 
 +---------------------------------------------------------------+
-|    Modellen LÆRERMOD beregner tilbud av og                    |
+|    Modellen LÆRERMOD beregner tilbud og                       |
 |    etterspørsel for følgende 7 grupper av lærere:             |
 +---------------------------------------------------------------+
 | 1. Barnehagelærere                                            |
@@ -188,11 +188,10 @@ Kandidater['UteksaminerteEtterAlder'] = (Kandidater.Kandidater *
                                          Kandidater.AndelStudenterEtterAlder)
 
 # ******************************************************************************************** #
-# Kopierer populasjonen i basisåret, beregnet i likning 2, inn i to nye tabeller som blir      #
+# Kopierer populasjonen i basisåret, beregnet i likning 2, inn i en nye tabell som blir        #
 # utgangspunktet for beregningene.                                                             #
 # ******************************************************************************************** #
 
-Populasjon = Populasjon.copy()
 PopulasjonAktueltÅr = Populasjon.copy()
 
 # ******************************************************************************************** #
@@ -246,7 +245,7 @@ for t in range(Basisår + 1, Sluttår + 1):
     # **************************************************************************************** #
 
     PopulasjonAktueltÅr = Populasjon[Populasjon['År']==t].copy()
-       
+
 # ******************************************************************************************** # 
 # Henter inn Sysselsettingsandel og Gjennomsnittelige årsverk som ble beregnet for             #
 # utgangspopulasjonen i Likning 6 og 7. Angir at dette skal bli tabellen for tilbudet.         #
@@ -456,7 +455,7 @@ for S in range(1, 7):
     # **************************************************************************************** #
     # Oppretter en tom tabell for summering av de relative brukerne i hvert framskrivningsår.  #
     # **************************************************************************************** #
-
+    
     SumDemografiGruppe[S] = pd.DataFrame()
     
     # **************************************************************************************** #
@@ -467,7 +466,7 @@ for S in range(1, 7):
     for t in range(Basisår, Sluttår + 1):
         SumDemografiGruppe[S][f'SumRelativeBrukere{t}'] = [DemografiGruppe[S]
                                                            [f'RelativeBrukere{t}'].sum()]
-
+    
     # **************************************************************************************** #
     # Oppretter en tom tabell som skal inneholde den demografiske utviklingen i sektoren.      #
     # **************************************************************************************** #
@@ -491,7 +490,8 @@ for S in range(1, 7):
         # ************************************************************************************ #
 
         DemografiSektor[S] = pd.concat([DemografiSektor[S], NesteÅrgang], ignore_index=True)
-        
+
+
 # ******************************************************************************************** #
 # Kopierer tabellene med den demografiske utviklingen i hver sektor sammen med                 #
 # spesifikasjonen av eventuell standardendring inn i en og samme tabell (alternativ bane).     #

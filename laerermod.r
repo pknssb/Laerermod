@@ -16,7 +16,7 @@ cat("
 Velkommen til R-versjonen av Lærermod!
 
 +---------------------------------------------------------------+
-|    Modellen LÆRERMOD beregner tilbud av og                    |
+|    Modellen LÆRERMOD beregner tilbud og                       |
 |    etterspørsel for følgende 7 grupper av lærere:             |
 +---------------------------------------------------------------+
 | 1. Barnehagelærere                                            |
@@ -642,10 +642,10 @@ TilbudEtterspørsel <- TilbudEtterspørsel %>% arrange(UtdanningOrdered, År)
 TilbudEtterspørsel$UtdanningOrdered <- NULL
 TilbudEtterspørsel$Utdanning <- factor(TilbudEtterspørsel$Utdanning, 
                                        levels = c("ba", "gr", "lu", "ph", "pe", "yr", "py"),
-                                       labels = c("Barnehagelarere", "Grunnskolelarere",
+                                       labels = c("Barnehagelærere", "Grunnskolelærere",
                                                   "Lektorutdannede", "PPU",
                                                   "Praktiske og estetiske fag",
-                                                  "Yrkesfaglarere", "PPU Yrkesfag"))
+                                                  "Yrkesfaglærere", "PPU Yrkesfag"))
 
 write_csv(TilbudEtterspørsel, 'resultater/Lærermod.csv')
 write_xlsx(TilbudEtterspørsel, 'resultater/Lærermod.xlsx')
