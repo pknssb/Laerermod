@@ -491,7 +491,6 @@ for S in range(1, 7):
 
         DemografiSektor[S] = pd.concat([DemografiSektor[S], NesteÅrgang], ignore_index=True)
 
-
 # ******************************************************************************************** #
 # Kopierer tabellene med den demografiske utviklingen i hver sektor sammen med                 #
 # spesifikasjonen av eventuell standardendring inn i en og samme tabell (alternativ bane).     #
