@@ -47,7 +47,7 @@ CandidateProduction <- read.table('inputdata/candidateproduction.txt', header = 
 
 SectorDistributed <- read.table('inputdata/sectordistributed.txt', header = TRUE)
 
-Population <- read.table('inputdata/mmmm.txt', header = TRUE)
+People <- read.table('inputdata/mmmm.txt', header = TRUE)
 
 DemographyGroup1 <- read.table('inputdata/number_children_kindergartens.txt', header = TRUE)
 DemographyGroup3 <- read.table('inputdata/number_students_secondary.txt', header = TRUE)
@@ -68,19 +68,19 @@ AgeDistributed <- AgeDistributed %>% mutate(Education = factor(Education))
 AgeDistributedStudents <- AgeDistributedStudents %>% mutate(Education = factor(Education))
 CandidateProduction <- CandidateProduction %>% mutate(Education = factor(Education))
 SectorDistributed <- SectorDistributed %>% mutate(Education = factor(Education), Sector = factor(Sector))
-Population <- Population %>% mutate(Age = factor(Age), Gender = factor(Gender))
+People <- People %>% mutate(Age = factor(Age), Gender = factor(Gender))
 
 # ******************************************************************************************** #
 # Creating a constant with the abbreviations for the educations included in the model.         #
 # ******************************************************************************************** #
 
-Educations <- c('pr', 'ps', 'ms', 'pg', 'pa', 'vt', 'vp')
+Educations <- c('ba', 'gr', 'lu', 'ph', 'pe', 'yr', 'py')
 
 # ******************************************************************************************** #
 # Creating lists for later filling.                                                            #
 # ******************************************************************************************** #
 
-PopulationSector <- list()
+PeopleSector <- list()
 UserGroup <- list()
 DemographySector <- list()
 DemographyGroup <- list()
@@ -95,8 +95,8 @@ RelativeUsers <- list()
 # Calculating employment rate. This is Equation 1 in the model.                                #
 # ******************************************************************************************** #
 
-AgeDistributed$EmploymentRate <- ifelse(AgeDistributed$Number > 0, 
-                                        AgeDistributed$Employed / AgeDistributed$Number, 
+AgeDistributed$EmploymentRate <- ifelse(AgeDistributed$Count > 0, 
+                                        AgeDistributed$Employed / AgeDistributed$Count, 
                                         0)
 
 # ******************************************************************************************** #
@@ -104,20 +104,20 @@ AgeDistributed$EmploymentRate <- ifelse(AgeDistributed$Number > 0,
 # ******************************************************************************************** #
 
 Population <- AgeDistributed
-AgeDistributed <- AgeDistributed %>% select(-Number, -Employed)
+AgeDistributed <- AgeDistributed %>% select(-Count, -Employed)
 
 # ******************************************************************************************** #
 # Finding the full-time equivalents in the population. This is Equation 2 in the model.        #
 # ******************************************************************************************** #
 
-Population$FTEs <- Population$Employed * Population$AverageFTE
+Population$FTEs <- Population$Employed * Population$AverageFullTimeEquivalent
 
 # ******************************************************************************************** #
 # Indicates that this is the population in the base year and removes redundant columns.        #
 # ******************************************************************************************** #
 
 Population$Year <- BaseYear
-Population <- Population %>% select(-Employed, -EmploymentRate, -AverageFTE)
+Population <- Population %>% select(-Employed, -EmploymentRate, -AverageFullTimeEquivalent)
 
 # ******************************************************************************************** #
 # Projecting the initial population. Year 2 to end year. Based on statistics from the base year.#
@@ -171,7 +171,7 @@ CandidateProduction <- CandidateProduction %>% inner_join(EducationYears, by = "
 # ******************************************************************************************** #
 
 CandidateProduction <- CandidateProduction %>%
-  mutate(Graduates = NewStudentNumber * CompletionPercent)
+  mutate(Graduates = NumberOfNewStudents * CompletionPercentage)
 
 # ******************************************************************************************** #
 # Indicates that the number of graduates should be constant in the projection period.          #
@@ -245,7 +245,7 @@ for (t in (BaseYear + 1):EndYear) {
     # **************************************************************************************** #
 
     Population <- rbind(Population, CurrentYearPopulation[, c("Education", "Gender", "Age",
-                                                              "Number", "FTEs", "Year")])
+                                                              "Count", "FTEs", "Year")])
   
     # **************************************************************************************** #
     # Copies the population in the projection year to the table for the next projection year. #
@@ -269,7 +269,7 @@ Supply <- merge(x = Population,
 # This is Equation 10 in the model.                                                            #
 # ******************************************************************************************** #
 
-Supply$Supply <- Supply$Number * Supply$EmploymentRate * Supply$AverageFTE
+Supply$Supply <- Supply$Count * Supply$EmploymentRate * Supply$AverageFullTimeEquivalent
 
 # ******************************************************************************************** #
 # Initial teacher population.                                                                  #
@@ -282,9 +282,9 @@ Supply$Supply <- Supply$Number * Supply$EmploymentRate * Supply$AverageFTE
 # ******************************************************************************************** #
 
 SectorDistributed$Demand <- (SectorDistributed$EmployedMen *
-                             SectorDistributed$AverageFTEMen) + 
+                             SectorDistributed$AverageFullTimeEquivalentMen) + 
                             (SectorDistributed$EmployedWomen *
-                             SectorDistributed$AverageFTEWomen)
+                             SectorDistributed$AverageFullTimeEquivalentWomen)
 SectorDistributed$Year <- BaseYear
 
 # ******************************************************************************************** #
@@ -397,7 +397,7 @@ DemographyGroup[[1]] <- rbind(DemographyGroup[[1]],
 # Ensures the Age column is numeric.                                                           #
 # ******************************************************************************************** #
 
-Population$Age <- as.numeric(as.character(Population$Age))
+People$Age <- as.numeric(as.character(People$Age))
 
 # ******************************************************************************************** #
 # Calculates students in primary school.                                                       #
@@ -406,8 +406,8 @@ Population$Age <- as.numeric(as.character(Population$Age))
 
 DemographyGroup[[2]] <- data.frame(FromAge = 6,
                                    ToAge = 15,
-                                   Users = sum(Population[Population$Age >= 6 &
-                                                          Population$Age <= 15, 
+                                   Users = sum(People[People$Age >= 6 &
+                                                          People$Age <= 15, 
                                                          paste0("X",
                                                                 as.character(BaseYear))]),
                                    UserIndex = 1.0)
@@ -426,8 +426,7 @@ DemographyGroup[[4]] <- DemographyGroup4
 
 DemographyGroup[[5]] <- data.frame(FromAge = 0,
                                    ToAge = 99,
-                                   Users = sum(Population[, paste0("X",
-                                                                   as.character(BaseYear))]),
+                                   Users = sum(People[, paste0("X", as.character(BaseYear))]),
                                    UserIndex = 1.0)
 
 # ******************************************************************************************** #
@@ -437,8 +436,7 @@ DemographyGroup[[5]] <- data.frame(FromAge = 0,
 
 DemographyGroup[[6]] <- data.frame(FromAge = 0,
                                    ToAge = 99,
-                                   Users = sum(Population[, paste0("X",
-                                                                   as.character(BaseYear))]),
+                                   Users = sum(People[, paste0("X", as.character(BaseYear))]),
                                    UserIndex = 1.0)
 
 # ******************************************************************************************** #
@@ -451,13 +449,13 @@ for (S in 1:6) {
     # Finds the population from the population projections for the user groups in the user     #
     # group. This is Equation 19 in the model.                                                 #
     # **************************************************************************************** #
-
-    PopulationSector[[S]] <- merge(UserGroup[[S]],
-                                   Population, by = "Age") %>% group_by(ToAge) %>%
+    
+    PeopleSector[[S]] <- merge(UserGroup[[S]],
+                                   People, by = "Age") %>% group_by(ToAge) %>%
                              summarize(across(c(paste0("X", as.character(BaseYear))
                                                :paste0("X", as.character(EndYear))),
                                               \(x) sum(x, na.rm = TRUE)))
-  
+    
     # **************************************************************************************** #
     # Sets a row label for the maximum age of the user group.                                  #
     # **************************************************************************************** #
@@ -480,8 +478,8 @@ for (S in 1:6) {
     for (t in (BaseYear + 1):EndYear) {
         DemographyGroup[[S]][[paste0("RelativeUsers", paste0("X", as.character(t)))]] <-
         DemographyGroup[[S]][[paste0("RelativeUsers", paste0("X", as.character(t-1)))]] *
-        (PopulationSector[[S]][[paste0("X", as.character(t))]] /
-         PopulationSector[[S]][[paste0("X", as.character(t-1))]])
+        (PeopleSector[[S]][[paste0("X", as.character(t))]] /
+         PeopleSector[[S]][[paste0("X", as.character(t-1))]])
     }
     
     # **************************************************************************************** #
@@ -618,7 +616,7 @@ SupplyDemand <- data.frame(lapply(SupplyDemand[c("Education",
                                   function(x) {if(is.numeric(x)) {as.integer(round(x))} 
                                                else {x}}))
 
-Order <- c(pr = 1, ps = 2, ms = 3, pg = 4, pa = 5, vt = 6, vp = 7)
+Order <- c(ba = 1, gr = 2, lu = 3, ph = 4, pe = 5, yr = 6, py = 7)
 
 SupplyDemand$EducationOrdered <- SupplyDemand$Education
 SupplyDemand$EducationOrdered <- with(SupplyDemand, names(Order)
@@ -630,7 +628,7 @@ SupplyDemand <- SupplyDemand %>% arrange(EducationOrdered, Year)
 
 SupplyDemand$EducationOrdered <- NULL
 SupplyDemand$Education <- factor(SupplyDemand$Education, 
-                                 levels = c("pr", "ps", "ms", "pg", "pa", "vt", "vp"),
+                                 levels = c("ba", "gr", "lu", "ph", "pe", "yr", "py"),
                                  labels = c("Preschool Teachers", "Primary School Teachers",
                                             "Teachers with a Master's Degree", "PGCE",
                                             "Teachers of Practical and Aesthetic Subjects",
