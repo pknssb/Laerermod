@@ -1,5 +1,5 @@
 # ******************************************************************************************** #
-# Importing R libraries and printing a welcoming message.                                     #
+# Importing R libraries and printing a welcoming message.                                      #
 # ******************************************************************************************** #
 
 library(readr)
@@ -30,14 +30,14 @@ Welcome to the R version of TeacherMod!
 \n")
 
 # ******************************************************************************************** #
-# Start and end year for the projection.                                                      #
+# Start and end year for the projection.                                                       #
 # ******************************************************************************************** #
 
 BaseYear <- 2020
 EndYear <- 2040
 
 # ******************************************************************************************** #
-# Reading input files. See Appendix 1 for source data.                                        #
+# Reading input files. See Appendix 1 for source data.                                         #
 # ******************************************************************************************** #
 
 AgeDistributed <- read.table("inputdata/agedistributed.txt", header = TRUE)
@@ -67,7 +67,8 @@ WorkHourChange <- read.table('inputdata/change_workhour.txt', header = TRUE)
 AgeDistributed <- AgeDistributed %>% mutate(Education = factor(Education))
 AgeDistributedStudents <- AgeDistributedStudents %>% mutate(Education = factor(Education))
 CandidateProduction <- CandidateProduction %>% mutate(Education = factor(Education))
-SectorDistributed <- SectorDistributed %>% mutate(Education = factor(Education), Sector = factor(Sector))
+SectorDistributed <- SectorDistributed %>% mutate(Education = factor(Education),
+                                                  Sector = factor(Sector))
 People <- People %>% mutate(Age = factor(Age), Gender = factor(Gender))
 
 # ******************************************************************************************** #
@@ -120,7 +121,7 @@ Population$Year <- BaseYear
 Population <- Population %>% select(-Employed, -EmploymentRate, -AverageFullTimeEquivalent)
 
 # ******************************************************************************************** #
-# Projecting the initial population. Year 2 to end year. Based on statistics from the base year.#
+# Projecting the initial population. Year 2 to end year. Based on statistics from base year.   #
 # ******************************************************************************************** #
 
 # ******************************************************************************************** #
@@ -136,7 +137,7 @@ TotalFirstYearStudents <- AgeDistributedStudents %>%
 
 # ******************************************************************************************** #
 # Copies the total number of students for the relevant education into a new column in          #
-# the table AgeDistributedStudents. Adds a variable for gender.                               #
+# the table AgeDistributedStudents. Adds a variable for gender.                                #
 # ******************************************************************************************** #
 
 AgeDistributedStudents <- AgeDistributedStudents %>%
@@ -147,7 +148,7 @@ NewStudents <- AgeDistributedStudents %>%
   bind_rows(AgeDistributedStudents %>% mutate(Gender = 2))
 
 # ******************************************************************************************** #
-# Calculates the proportion of students by age and gender.                                    #
+# Calculates the proportion of students by age and gender.                                     #
 # This is Equation 4 in the model.                                                             #
 # ******************************************************************************************** #
 
@@ -229,26 +230,26 @@ for (t in (BaseYear + 1):EndYear) {
     # This is Equation 9 in the model.                                                         #
     # **************************************************************************************** #
 
-    CurrentYearPopulation$Number <- ifelse(is.na(CurrentYearPopulation$Number), 0, 
-                                           CurrentYearPopulation$Number) + 
+    CurrentYearPopulation$Count <- ifelse(is.na(CurrentYearPopulation$Count), 0, 
+                                           CurrentYearPopulation$Count) + 
                                     ifelse(is.na(CurrentYearPopulation$GraduatesByAge), 0,
                                            CurrentYearPopulation$GraduatesByAge)
   
     # **************************************************************************************** #
-    # Indicates that this should be the population in the projection year.                    #
+    # Indicates that this should be the population in the projection year.                     #
     # **************************************************************************************** #
 
     CurrentYearPopulation$Year <- t
   
     # **************************************************************************************** #
-    # The population in the projection year is added to the population as a new cohort.       #
+    # The population in the projection year is added to the population as a new cohort.        #
     # **************************************************************************************** #
 
     Population <- rbind(Population, CurrentYearPopulation[, c("Education", "Gender", "Age",
                                                               "Count", "FTEs", "Year")])
   
     # **************************************************************************************** #
-    # Copies the population in the projection year to the table for the next projection year. #
+    # Copies the population in the projection year to the table for the next projection year.  #
     # **************************************************************************************** #
 
     CurrentYearPopulation <- Population[Population$Year == t, ]
@@ -339,19 +340,23 @@ UserGroup[[6]] <- data.frame(ToAge = rep(99, 100),
 
 ChildrenGroup1 <- data.frame(Users = DemographyGroup1$Age0,
                              Hours = DemographyGroup1$HoursMin + 
-                                     ((DemographyGroup1$HoursMax - DemographyGroup1$HoursMin) / 2))
+                                     ((DemographyGroup1$HoursMax -
+                                       DemographyGroup1$HoursMin) / 2))
 
 ChildrenGroup2 <- data.frame(Users = DemographyGroup1$Age1 + DemographyGroup1$Age2,
                              Hours = DemographyGroup1$HoursMin + 
-                                     ((DemographyGroup1$HoursMax - DemographyGroup1$HoursMin) / 2))
+                                     ((DemographyGroup1$HoursMax -
+                                       DemographyGroup1$HoursMin) / 2))
 
 ChildrenGroup3 <- data.frame(Users = DemographyGroup1$Age3,
                              Hours = DemographyGroup1$HoursMin + 
-                                     ((DemographyGroup1$HoursMax - DemographyGroup1$HoursMin) / 2))
+                                     ((DemographyGroup1$HoursMax -
+                                       DemographyGroup1$HoursMin) / 2))
 
 ChildrenGroup4 <- data.frame(Users = DemographyGroup1$Age4 + DemographyGroup1$Age5,
                              Hours = DemographyGroup1$HoursMin + 
-                                     ((DemographyGroup1$HoursMax - DemographyGroup1$HoursMin) / 2))
+                                     ((DemographyGroup1$HoursMax -
+                                       DemographyGroup1$HoursMin) / 2))
 
 # ******************************************************************************************** #
 # Creates an empty table to be filled with the number of users in the kindergarten sector.     #
@@ -501,11 +506,12 @@ for (S in 1:6) {
     }
 
     # **************************************************************************************** #
-    # Creates an empty table to contain the demographic development in the sector.              #
+    # Creates an empty table to contain the demographic development in the sector.             #
     # **************************************************************************************** #
 
     KN <- paste0("DemographyComponent", S)
-    DemographySector[[S]] <- data.frame(Year = paste0("X", as.character(BaseYear)), TempColumn = 1)  
+    DemographySector[[S]] <- data.frame(Year = paste0("X", as.character(BaseYear)),
+                                        TempColumn = 1)  
     names(DemographySector[[S]])[names(DemographySector[[S]]) == "TempColumn"] <- KN
   
     # **************************************************************************************** #
@@ -537,7 +543,8 @@ for (S in 1:6) {
 DemographyIndex <- StandardChange # Assuming this is correctly initialized
 
 for (Sector in 1:6) {
-    DemographyIndex <- merge(DemographyIndex, DemographySector[[Sector]], by = "Year", all = TRUE)
+    DemographyIndex <- merge(DemographyIndex, DemographySector[[Sector]],
+                             by = "Year", all = TRUE)
 }
 
 # ******************************************************************************************** #
@@ -561,8 +568,8 @@ Demand <- merge(DemographyIndex, Demand, by = c("Education"), all = TRUE)
 Demand <- merge(Demand, Vacancy, by = c("Education"), all = TRUE)
 
 # ******************************************************************************************** #
-# Calculates the demand.                                                                      #
-# This is Equation 24 and Equation 25 in the model.                                           #
+# Calculates the demand.                                                                       #
+# This is Equation 24 and Equation 25 in the model.                                            #
 # ******************************************************************************************** #
 
 for(S in 1:6) {
@@ -575,8 +582,8 @@ for(S in 1:6) {
 }
 
 # ******************************************************************************************** #
-# Combines supply and demand.                                                                 #
-# This is Equation 26 and Equation 27 in the model.                                           #
+# Combines supply and demand.                                                                  #
+# This is Equation 26 and Equation 27 in the model.                                            #
 # ******************************************************************************************** #
 
 Supply$Year <- paste0("X", as.character(Supply$Year))
@@ -632,14 +639,15 @@ SupplyDemand$Education <- factor(SupplyDemand$Education,
                                  labels = c("Preschool Teachers", "Primary School Teachers",
                                             "Teachers with a Master's Degree", "PGCE",
                                             "Teachers of Practical and Aesthetic Subjects",
-                                            "Vocational Teachers", "PGCE in Vocational Education"))
+                                            "Vocational Teachers",
+                                            "PGCE in Vocational Education"))
 
 write_csv(SupplyDemand, 'results/TeacherMod.csv')
 write_xlsx(SupplyDemand, 'results/TeacherMod.xlsx')
 
-cat(sprintf("Education                      Year Supply Demand Difference\n"))
+cat(sprintf("Education                                          Year Supply Demand Difference\n"))
 invisible(apply(SupplyDemand, 1, function(x) {
-    cat(sprintf("%-27s   %4s %5d         %5s      %5s",
+    cat(sprintf("%-47s     %4s %5d  %5s     %6s",
                 x[["Education"]],
                 x[["Year"]],
                 round(as.numeric(x[["Supply"]])),

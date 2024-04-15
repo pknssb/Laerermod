@@ -53,12 +53,11 @@ DemografiGruppe1 <- read.table('inndata/antall_barn_barnehager.txt', header = TR
 DemografiGruppe3 <- read.table('inndata/antall_elever_videregaende.txt', header = TRUE)
 DemografiGruppe4 <- read.table('inndata/antall_studenter_hoyereutdanning.txt', header = TRUE)
 
-Vakanse <- read.table('inndata/vakanse.txt', header = TRUE)
+Laerermangel <- read.table('inndata/laerermangel.txt', header = TRUE)
 
 Standardendring <- read.table('inndata/endring_standard.txt', header = TRUE)
 Standardendring$År <- paste0("X", as.character(Standardendring$År))
 
-Timeverkendring <- read.table('inndata/endring_timeverk.txt', header = TRUE)
 
 # ******************************************************************************************** #
 # Oppretter radetiketter på eksisterende kolonner slik at de senere kan benyttes til kopling.  #
@@ -405,6 +404,25 @@ DemografiGruppe[[1]] <- rbind(DemografiGruppe[[1]],
                                                        (sum(BarnGruppe4$Brukere) * 42.5)))
 
 # ******************************************************************************************** #
+# Oppdaterer tallene for antall brukere av barnehage i hver av de 4 brukergruppene når det tas #
+# hensyn til brukerindeksene.                                                                  #
+# Dette er Likning 16 i modellen.                                                              #
+# ******************************************************************************************** #
+
+DemografiGruppe[[1]][1, ] <- c(0, 0, DemografiGruppe[[1]]$Brukere[1] *
+                                     DemografiGruppe[[1]]$Brukerindeks[1],
+                               DemografiGruppe[[1]]$Brukerindeks[1])
+DemografiGruppe[[1]][2, ] <- c(1, 2, DemografiGruppe[[1]]$Brukere[2] *
+                                     DemografiGruppe[[1]]$Brukerindeks[2],
+                               DemografiGruppe[[1]]$Brukerindeks[2])
+DemografiGruppe[[1]][3, ] <- c(3, 3, DemografiGruppe[[1]]$Brukere[3] *
+                                     DemografiGruppe[[1]]$Brukerindeks[3],
+                               DemografiGruppe[[1]]$Brukerindeks[3])
+DemografiGruppe[[1]][4, ] <- c(4, 5, DemografiGruppe[[1]]$Brukere[4] *
+                                     DemografiGruppe[[1]]$Brukerindeks[4],
+                               DemografiGruppe[[1]]$Brukerindeks[4])
+
+# ******************************************************************************************** #
 # Passer på at kolonnen med Alder er numerisk.                                                 #
 # ******************************************************************************************** #
 
@@ -412,7 +430,7 @@ Befolkning$Alder <- as.numeric(as.character(Befolkning$Alder))
 
 # ******************************************************************************************** #
 # Beregner elever i grunnskolen.                                                               #
-# Dette er Likning 16 i modellen.                                                              #
+# Dette er Likning 17 i modellen.                                                              #
 # ******************************************************************************************** #
 
 DemografiGruppe[[2]] <- data.frame(FraAlder = 6,
@@ -432,7 +450,7 @@ DemografiGruppe[[4]] <- DemografiGruppe4
 
 # ******************************************************************************************** #
 # Beregner brukere av annet i sektoren (voksenopplæring, fagskoler etc.).                      #
-# Dette er Likning 17 i modellen.                                                              #
+# Dette er Likning 18 i modellen.                                                              #
 # ******************************************************************************************** #
 
 DemografiGruppe[[5]] <- data.frame(FraAlder = 0,
@@ -443,7 +461,7 @@ DemografiGruppe[[5]] <- data.frame(FraAlder = 0,
 
 # ******************************************************************************************** #
 # Beregner brukere utenfor sektoren.                                                           #
-# Dette er Likning 18 i modellen.                                                              #
+# Dette er Likning 19 i modellen.                                                              #
 # ******************************************************************************************** #
 
 DemografiGruppe[[6]] <- data.frame(FraAlder = 0,
@@ -460,7 +478,7 @@ for (S in 1:6) {
     
     # **************************************************************************************** #
     # Finner folkemengden fra befolkningsframskrivningene for brukergruppene i brukergruppen.  #
-    # Dette er Likning 19 i modellen.                                                          #
+    # Dette er Likning 20 i modellen.                                                          #
     # **************************************************************************************** #
 
     BefolkningSektor[[S]] <- merge(Brukergruppe[[S]],
@@ -476,12 +494,11 @@ for (S in 1:6) {
     rownames(DemografiGruppe[[S]]) <- DemografiGruppe[[S]]$TilAlder
   
     # **************************************************************************************** #
-    # Beregner antall relative brukere i basisåret.                                            #
-    # Dette er Likning 20 i modellen.                                                          #
+    # Angir at antall innleste brukere skal være brukere i basisåret.                          #
     # **************************************************************************************** #
   
     DemografiGruppe[[S]][paste0("RelativeBrukere", paste0("X", as.character(Basisår)))] <-
-    DemografiGruppe[[S]]$Brukere * DemografiGruppe[[S]]$Brukerindeks
+    DemografiGruppe[[S]]$Brukere
 
     # **************************************************************************************** #
     # Beregner antall relative brukere i hvert framskrivningsår.                               #
@@ -567,11 +584,11 @@ DemografiIndeks <- DemografiIndeks %>%
 
 # ******************************************************************************************** #
 # Kopierer tabellen med den demografiske utviklingen i hver sektor, den transponerte tabellen  #
-# med etterspørselen funnet i likning 11 og eventuell angitt vakanse inn i samme tabell.       #
+# med etterspørselen funnet i likning 11 og eventuell angitt lærermangel inn i samme tabell.   #
 # ******************************************************************************************** #
 
 Etterspørsel <- merge(DemografiIndeks, Etterspørsel, by = c("Utdanning"), all = TRUE)
-Etterspørsel <- merge(Etterspørsel, Vakanse, by = c("Utdanning"), all = TRUE)
+Etterspørsel <- merge(Etterspørsel, Laerermangel, by = c("Utdanning"), all = TRUE)
 
 # ******************************************************************************************** #
 # Beregner etterspørselen.                                                                     #
@@ -582,7 +599,7 @@ for(S in 1:6) {
     Etterspørsel <- Etterspørsel %>%
     mutate(!!sym(paste0("Etterspørsel")) := !!sym(paste0("Etterspørsel")) +
                                             (!!sym(paste0("EtterspørselSektor", S)) +
-                                             !!sym(paste0("VakanseSektor", S))) *
+                                             !!sym(paste0("LaerermangelSektor", S))) *
                                             !!sym(paste0("DemografiKomponent", S)) *
                                             !!sym(paste0("StandardEndring", S)))
 }

@@ -49,10 +49,9 @@ DemografiGruppe1 = pd.DataFrame(pd.read_fwf('inndata/antall_barn_barnehager.txt'
 DemografiGruppe3 = pd.DataFrame(pd.read_fwf('inndata/antall_elever_videregaende.txt'))
 DemografiGruppe4 = pd.DataFrame(pd.read_fwf('inndata/antall_studenter_hoyereutdanning.txt'))
 
-Vakanse = pd.DataFrame(pd.read_fwf('inndata/vakanse.txt'))
+Laerermangel = pd.DataFrame(pd.read_fwf('inndata/laerermangel.txt'))
 
 Standardendring = pd.DataFrame(pd.read_fwf('inndata/endring_standard.txt'))
-Timeverkendring = pd.DataFrame(pd.read_fwf('inndata/endring_timeverk.txt'))
 
 # ******************************************************************************************** #
 # Oppretter radetiketter på eksisterende kolonner slik at de senere kan benyttes til kopling.  #
@@ -79,7 +78,7 @@ Brukergruppe = {}
 DemografiSektor = {}
 DemografiGruppe = {}
 SumDemografiGruppe = {}
-RelativeBrukere = {}
+Brukere = {}
 
 # ******************************************************************************************** #
 # Tilbud.                                                                                      #
@@ -344,14 +343,14 @@ BarnGruppe4 = pd.DataFrame({'Brukere': DemografiGruppe1.Alder4 + DemografiGruppe
 DemografiGruppe[1] = pd.DataFrame(columns=['FraAlder', 'TilAlder', 'Brukere', 'Brukerindeks'])
 
 # ******************************************************************************************** #
-# Beregner brukere av barnehage i hver av de 4 brukergruppene.                                 #
+# Beregner brukere av barnehage i hver av de 4 brukergruppene samt brukerindekser for disse.   #
 # Dette er Likning 14 og Likning 15 i modellen.                                                #
 # ******************************************************************************************** #
 
 DemografiGruppe[1].loc[len(DemografiGruppe[1].index)] = [0, 0, BarnGruppe1.Brukere.sum(),
                                                          (2 * BarnGruppe1.Brukere.
-                                                          mul(BarnGruppe1.Timer.values).sum())
-                                                         / (BarnGruppe1.Brukere.sum() * 42.5)]
+                                                          mul(BarnGruppe1.Timer.values).sum()) /
+                                                         (BarnGruppe1.Brukere.sum() * 42.5)]
 DemografiGruppe[1].loc[len(DemografiGruppe[1].index)] = [1, 2, BarnGruppe2.Brukere.sum(),
                                                          (2 * BarnGruppe2.Brukere.
                                                           mul(BarnGruppe2.Timer.values).sum()) /
@@ -366,8 +365,27 @@ DemografiGruppe[1].loc[len(DemografiGruppe[1].index)] = [4, 5, BarnGruppe4.Bruke
                                                          (BarnGruppe4.Brukere.sum() * 42.5)]
 
 # ******************************************************************************************** #
-# Beregner elever i grunnskolen.                                                               #
+# Oppdaterer tallene for antall brukere av barnehage i hver av de 4 brukergruppene når det tas #
+# hensyn til brukerindeksene.                                                                  #
 # Dette er Likning 16 i modellen.                                                              #
+# ******************************************************************************************** #
+
+DemografiGruppe[1].loc[0] = [0, 0, DemografiGruppe[1].loc[0].Brukere *
+                                   DemografiGruppe[1].loc[0].Brukerindeks,
+                             DemografiGruppe[1].loc[0].Brukerindeks]
+DemografiGruppe[1].loc[1] = [1, 2, DemografiGruppe[1].loc[1].Brukere *
+                                   DemografiGruppe[1].loc[1].Brukerindeks,
+                             DemografiGruppe[1].loc[1].Brukerindeks]
+DemografiGruppe[1].loc[2] = [3, 3, DemografiGruppe[1].loc[2].Brukere *
+                                   DemografiGruppe[1].loc[2].Brukerindeks,
+                             DemografiGruppe[1].loc[2].Brukerindeks]
+DemografiGruppe[1].loc[3] = [4, 5, DemografiGruppe[1].loc[3].Brukere *
+                                   DemografiGruppe[1].loc[3].Brukerindeks,
+                             DemografiGruppe[1].loc[3].Brukerindeks]
+
+# ******************************************************************************************** #
+# Beregner elever i grunnskolen.                                                               #
+# Dette er Likning 17 i modellen.                                                              #
 # ******************************************************************************************** #
 
 DemografiGruppe[2] = pd.DataFrame({'FraAlder': 6,
@@ -384,7 +402,7 @@ DemografiGruppe[4] = DemografiGruppe4.copy()
 
 # ******************************************************************************************** #
 # Beregner brukere av annet i sektoren (voksenopplæring, fagskoler etc.).                      #
-# Dette er Likning 17 i modellen.                                                              #
+# Dette er Likning 18 i modellen.                                                              #
 # ******************************************************************************************** #
 
 DemografiGruppe[5] = pd.DataFrame({'FraAlder': 0,
@@ -394,7 +412,7 @@ DemografiGruppe[5] = pd.DataFrame({'FraAlder': 0,
 
 # ******************************************************************************************** #
 # Beregner brukere utenfor sektoren.                                                           #
-# Dette er Likning 18 i modellen.                                                              #
+# Dette er Likning 19 i modellen.                                                              #
 # ******************************************************************************************** #
 
 DemografiGruppe[6] = pd.DataFrame({'FraAlder': 0,
@@ -416,7 +434,7 @@ for S in range(1, 7):
     
     # **************************************************************************************** #
     # Finner folkemengden fra befolkningsframskrivningene for brukergruppene i brukergruppen.  #
-    # Dette er Likning 19 i modellen.                                                          #
+    # Dette er Likning 20 i modellen.                                                          #
     # **************************************************************************************** #
 
     BefolkningSektor[S] = Brukergruppe[S].merge(Befolkning, how='inner',
@@ -429,31 +447,23 @@ for S in range(1, 7):
     DemografiGruppe[S] = DemografiGruppe[S].set_index(['TilAlder'])
 
     # **************************************************************************************** #
-    # Oppretter en tom tabell for relative brukere.                                            #
+    # Angir at antall innleste brukere skal være brukere i basisåret.                          #
     # **************************************************************************************** #
-
-    RelativeBrukere[Basisår] = pd.DataFrame()
+    
+    DemografiGruppe[S]['Brukere' + str(Basisår)] = DemografiGruppe[S].Brukere 
     
     # **************************************************************************************** #
-    # Beregner antall relative brukere i basisåret.                                            #
-    # Dette er Likning 20 i modellen.                                                          #
-    # **************************************************************************************** #
-
-    DemografiGruppe[S]['RelativeBrukere' + str(Basisår)] = (DemografiGruppe[S].Brukere *
-                                                            DemografiGruppe[S].Brukerindeks)
-    
-    # **************************************************************************************** #
-    # Beregner antall relative brukere i hvert framskrivningsår.                               #
+    # Beregner antall brukere i hvert framskrivningsår.                                        #
     # Dette er Likning 21 i modellen.                                                          #
     # **************************************************************************************** #
 
     for t in range(Basisår + 1, Sluttår + 1):
-        DemografiGruppe[S][f'RelativeBrukere{t}'] = \
-        DemografiGruppe[S][f'RelativeBrukere{t-1}'] * (BefolkningSektor[S][str(t)] / 
-                                                       BefolkningSektor[S][str(t-1)])
+        DemografiGruppe[S][f'Brukere{t}'] = \
+        DemografiGruppe[S][f'Brukere{t-1}'] * (BefolkningSektor[S][str(t)] / 
+                                               BefolkningSektor[S][str(t-1)])
     
     # **************************************************************************************** #
-    # Oppretter en tom tabell for summering av de relative brukerne i hvert framskrivningsår.  #
+    # Oppretter en tom tabell for summering av brukerne i hvert framskrivningsår.              #
     # **************************************************************************************** #
     
     SumDemografiGruppe[S] = pd.DataFrame()
@@ -464,8 +474,7 @@ for S in range(1, 7):
     # **************************************************************************************** #
 
     for t in range(Basisår, Sluttår + 1):
-        SumDemografiGruppe[S][f'SumRelativeBrukere{t}'] = [DemografiGruppe[S]
-                                                           [f'RelativeBrukere{t}'].sum()]
+        SumDemografiGruppe[S][f'SumBrukere{t}'] = [DemografiGruppe[S][f'Brukere{t}'].sum()]
     
     # **************************************************************************************** #
     # Oppretter en tom tabell som skal inneholde den demografiske utviklingen i sektoren.      #
@@ -481,8 +490,8 @@ for S in range(1, 7):
     for t in range(Basisår + 1, Sluttår + 1):
         NesteÅrgang = pd.DataFrame({
             'År': t,
-            f'DemografiKomponent{S}': (SumDemografiGruppe[S][f'SumRelativeBrukere{t}'] /
-                                       SumDemografiGruppe[S][f'SumRelativeBrukere{Basisår}'])})
+            f'DemografiKomponent{S}': (SumDemografiGruppe[S][f'SumBrukere{t}'] /
+                                       SumDemografiGruppe[S][f'SumBrukere{Basisår}'])})
         
         # ************************************************************************************ #
         # Den demografiske utviklingen i framskrivningsåret legges til som en ny årgang i      #
@@ -512,11 +521,12 @@ DemografiIndeks = pd.concat([DemografiIndeks] * 7, keys=Utdanninger, names=['Utd
 
 # ******************************************************************************************** #
 # Kopierer tabellen med den demografiske utviklingen i hver sektor, den transponerte tabellen  #
-# med etterspørselen funnet i likning 11 og eventuell angitt vakanse inn i samme tabell.       #
+# med etterspørselen funnet i likning 11 og eventuell angitt lærermangel inn i samme tabell.   #
 # ******************************************************************************************** #
 
 Etterspørsel = reduce(lambda left, right: pd.merge(left, right, on=['Utdanning'], how='outer'),
-                      [DemografiIndeks, Etterspørsel, Vakanse]).set_index(['Utdanning', 'År'])
+                      [DemografiIndeks, Etterspørsel, Laerermangel]).set_index(['Utdanning',
+                                                                                'År'])
 
 # ******************************************************************************************** #
 # Beregner etterspørselen.                                                                     #
@@ -526,7 +536,7 @@ Etterspørsel = reduce(lambda left, right: pd.merge(left, right, on=['Utdanning'
 for S in range(1, 7):
     Etterspørsel['Etterspørsel'] = (Etterspørsel['Etterspørsel'] +
                                     (Etterspørsel[f'EtterspørselSektor{S}'] +
-                                     Etterspørsel[f'VakanseSektor{S}']) *
+                                     Etterspørsel[f'LaerermangelSektor{S}']) *
                                     Etterspørsel[f'DemografiKomponent{S}'] *
                                     Etterspørsel[f'StandardEndring{S}'])
 
