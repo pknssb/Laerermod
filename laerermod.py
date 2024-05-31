@@ -36,22 +36,22 @@ Sluttår = 2040
 # Innlesing av inputfiler. Se Appendix 1 for kildedata.                                        #
 # ******************************************************************************************** #
 
-Aldersfordelt = pd.DataFrame(pd.read_fwf('inndata/aldersfordelt.txt'))
+Aldersfordelt = pd.read_fwf('inndata/aldersfordelt.txt')
 
-AldersfordeltStudenter = pd.DataFrame(pd.read_fwf('inndata/aldersfordeltstudenter.txt'))
-Kandidatproduksjon = pd.DataFrame(pd.read_fwf('inndata/kandidatproduksjon.txt'))
+AldersfordeltStudenter = pd.read_fwf('inndata/aldersfordeltstudenter.txt')
+Kandidatproduksjon = pd.read_fwf('inndata/kandidatproduksjon.txt')
 
-Sektorfordelt = pd.DataFrame(pd.read_fwf('inndata/sektorfordelt.txt'))
+Sektorfordelt = pd.read_fwf('inndata/sektorfordelt.txt')
 
-Befolkning = pd.DataFrame(pd.read_fwf('inndata/mmmm.txt'))
+Befolkning = pd.read_fwf('inndata/mmmm.txt')
 
-DemografiGruppe1 = pd.DataFrame(pd.read_fwf('inndata/antall_barn_barnehager.txt'))
-DemografiGruppe3 = pd.DataFrame(pd.read_fwf('inndata/antall_elever_videregaende.txt'))
-DemografiGruppe4 = pd.DataFrame(pd.read_fwf('inndata/antall_studenter_hoyereutdanning.txt'))
+DemografiGruppe1 = pd.read_fwf('inndata/antall_barn_barnehager.txt')
+DemografiGruppe3 = pd.read_fwf('inndata/antall_elever_videregaende.txt')
+DemografiGruppe4 = pd.read_fwf('inndata/antall_studenter_hoyereutdanning.txt')
 
-Laerermangel = pd.DataFrame(pd.read_fwf('inndata/laerermangel.txt'))
+Laerermangel = pd.read_fwf('inndata/laerermangel.txt')
 
-Standardendring = pd.DataFrame(pd.read_fwf('inndata/endring_standard.txt'))
+Standardendring = pd.read_fwf('inndata/endring_standard.txt')
 
 # ******************************************************************************************** #
 # Oppretter radetiketter på eksisterende kolonner slik at de senere kan benyttes til kopling.  #

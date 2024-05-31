@@ -1,4 +1,4 @@
-Education Gender Age Count Employed AverageFullTimeEquivalent
+Education Gender Age Count Employed AverageFullTimeEquivalents
 ba        1      23  9     9        0.95337         
 ba        1      24  44    42       0.90198         
 ba        1      25  93    86       0.95599         
