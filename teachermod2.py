@@ -9,13 +9,13 @@ Welcome to the Python version of TeacherMod!
 |    The TeacherMod model calculates supply and                 |
 |    demand for the following 7 groups of teachers:             |
 +---------------------------------------------------------------+
-| 1. Kindergarten teachers                                       |
-| 2. Primary school teachers                                     |
+| 1. Kindergarten teachers                                      |
+| 2. Primary school teachers                                    |
 | 3. Teachers with a Master's degree                            |
 | 4. PPU (Practical Pedagogical Education)                      |
 | 5. Teacher education in practical and aesthetic subjects      |
-| 6. Vocational teachers                                         |
-| 7. PPU Vocational                                              |
+| 6. Vocational teachers                                        |
+| 7. PPU Vocational                                             |
 +---------------------------------------------------------------+
 """
 
@@ -39,13 +39,13 @@ CandidateProduction = pd.read_fwf('inputdata/candidateproduction.txt')
 
 SectorDistributed = pd.read_fwf('inputdata/sectordistributed.txt')
 
-Population = pd.read_fwf('inputdata/mmmm.txt')
+People = pd.read_fwf('inputdata/mmmm.txt')
 
 DemographicsGroup1 = pd.read_fwf('inputdata/number_children_kindergartens.txt')
 DemographicsGroup3 = pd.read_fwf('inputdata/number_students_secondary.txt')
 DemographicsGroup4 = pd.read_fwf('inputdata/number_students_highereducation.txt')
 
-TeacherShortage = pd.read_fwf('inputdata/vacancy.txt')
+TeacherShortage = pd.read_fwf('inputdata/teachershortage.txt')
 
 StandardChange = pd.read_fwf('inputdata/change_standard.txt')
 
@@ -57,7 +57,7 @@ AgeDistributed.set_index(['Education'], inplace=True)
 AgeDistributedStudents.set_index(['Education'], inplace=True)
 CandidateProduction.set_index(['Education'], inplace=True)
 SectorDistributed.set_index(['Education', 'Sector'], inplace=True)
-Population.set_index(['Age', 'Gender'], inplace=True)
+People.set_index(['Age', 'Gender'], inplace=True)
 
 # ******************************************************************************************** #
 # Creating a constant with abbreviations for the educations included in the model.             #
@@ -69,7 +69,7 @@ Educations = ['ba', 'gr', 'lu', 'ph', 'pe', 'yr', 'py']
 # Creating dictionaries for later use.                                                         #
 # ******************************************************************************************** #
 
-PopulationSector = {}
+PeopleSector = {}
 UserGroup = {}
 DemographicsSector = {}
 DemographicsGroup = {}
@@ -244,15 +244,15 @@ for t in range(BaseYear + 1, EndYear + 1):
     PopulationCurrentYear = Population[Population['Year']==t].copy()
 
 # ******************************************************************************************** # 
-# Retrieving EmploymentRate and AverageFullTimeEquivalents calculated for                    #
+# Retrieving EmploymentRate and AverageFullTimeEquivalents calculated for                      #
 # the initial population in Equation 6 and 7. Indicating that this should be the supply table. #
 # ******************************************************************************************** #
 
 Supply = Population.merge(AgeDistributed, how='left', on=['Education', 'Gender', 'Age'])
 
 # ******************************************************************************************** #
-# Calculating supply.                                                                         #
-# This is Equation 10 in the model.                                                           #
+# Calculating supply.                                                                          #
+# This is Equation 10 in the model.                                                            #
 # ******************************************************************************************** #
 
 Supply['Supply'] = Supply.Count * Supply.EmploymentRate * Supply.AverageFullTimeEquivalents
@@ -303,18 +303,18 @@ for S in range(1, 7):
 # ******************************************************************************************** #
 
 UserGroup[1] = pd.DataFrame({'ToAge': [0, 2, 2, 3, 5, 5],
-'Age': range(0, 6)})
+                             'Age': range(0, 6)})
 UserGroup[2] = pd.DataFrame({'ToAge': [15] * 10,
-'Age': range(6, 16)})
+                             'Age': range(6, 16)})
 UserGroup[3] = pd.DataFrame({'ToAge': [15] * 16 + list(range(16, 25)) + [49] * 25,
-'Age': range(0, 50)})
+                             'Age': range(0, 50)})
 UserGroup[4] = pd.DataFrame({'ToAge': list(range(19, 30)) + [34] * 5 + [39] * 5 +
-[44] * 5 + [49] * 5,
-'Age': range(19, 50)})
+                                           [44] * 5 + [49] * 5,
+                             'Age': range(19, 50)})
 UserGroup[5] = pd.DataFrame({'ToAge': 99,
-'Age': range(0, 100)})
+                             'Age': range(0, 100)})
 UserGroup[6] = pd.DataFrame({'ToAge': 99,
-'Age': range(0, 100)})
+                             'Age': range(0, 100)})
 
 # ******************************************************************************************** #
 # Summarizing the number of children in kindergartens in each user group by average stay.      #
@@ -350,21 +350,21 @@ DemographicsGroup[1] = pd.DataFrame(columns=['FromAge', 'ToAge', 'Users', 'UserI
 # ******************************************************************************************** #
 
 DemographicsGroup[1].loc[len(DemographicsGroup[1].index)] = [0, 0, ChildrenGroup1.Users.sum(),
-(2 * ChildrenGroup1.Users.
-mul(ChildrenGroup1.Hours.values).sum()) /
-(ChildrenGroup1.Users.sum() * 42.5)]
+                                              (2 * ChildrenGroup1.Users.
+                                               mul(ChildrenGroup1.Hours.values).sum()) /
+                                              (ChildrenGroup1.Users.sum() * 42.5)]
 DemographicsGroup[1].loc[len(DemographicsGroup[1].index)] = [1, 2, ChildrenGroup2.Users.sum(),
-(2 * ChildrenGroup2.Users.
-mul(ChildrenGroup2.Hours.values).sum()) /
-(ChildrenGroup2.Users.sum() * 42.5)]
+                                              (2 * ChildrenGroup2.Users.
+                                               mul(ChildrenGroup2.Hours.values).sum()) /
+                                              (ChildrenGroup2.Users.sum() * 42.5)]
 DemographicsGroup[1].loc[len(DemographicsGroup[1].index)] = [3, 3, ChildrenGroup3.Users.sum(),
-(1.5 * ChildrenGroup3.Users.
-mul(ChildrenGroup3.Hours.values).sum()) /
-(ChildrenGroup3.Users.sum() * 42.5)]
+                                              (1.5 * ChildrenGroup3.Users.
+                                               mul(ChildrenGroup3.Hours.values).sum()) /
+                                              (ChildrenGroup3.Users.sum() * 42.5)]
 DemographicsGroup[1].loc[len(DemographicsGroup[1].index)] = [4, 5, ChildrenGroup4.Users.sum(),
-(1 * ChildrenGroup4.Users.
-mul(ChildrenGroup4.Hours.values).sum()) /
-(ChildrenGroup4.Users.sum() * 42.5)]
+                                              (1 * ChildrenGroup4.Users.
+                                               mul(ChildrenGroup4.Hours.values).sum()) /
+                                              (ChildrenGroup4.Users.sum() * 42.5)]
 
 # ******************************************************************************************** #
 # Updating the numbers for the number of kindergarten users in each of the 4 user groups when  #
@@ -373,17 +373,17 @@ mul(ChildrenGroup4.Hours.values).sum()) /
 # ******************************************************************************************** #
 
 DemographicsGroup[1].loc[0] = [0, 0, DemographicsGroup[1].loc[0].Users *
-DemographicsGroup[1].loc[0].UserIndex,
-DemographicsGroup[1].loc[0].UserIndex]
+                                     DemographicsGroup[1].loc[0].UserIndex,
+                               DemographicsGroup[1].loc[0].UserIndex]
 DemographicsGroup[1].loc[1] = [1, 2, DemographicsGroup[1].loc[1].Users *
-DemographicsGroup[1].loc[1].UserIndex,
-DemographicsGroup[1].loc[1].UserIndex]
+                                     DemographicsGroup[1].loc[1].UserIndex,
+                               DemographicsGroup[1].loc[1].UserIndex]
 DemographicsGroup[1].loc[2] = [3, 3, DemographicsGroup[1].loc[2].Users *
-DemographicsGroup[1].loc[2].UserIndex,
-DemographicsGroup[1].loc[2].UserIndex]
+                                     DemographicsGroup[1].loc[2].UserIndex,
+                               DemographicsGroup[1].loc[2].UserIndex]
 DemographicsGroup[1].loc[3] = [4, 5, DemographicsGroup[1].loc[3].Users *
-DemographicsGroup[1].loc[3].UserIndex,
-DemographicsGroup[1].loc[3].UserIndex]
+                                     DemographicsGroup[1].loc[3].UserIndex,
+                               DemographicsGroup[1].loc[3].UserIndex]
 
 # ******************************************************************************************** #
 # Calculating students in primary school.                                                      #
@@ -392,7 +392,7 @@ DemographicsGroup[1].loc[3].UserIndex]
 
 DemographicsGroup[2] = pd.DataFrame({'FromAge': 6,
                                      'ToAge': 15,
-                                     'Users': Population.query('Age>=6 and Age<=15')
+                                     'Users': People.query('Age>=6 and Age<=15')
                                      [str(BaseYear)].sum(), 'UserIndex': 1.0}, index=[0])
 
 # ******************************************************************************************** #
@@ -408,9 +408,9 @@ DemographicsGroup[4] = DemographicsGroup4.copy()
 # ******************************************************************************************** #
 
 DemographicsGroup[5] = pd.DataFrame({'FromAge': 0,
-'ToAge': 99,
-'Users': Population[str(BaseYear)].sum(),
-'UserIndex': 1.0}, index=[0])
+                                     'ToAge': 99,
+                                     'Users': People[str(BaseYear)].sum(),
+                                     'UserIndex': 1.0}, index=[0])
 
 # ******************************************************************************************** #
 # Calculating users outside the sector.                                                        #
@@ -419,75 +419,75 @@ DemographicsGroup[5] = pd.DataFrame({'FromAge': 0,
 
 DemographicsGroup[6] = pd.DataFrame
 DemographicsGroup[6] = pd.DataFrame({'FromAge': 0,
-                                   'ToAge': 99,
-                                   'Users': Population[str(BaseYear)].sum(),
-                                   'UserIndex': 1.0}, index=[0])
+                                     'ToAge': 99,
+                                     'Users': People[str(BaseYear)].sum(),
+                                     'UserIndex': 1.0}, index=[0])
 
 # ******************************************************************************************** #
-# Calculating the demographic development in each employment sector.                          #
+# Calculating the demographic development in each employment sector.                           #
 # ******************************************************************************************** #
 
 for S in range(1, 7):
 
     # **************************************************************************************** #
-    # Creating an empty table for the population in the current sector.                       #
+    # Creating an empty table for the population in the current sector.                        #
     # **************************************************************************************** #
 
-    PopulationSector[S] = pd.DataFrame()
+    PeopleSector[S] = pd.DataFrame()
     
     # **************************************************************************************** #
-    # Finding the population from the population projections for the user groups in the user group. #
-    # This is Equation 20 in the model.                                                       #
+    # Finding the population from the population projections for the user groups in the group. #
+    # This is Equation 20 in the model.                                                        #
     # **************************************************************************************** #
 
-    PopulationSector[S] = UserGroup[S].merge(Population, how='inner',
-                                             on='Age').groupby(['ToAge']).sum()
+    PeopleSector[S] = UserGroup[S].merge(People, how='inner',
+                                                 on='Age').groupby(['ToAge']).sum()
     
     # **************************************************************************************** #
-    # Indicating a row label for the maximum age of the user group.                           #
+    # Indicating a row label for the maximum age of the user group.                            #
     # **************************************************************************************** #
 
     DemographicsGroup[S] = DemographicsGroup[S].set_index(['ToAge'])
 
     # **************************************************************************************** #
-    # Indicating that the number of read users should be users in the base year.              #
+    # Indicating that the number of read users should be users in the base year.               #
     # **************************************************************************************** #
     
     DemographicsGroup[S]['Users' + str(BaseYear)] = DemographicsGroup[S].Users 
     
     # **************************************************************************************** #
-    # Calculating the number of users in each projection year.                                #
-    # This is Equation 21 in the model.                                                       #
+    # Calculating the number of users in each projection year.                                 #
+    # This is Equation 21 in the model.                                                        #
     # **************************************************************************************** #
 
     for t in range(BaseYear + 1, EndYear + 1):
         DemographicsGroup[S][f'Users{t}'] = \
-        DemographicsGroup[S][f'Users{t-1}'] * (PopulationSector[S][str(t)] / 
-                                               PopulationSector[S][str(t-1)])
+        DemographicsGroup[S][f'Users{t-1}'] * (PeopleSector[S][str(t)] / 
+                                               PeopleSector[S][str(t-1)])
     
     # **************************************************************************************** #
-    # Creating an empty table for summing the users in each projection year.                  #
+    # Creating an empty table for summing the users in each projection year.                   #
     # **************************************************************************************** #
     
     SumDemographicsGroup[S] = pd.DataFrame()
     
     # **************************************************************************************** #
-    # Calculating the sum of users in each projection year.                                   #
-    # This is Equation 22 in the model.                                                       #
+    # Calculating the sum of users in each projection year.                                    #
+    # This is Equation 22 in the model.                                                        #
     # **************************************************************************************** #
 
     for t in range(BaseYear, EndYear + 1):
         SumDemographicsGroup[S][f'SumUsers{t}'] = [DemographicsGroup[S][f'Users{t}'].sum()]
     
     # **************************************************************************************** #
-    # Creating an empty table to contain the demographic development in the sector.           #
+    # Creating an empty table to contain the demographic development in the sector.            #
     # **************************************************************************************** #
 
     DemographicsSector[S] = pd.DataFrame({'Year': [BaseYear], f'DemographicComponent{S}': [1]})
     
     # **************************************************************************************** #
-    # Calculating the demographic development for each projection year for each user group.   #
-    # This is Equation 23 in the model.                                                       #
+    # Calculating the demographic development for each projection year for each user group.    #
+    # This is Equation 23 in the model.                                                        #
     # **************************************************************************************** #
 
     for t in range(BaseYear + 1, EndYear + 1):
@@ -497,11 +497,12 @@ for S in range(1, 7):
                                          SumDemographicsGroup[S][f'SumUsers{BaseYear}'])})
         
         # ************************************************************************************ #
-        # The demographic development in the projection year is added as a new cohort in      #
-        # the table with the demographic development in the sector.                           #
+        # The demographic development in the projection year is added as a new cohort in       #
+        # the table with the demographic development in the sector.                            #
         # ************************************************************************************ #
 
-        DemographicsSector[S] = pd.concat([DemographicsSector[S], NextCohort], ignore_index=True)
+        DemographicsSector[S] = pd.concat([DemographicsSector[S], NextCohort],
+                                          ignore_index=True)
 
 # ******************************************************************************************** #
 # Copying the tables with the demographic development in each sector together with             #
@@ -513,18 +514,18 @@ for Sector in range(1, 7):
     DemographicIndex = pd.merge(DemographicIndex, DemographicsSector[Sector])
 
 # ******************************************************************************************** #
-# Adding the constant indicating the 7 educations in the model to the table.                  #
+# Adding the constant indicating the 7 educations in the model to the table.                   #
 # ******************************************************************************************** #
 
 DemographicIndex = pd.concat([DemographicIndex] * 7, keys=Educations, names=['Education'])
 
 # ******************************************************************************************** #
-# Teacher densities based on the base year. Held constant.                                    #
+# Teacher densities based on the base year. Held constant.                                     #
 # ******************************************************************************************** #
 
 # ******************************************************************************************** #
 # Copying the table with the demographic development in each sector, the transposed table      #
-# with demand found in equation 11, and any specified teacher shortage into the same table.   #
+# with demand found in equation 11, and any specified teacher shortage into the same table.    #
 # ******************************************************************************************** #
 
 Demand = reduce(lambda left, right: pd.merge(left, right, on=['Education'], how='outer'),
@@ -565,18 +566,18 @@ SupplyDemand['Difference'] = SupplyDemand.Supply - SupplyDemand.Demand
 # Printing the results and a pleasant farewell greeting.                                       #
 # ******************************************************************************************** #
 
-Order = {'kt': 1, 'ps': 2, 'ms': 3, 'pp': 4, 'ae': 5, 'vt': 6, 'vp': 7}
+Order = {'ba': 1, 'gr': 2, 'lu': 3, 'ph': 4, 'pe': 5, 'yr': 6, 'py': 7}
 
 SupplyDemand = SupplyDemand[['Supply', 'Demand', 'Difference']]
 SupplyDemand = SupplyDemand.sort_values(by=['Education', 'Year'],
                                         key=lambda x: x.map(Order))                         
-SupplyDemand.rename(index={'kt': 'Kindergarten Teachers',
-                           'ps': 'Primary School Teachers',
-                           'ms': 'Teachers with a Master\'s Degree',
-                           'pp': 'Practical Pedagogical Education',
-                           'ae': 'Practical and Aesthetic Subjects',
-                           'vt': 'Vocational Teachers',
-                           'vp': 'PPU Vocational'}, inplace=True)
+SupplyDemand.rename(index={'ba': 'Kindergarten Teachers',
+                           'gr': 'Primary School Teachers',
+                           'lu': 'Teachers with a Master\'s Degree',
+                           'ph': 'Practical Pedagogical Education',
+                           'pe': 'Practical and Aesthetic Subjects',
+                           'vr': 'Vocational Teachers',
+                           'py': 'PPU Vocational'}, inplace=True)
 
 SupplyDemand.round(0).astype(int).to_csv('results/TeacherMod.csv')
 SupplyDemand.round(0).astype(int).to_excel('results/TeacherMod.xlsx')
