@@ -55,7 +55,7 @@ DemografiGruppe4 <- read.table('inndata/antall_studenter_hoyereutdanning.txt', h
 
 Laerermangel <- read.table('inndata/laerermangel.txt', header = TRUE)
 
-Standardendring <- read.table('inndata/endring_standard.txt', header = TRUE)
+Standardendring <- read.table('inndata/endring_standard_kort.txt', header = TRUE)
 Standardendring$År <- paste0("X", as.character(Standardendring$År))
 
 
@@ -84,7 +84,7 @@ Brukergruppe <- list()
 DemografiSektor <- list()
 DemografiGruppe <- list()
 SumDemografiGruppe <- list()
-RelativeBrukere <- list()
+Brukere <- list()
 
 # ******************************************************************************************** #
 # Tilbud.                                                                                      #
@@ -497,23 +497,23 @@ for (S in 1:6) {
     # Angir at antall innleste brukere skal være brukere i basisåret.                          #
     # **************************************************************************************** #
   
-    DemografiGruppe[[S]][paste0("RelativeBrukere", paste0("X", as.character(Basisår)))] <-
+    DemografiGruppe[[S]][paste0("Brukere", paste0("X", as.character(Basisår)))] <-
     DemografiGruppe[[S]]$Brukere
 
     # **************************************************************************************** #
-    # Beregner antall relative brukere i hvert framskrivningsår.                               #
+    # Beregner antall brukere i hvert framskrivningsår.                                        #
     # Dette er Likning 21 i modellen.                                                          #
     # **************************************************************************************** #
 
     for (t in (Basisår + 1):Sluttår) {
-        DemografiGruppe[[S]][[paste0("RelativeBrukere", paste0("X", as.character(t)))]] <-
-        DemografiGruppe[[S]][[paste0("RelativeBrukere", paste0("X", as.character(t-1)))]] *
+        DemografiGruppe[[S]][[paste0("Brukere", paste0("X", as.character(t)))]] <-
+        DemografiGruppe[[S]][[paste0("Brukere", paste0("X", as.character(t-1)))]] *
         (BefolkningSektor[[S]][[paste0("X", as.character(t))]] /
          BefolkningSektor[[S]][[paste0("X", as.character(t-1))]])
     }
     
     # **************************************************************************************** #
-    # Oppretter en tom tabell for summering av de relative brukerne i hvert framskrivningsår.  #
+    # Oppretter en tom tabell for summering av brukerne i hvert framskrivningsår.              #
     # **************************************************************************************** #
 
     SumDemografiGruppe[[S]] <- data.frame(t(Basisår:Sluttår))
@@ -524,9 +524,9 @@ for (S in 1:6) {
     # **************************************************************************************** #
   
     for (t in Basisår:Sluttår) {
-        SumDemografiGruppe[[S]][[paste0("SumRelativeBrukere",
+        SumDemografiGruppe[[S]][[paste0("SumBrukere",
                                         paste0("X", as.character(t)))]] <-
-        sum(DemografiGruppe[[S]][[paste0("RelativeBrukere",
+        sum(DemografiGruppe[[S]][[paste0("Brukere",
                                          paste0("X", as.character(t)))]], na.rm = TRUE)
     }
 
@@ -545,9 +545,9 @@ for (S in 1:6) {
 
     for (t in (Basisår + 1):Sluttår) {
         NesteÅrgang <- data.frame(År = paste0("X", as.character(t)))
-        NesteÅrgang[KN] <- SumDemografiGruppe[[S]][[paste0("SumRelativeBrukere",
+        NesteÅrgang[KN] <- SumDemografiGruppe[[S]][[paste0("SumBrukere",
                                                            paste0("X", as.character(t)))]] / 
-                           SumDemografiGruppe[[S]][[paste0("SumRelativeBrukere",
+                           SumDemografiGruppe[[S]][[paste0("SumBrukere",
                                                            paste0("X", as.character(Basisår)))]]
     
         # ************************************************************************************ #

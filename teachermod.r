@@ -53,7 +53,7 @@ DemographyGroup1 <- read.table('inputdata/number_children_kindergartens.txt', he
 DemographyGroup3 <- read.table('inputdata/number_students_secondary.txt', header = TRUE)
 DemographyGroup4 <- read.table('inputdata/number_students_highereducation.txt', header = TRUE)
 
-Vacancy <- read.table('inputdata/vacancy.txt', header = TRUE)
+TeacherShortage <- read.table('inputdata/teachershortage.txt', header = TRUE)
 
 StandardChange <- read.table('inputdata/change_standard.txt', header = TRUE)
 StandardChange$Year <- paste0("X", as.character(StandardChange$Year))
@@ -86,14 +86,15 @@ UserGroup <- list()
 DemographySector <- list()
 DemographyGroup <- list()
 SumDemographyGroup <- list()
-RelativeUsers <- list()
+Users <- list()
 
 # ******************************************************************************************** #
 # Initial teacher population.                                                                  #
 # ******************************************************************************************** #
 
 # ******************************************************************************************** #
-# Calculating employment rate. This is Equation 1 in the model.                                #
+# Calculating employment rate.                                                                 #
+# This is Equation 1 in the model.                                                             #
 # ******************************************************************************************** #
 
 AgeDistributed$EmploymentRate <- ifelse(AgeDistributed$Count > 0, 
@@ -108,7 +109,8 @@ Population <- AgeDistributed
 AgeDistributed <- AgeDistributed %>% select(-Count, -Employed)
 
 # ******************************************************************************************** #
-# Finding the full-time equivalents in the population. This is Equation 2 in the model.        #
+# Finding the full-time equivalents in the population.                                         #
+# This is Equation 2 in the model.                                                             #
 # ******************************************************************************************** #
 
 Population$FTEs <- Population$Employed * Population$AverageFullTimeEquivalent
@@ -399,6 +401,25 @@ DemographyGroup[[1]] <- rbind(DemographyGroup[[1]],
                                                    (sum(ChildrenGroup4$Users) * 42.5)))
 
 # ******************************************************************************************** #
+# Updating the figures for the number of kindergarten users in each of the 4 user groups when  #
+# taking the user indices into account.                                                        #
+# This is Equation 16 in the model.                                                            #
+# ******************************************************************************************** #
+
+DemographyGroup[[1]][1, ] <- c(0, 0, DemographyGroup[[1]]$Users[1] *
+                                     DemographyGroup[[1]]$UserIndex[1],
+                               DemographyGroup[[1]]$UserIndex[1])
+DemographyGroup[[1]][2, ] <- c(1, 2, DemographyGroup[[1]]$Users[2] *
+                                     DemographyGroup[[1]]$UserIndex[2],
+                               DemographyGroup[[1]]$UserIndex[2])
+DemographyGroup[[1]][3, ] <- c(3, 3, DemographyGroup[[1]]$Users[3] *
+                                     DemographyGroup[[1]]$UserIndex[3],
+                               DemographyGroup[[1]]$UserIndex[3])
+DemographyGroup[[1]][4, ] <- c(4, 5, DemographyGroup[[1]]$Users[4] *
+                                     DemographyGroup[[1]]$UserIndex[4],
+                               DemographyGroup[[1]]$UserIndex[4])
+
+# ******************************************************************************************** #
 # Ensures the Age column is numeric.                                                           #
 # ******************************************************************************************** #
 
@@ -406,15 +427,13 @@ People$Age <- as.numeric(as.character(People$Age))
 
 # ******************************************************************************************** #
 # Calculates students in primary school.                                                       #
-# This is Equation 16 in the model.                                                            #
+# This is Equation 17 in the model.                                                            #
 # ******************************************************************************************** #
 
 DemographyGroup[[2]] <- data.frame(FromAge = 6,
                                    ToAge = 15,
-                                   Users = sum(People[People$Age >= 6 &
-                                                          People$Age <= 15, 
-                                                         paste0("X",
-                                                                as.character(BaseYear))]),
+                                   Users = sum(People[People$Age >= 6 & People$Age <= 15,
+                                                      paste0("X", as.character(BaseYear))]),
                                    UserIndex = 1.0)
 
 # ******************************************************************************************** #
@@ -426,7 +445,7 @@ DemographyGroup[[4]] <- DemographyGroup4
 
 # ******************************************************************************************** #
 # Calculates users of other in the sector (adult education, vocational schools, etc.).         #
-# This is Equation 17 in the model.                                                            #
+# This is Equation 18 in the model.                                                            #
 # ******************************************************************************************** #
 
 DemographyGroup[[5]] <- data.frame(FromAge = 0,
@@ -436,7 +455,7 @@ DemographyGroup[[5]] <- data.frame(FromAge = 0,
 
 # ******************************************************************************************** #
 # Calculates users outside the sector.                                                         #
-# This is Equation 18 in the model.                                                            #
+# This is Equation 19 in the model.                                                            #
 # ******************************************************************************************** #
 
 DemographyGroup[[6]] <- data.frame(FromAge = 0,
@@ -451,12 +470,11 @@ DemographyGroup[[6]] <- data.frame(FromAge = 0,
 for (S in 1:6) {
     
     # **************************************************************************************** #
-    # Finds the population from the population projections for the user groups in the user     #
-    # group. This is Equation 19 in the model.                                                 #
+    # Finds the population from the population projections for the user groups.                #
+    # This is Equation 20 in the model.                                                        #
     # **************************************************************************************** #
     
-    PeopleSector[[S]] <- merge(UserGroup[[S]],
-                                   People, by = "Age") %>% group_by(ToAge) %>%
+    PeopleSector[[S]] <- merge(UserGroup[[S]], People, by = "Age") %>% group_by(ToAge) %>%
                              summarize(across(c(paste0("X", as.character(BaseYear))
                                                :paste0("X", as.character(EndYear))),
                                               \(x) sum(x, na.rm = TRUE)))
@@ -466,29 +484,28 @@ for (S in 1:6) {
     # **************************************************************************************** #
     
     rownames(DemographyGroup[[S]]) <- DemographyGroup[[S]]$ToAge
-  
-    # **************************************************************************************** #
-    # Calculates the number of relative users in the base year.                                #
-    # This is Equation 20 in the model.                                                        #
-    # **************************************************************************************** #
-  
-    DemographyGroup[[S]][paste0("RelativeUsers", paste0("X", as.character(BaseYear)))] <-
-    DemographyGroup[[S]]$Users * DemographyGroup[[S]]$UserIndex
 
     # **************************************************************************************** #
-    # Calculates the number of relative users in each projection year.                         #
+    # Indicates that the number of recorded users should be the users in the base year.        #
+    # **************************************************************************************** #
+  
+    DemographyGroup[[S]][paste0("Users", paste0("X", as.character(BaseYear)))] <-
+    DemographyGroup[[S]]$Users
+
+    # **************************************************************************************** #
+    # Calculates the number of users in each projection year.                                  #
     # This is Equation 21 in the model.                                                        #
     # **************************************************************************************** #
 
     for (t in (BaseYear + 1):EndYear) {
-        DemographyGroup[[S]][[paste0("RelativeUsers", paste0("X", as.character(t)))]] <-
-        DemographyGroup[[S]][[paste0("RelativeUsers", paste0("X", as.character(t-1)))]] *
+        DemographyGroup[[S]][[paste0("Users", paste0("X", as.character(t)))]] <-
+        DemographyGroup[[S]][[paste0("Users", paste0("X", as.character(t-1)))]] *
         (PeopleSector[[S]][[paste0("X", as.character(t))]] /
          PeopleSector[[S]][[paste0("X", as.character(t-1))]])
     }
     
     # **************************************************************************************** #
-    # Creates an empty table for the summation of the relative users in each projection year.  #
+    # Creates an empty table for the summation of users in each projection year.               #
     # **************************************************************************************** #
 
     SumDemographyGroup[[S]] <- data.frame(t(BaseYear:EndYear))
@@ -499,9 +516,9 @@ for (S in 1:6) {
     # **************************************************************************************** #
   
     for (t in BaseYear:EndYear) {
-        SumDemographyGroup[[S]][[paste0("SumRelativeUsers",
+        SumDemographyGroup[[S]][[paste0("SumUsers",
                                         paste0("X", as.character(t)))]] <-
-        sum(DemographyGroup[[S]][[paste0("RelativeUsers",
+        sum(DemographyGroup[[S]][[paste0("Users",
                                          paste0("X", as.character(t)))]], na.rm = TRUE)
     }
 
@@ -521,9 +538,9 @@ for (S in 1:6) {
 
     for (t in (BaseYear + 1):EndYear) {
         NextCohort <- data.frame(Year = paste0("X", as.character(t)))
-        NextCohort[KN] <- SumDemographyGroup[[S]][[paste0("SumRelativeUsers",
+        NextCohort[KN] <- SumDemographyGroup[[S]][[paste0("SumUsers",
                                                           paste0("X", as.character(t)))]] / 
-                          SumDemographyGroup[[S]][[paste0("SumRelativeUsers",
+                          SumDemographyGroup[[S]][[paste0("SumUsers",
                                                           paste0("X", as.character(BaseYear)))]]
     
         # ************************************************************************************ #
@@ -561,11 +578,11 @@ DemographyIndex <- DemographyIndex %>%
 
 # ******************************************************************************************** #
 # Copies the table with the demographic development in each sector, the transposed table with  #
-# the demand found in Equation 11, and any specified vacancy into the same table.              #
+# the demand found in Equation 11, and any specified teacher shortage into the same table.     #
 # ******************************************************************************************** #
 
 Demand <- merge(DemographyIndex, Demand, by = c("Education"), all = TRUE)
-Demand <- merge(Demand, Vacancy, by = c("Education"), all = TRUE)
+Demand <- merge(Demand, TeacherShortage, by = c("Education"), all = TRUE)
 
 # ******************************************************************************************** #
 # Calculates the demand.                                                                       #
@@ -576,7 +593,7 @@ for(S in 1:6) {
     Demand <- Demand %>%
     mutate(!!sym(paste0("Demand")) := !!sym(paste0("Demand")) +
                                         (!!sym(paste0("DemandSector", S)) +
-                                         !!sym(paste0("VacancySector", S))) *
+                                         !!sym(paste0("TeacherShortageSector", S))) *
                                         !!sym(paste0("DemographyComponent", S)) *
                                         !!sym(paste0("StandardChange", S)))
 }
