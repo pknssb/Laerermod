@@ -19,13 +19,13 @@ Welcome to the R version of TeacherMod!
 |    The model TEACHERMOD calculates supply and                 |
 |    demand for the following 7 groups of teachers:             |
 +---------------------------------------------------------------+
-| 1. Preschool Teachers                                         |
-| 2. Primary School Teachers                                    |
-| 3. Teachers with a Master's Degree                            |
-| 4. Postgraduate Certificate in Education (PGCE)               |
-| 5. Teachers of Practical and Aesthetic Subjects               |
+| 1. Kindergarten teachers                                      |
+| 2. Primary- and middle school teachers                        |
+| 3. Lecturers                                                  |
+| 4. PPE (Practical Pedagogical Education).                     |
+| 5. Teacher education in practical and aesthetic subjects      |
 | 6. Vocational Teachers                                        |
-| 7. PGCE in Vocational Education                               |
+| 7. PPU Vocational                                             |
 +---------------------------------------------------------------+
 \n")
 
@@ -653,11 +653,11 @@ SupplyDemand <- SupplyDemand %>% arrange(EducationOrdered, Year)
 SupplyDemand$EducationOrdered <- NULL
 SupplyDemand$Education <- factor(SupplyDemand$Education, 
                                  levels = c("ba", "gr", "lu", "ph", "pe", "yr", "py"),
-                                 labels = c("Preschool Teachers", "Primary School Teachers",
-                                            "Teachers with a Master's Degree", "PGCE",
-                                            "Teachers of Practical and Aesthetic Subjects",
-                                            "Vocational Teachers",
-                                            "PGCE in Vocational Education"))
+                                 labels = c("Kindergarten Teachers",
+                                            "Primary- and middle school teachers",
+                                            "Lecturers", "PPE (Practical Pedagogical Education)",
+                                            "Practical and aesthetic subjects",
+                                            "Vocational Teachers", "PPU Vocational"))
 
 write_csv(SupplyDemand, 'results/TeacherMod.csv')
 write_xlsx(SupplyDemand, 'results/TeacherMod.xlsx')

@@ -14,9 +14,9 @@ Welcome to the Python version of the Teacher Model!
 | demand for the following 7 groups of teachers:                |
 +---------------------------------------------------------------+
 | 1. Kindergarten teachers                                      |
-| 2. Primary school teachers                                    |
-| 3. Teachers with a master's degree                            |
-| 4. Practical Pedagogical Education                            |
+| 2. Primary- and middle school teachers                        |
+| 3. Lecturers                                                  |
+| 4. PPE (Practical Pedagogical Education)                      |
 | 5. Teacher education in practical and aesthetic subjects      |
 | 6. Vocational teachers                                        |
 | 7. PPU Vocational                                             |
@@ -565,9 +565,9 @@ SupplyDemand = SupplyDemand[['Supply', 'Demand', 'Difference']]
 SupplyDemand = SupplyDemand.sort_values(by=['Education', 'Year'],
                                         key=lambda x: x.map(Order))                         
 SupplyDemand.rename(index={'ba': 'Kindergarten teachers',
-                           'gr': 'Primary school teachers',
-                           'lu': 'Teachers with a master\'s degree',
-                           'ph': 'Practical Pedagogical Education',
+                           'gr': 'Primary- and middle school teachers',
+                           'lu': 'Lecturers',
+                           'ph': 'PPE (Practical Pedagogical Education)',
                            'pe': 'Practical and aesthetic subjects',
                            'yr': 'Vocational teachers',
                            'py': 'PPU Vocational'}, inplace=True)

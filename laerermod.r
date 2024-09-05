@@ -111,11 +111,11 @@ Populasjon <- Aldersfordelt
 Aldersfordelt <- Aldersfordelt %>% select(-Antall, -Sysselsatte)
 
 # ******************************************************************************************** #
-# Finner årsverkene i populasjonen.                                                            #
+# Finner gjennomsnittlige årsverk.                                                             #
 # Dette er Likning 2 i modellen.                                                               #
 # ******************************************************************************************** #
 
-Populasjon$Årsverk <- Populasjon$Sysselsatte * Populasjon$GjennomsnitteligeÅrsverk
+Populasjon$GjennomsnitteligeÅrsverk = Populasjon$Årsverk / Populasjon$Sysselsatte
 
 # ******************************************************************************************** #
 # Angir at dette er populasjonen i basisåret og fjerner kolonner som nå er overflødige.        #
@@ -251,7 +251,7 @@ for (t in (Basisår + 1):Sluttår) {
     # **************************************************************************************** #
 
     Populasjon <- rbind(Populasjon, PopulasjonAktueltÅr[, c("Utdanning", "Kjønn", "Alder",
-                                                            "Antall", "Årsverk", "År")])
+                                                            "Antall", "År")])
   
     # **************************************************************************************** #
     # Kopierer populasjonen i framskrivningsåret til tabellen for neste framskrivningsår.      #

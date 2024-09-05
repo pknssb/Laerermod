@@ -105,11 +105,11 @@ Populasjon = Aldersfordelt.copy()
 Aldersfordelt.drop(['Antall', 'Sysselsatte'], axis=1, inplace=True)
 
 # ******************************************************************************************** #
-# Finner årsverkene i populasjonen.                                                            #
+# Finner gjennomsnittlige årsverk                                                              #
 # Dette er Likning 2 i modellen.                                                               #
 # ******************************************************************************************** #
 
-Populasjon['Årsverk'] = Populasjon.Sysselsatte * Populasjon.GjennomsnitteligeÅrsverk
+Populasjon['GjennomsnitteligeÅrsverk'] = Populasjon.Årsverk / Populasjon.Sysselsatte
 
 # ******************************************************************************************** #
 # Angir at dette er populasjonen i basisåret og fjerner kolonner som nå er overflødige.        #
@@ -175,9 +175,8 @@ Kandidatproduksjon['Kandidater'] = (Kandidatproduksjon.AntallNyeStudenter *
 Kandidater = NyeStudenter.merge(Kandidatproduksjon, how='inner', on=['Utdanning'])
 
 # ******************************************************************************************** #
-# Beregner alder for uteksaminering og antall uteksaminerte etter kjønn. Passer på at alder    #
-# for uteksaminering heter det samme som i den tabellen radene skal leggges til i senere,      #
-# Alder, selv om navnet er litt misvisende i denne sammenheng.                                 #
+# Beregner alder for uteksaminering. Passer på at alder for uteksaminering heter det samme som #
+# i den tabellen radene skal leggges til i senere.                                             #
 # Dette er Likning 6 og Likning 7 i modellen.                                                  #
 # ******************************************************************************************** #
 
@@ -187,7 +186,7 @@ Kandidater['UteksaminerteEtterAlder'] = (Kandidater.Kandidater *
                                          Kandidater.AndelStudenterEtterAlder)
 
 # ******************************************************************************************** #
-# Kopierer populasjonen i basisåret, beregnet i likning 2, inn i en nye tabell som blir        #
+# Kopierer populasjonen i basisåret, beregnet i likning 2, inn i en ny tabell som blir         #
 # utgangspunktet for beregningene.                                                             #
 # ******************************************************************************************** #
 
@@ -236,7 +235,7 @@ for t in range(Basisår + 1, Sluttår + 1):
     # Populasjonen i framskrivningsåret legges til populasjonen som en ny årgang.              #
     # **************************************************************************************** #
 
-    Kolonner = ['Utdanning', 'Kjønn', 'Alder', 'Antall', 'Årsverk', 'År']
+    Kolonner = ['Utdanning', 'Kjønn', 'Alder', 'Antall', 'År']
     Populasjon = pd.concat([Populasjon, PopulasjonAktueltÅr[Kolonner]])
 
     # **************************************************************************************** #
