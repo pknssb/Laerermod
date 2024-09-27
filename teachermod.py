@@ -49,7 +49,7 @@ DemographyGroup1 = pd.DataFrame(pd.read_fwf('inputdata/number_children_kindergar
 DemographyGroup3 = pd.DataFrame(pd.read_fwf('inputdata/number_students_secondary.txt'))
 DemographyGroup4 = pd.DataFrame(pd.read_fwf('inputdata/number_students_highereducation.txt'))
 
-Vacancy = pd.DataFrame(pd.read_fwf('inputdata/vacancy.txt'))
+Vacancy = pd.DataFrame(pd.read_fwf('inputdata/teachershortage.txt'))
 
 StandardChange = pd.DataFrame(pd.read_fwf('inputdata/change_standard.txt'))
 WorkHourChange = pd.DataFrame(pd.read_fwf('inputdata/change_workhour.txt'))
@@ -532,7 +532,7 @@ Demand = reduce(lambda left, right: pd.merge(left, right, on=['Education'], how=
 for S in range(1, 7):
     Demand['Demand'] = (Demand['Demand'] +
                         (Demand[f'DemandSector{S}'] +
-                         Demand[f'VacancySector{S}']) *
+                         Demand[f'TeacherShortageSector{S}']) *
                         Demand[f'DemographicComponent{S}'] *
                         Demand[f'StandardChange{S}'])
 
@@ -572,8 +572,8 @@ SupplyDemand.rename(index={'ba': 'Kindergarten teachers',
                            'yr': 'Vocational teachers',
                            'py': 'PPU Vocational'}, inplace=True)
 
-SupplyDemand.round(0).astype(int).to_csv('results/TeacherModel.csv')
-SupplyDemand.round(0).astype(int).to_excel('results/TeacherModel.xlsx')
+# SupplyDemand.round(0).astype(int).to_csv('results/TeacherModel.csv')
+# SupplyDemand.round(0).astype(int).to_excel('results/TeacherModel.xlsx')
 print(SupplyDemand.round(0).astype(int).to_string())
 
 print('\nThe Teacher Model is now complete, welcome back.\n')
