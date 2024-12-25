@@ -1,0 +1,8 @@
+Utdanning LaerermangelSektor1 LaerermangelSektor2 LaerermangelSektor3 LaerermangelSektor4 LaerermangelSektor5 LaerermangelSektor6
+       ba                   0                   0                   0                   0                   0                   0 
+       gr                   0                   0                   0                   0                   0                   0 
+       lu                   0                   0                   0                   0                   0                   0
+       ph                   0                   0                   0                   0                   0                   0 
+       pe                   0                   0                   0                   0                   0                   0
+       yr                   0                   0                   0                   0                   0                   0
+       py                   0                   0                   0                   0                   0                   0 
