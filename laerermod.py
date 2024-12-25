@@ -109,7 +109,7 @@ Aldersfordelt.drop(['Antall', 'Sysselsatte'], axis=1, inplace=True)
 # Dette er Likning 2 i modellen.                                                               #
 # ******************************************************************************************** #
 
-Populasjon['GjennomsnitteligeÅrsverk'] = Populasjon.Årsverk / Populasjon.Sysselsatte
+Populasjon['Årsverk'] = Populasjon.GjennomsnitteligeÅrsverk * Populasjon.Sysselsatte
 
 # ******************************************************************************************** #
 # Angir at dette er populasjonen i basisåret og fjerner kolonner som nå er overflødige.        #
@@ -575,8 +575,8 @@ TilbudEtterspørsel.rename(index={'ba': 'Barnehagelærere',
                                  'yr': 'Yrkesfaglærere',
                                  'py': 'PPU Yrkesfag'}, inplace=True)
 
-TilbudEtterspørsel.round(0).astype(int).to_csv('resultater/Lærermod.csv')
-TilbudEtterspørsel.round(0).astype(int).to_excel('resultater/Lærermod.xlsx')
+# TilbudEtterspørsel.round(0).astype(int).to_csv('resultater/Lærermod.csv')
+# TilbudEtterspørsel.round(0).astype(int).to_excel('resultater/Lærermod.xlsx')
 print(TilbudEtterspørsel.round(0).astype(int).to_string())
 
 print('\nLærermod er nå ferdig, velkommen tilbake.\n')
