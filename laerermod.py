@@ -6,6 +6,10 @@ import pandas as pd
 from functools import reduce
 pd.options.display.multi_sparse = False
 
+import time
+
+starttid = time.time()
+
 Velkomstmelding = """
 Velkommen til Python-versjonen av Lærermod!
 
@@ -29,8 +33,8 @@ print(Velkomstmelding)
 # Start- og sluttår for framskrivningen.                                                       #
 # ******************************************************************************************** #
 
-Basisår = 2020
-Sluttår = 2040
+Basisår = 2024
+Sluttår = 2060
 
 # ******************************************************************************************** #
 # Innlesing av inputfiler. Se Appendix 1 for kildedata.                                        #
@@ -43,7 +47,7 @@ Kandidatproduksjon = pd.read_fwf('inndata/kandidatproduksjon.txt')
 
 Sektorfordelt = pd.read_fwf('inndata/sektorfordelt.txt')
 
-Befolkning = pd.read_fwf('inndata/mmmm.txt')
+Befolkning = pd.read_fwf('inndata/lmm_24.txt')
 
 DemografiGruppe1 = pd.read_fwf('inndata/antall_barn_barnehager.txt')
 DemografiGruppe3 = pd.read_fwf('inndata/antall_elever_videregaende.txt')
@@ -580,3 +584,8 @@ TilbudEtterspørsel.rename(index={'ba': 'Barnehagelærere',
 print(TilbudEtterspørsel.round(0).astype(int).to_string())
 
 print('\nLærermod er nå ferdig, velkommen tilbake.\n')
+
+totaltid = time.time() - starttid
+
+print(f'Og det tok {totaltid:.2f} sekunder.')
+print()

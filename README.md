@@ -6,3 +6,5 @@ Modellen LÆRERMOD beregner tilbud av og etterspørsel for følgende 7 grupper a
 - Lærerutdanning i praktiske og estetiske fag
 - Yrkesfaglærere
 - PPU Yrkesfag
+
+Dette er årgang 2025 av modellen.
