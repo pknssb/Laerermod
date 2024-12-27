@@ -6,10 +6,6 @@ import pandas as pd
 from functools import reduce
 pd.options.display.multi_sparse = False
 
-import time
-
-starttid = time.time()
-
 Velkomstmelding = """
 Velkommen til Python-versjonen av Lærermod!
 
@@ -583,9 +579,4 @@ TilbudEtterspørsel.round(0).astype(int).to_csv('utdata/Lærermod.csv')
 TilbudEtterspørsel.round(0).astype(int).to_excel('utdata/Lærermod.xlsx')
 print(TilbudEtterspørsel.round(0).astype(int).to_string())
 
-print('\nLærermod er nå ferdig, velkommen tilbake.\n')
-
-totaltid = time.time() - starttid
-
-print(f'Og det tok {totaltid:.2f} sekunder.')
-print()
+print('\nLærermod er nå ferdig, velkommen tilbake.\n\n')
