@@ -575,8 +575,8 @@ TilbudEtterspørsel.rename(index={'ba': 'Barnehagelærere',
                                  'yr': 'Yrkesfaglærere',
                                  'py': 'PPU Yrkesfag'}, inplace=True)
 
-TilbudEtterspørsel.round(0).astype(int).to_csv('utdata/Lærermod.csv')
-TilbudEtterspørsel.round(0).astype(int).to_excel('utdata/Lærermod.xlsx')
+# TilbudEtterspørsel.round(0).astype(int).to_csv('utdata/Lærermod.csv')
+# TilbudEtterspørsel.round(0).astype(int).to_excel('utdata/Lærermod.xlsx')
 print(TilbudEtterspørsel.round(0).astype(int).to_string())
 
 print('\nLærermod er nå ferdig, velkommen tilbake.\n\n')
