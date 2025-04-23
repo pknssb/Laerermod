@@ -6,10 +6,6 @@ import pandas as pd
 from functools import reduce
 pd.options.display.multi_sparse = False
 
-import time
-
-starttid = time.time()
-
 Velkomstmelding = """
 Velkommen til Python-versjonen av Lærermod!
 
@@ -47,7 +43,7 @@ Kandidatproduksjon = pd.read_fwf('inndata/kandidatproduksjon.txt')
 
 Sektorfordelt = pd.read_fwf('inndata/sektorfordelt.txt')
 
-Befolkning = pd.read_fwf('inndata/lmm_24.txt')
+Befolkning = pd.read_fwf('inndata/mmm.txt')
 
 DemografiGruppe1 = pd.read_fwf('inndata/antall_barn_barnehager.txt')
 DemografiGruppe3 = pd.read_fwf('inndata/antall_elever_videregaende.txt')
@@ -579,13 +575,8 @@ TilbudEtterspørsel.rename(index={'ba': 'Barnehagelærere',
                                  'yr': 'Yrkesfaglærere',
                                  'py': 'PPU Yrkesfag'}, inplace=True)
 
-# TilbudEtterspørsel.round(0).astype(int).to_csv('resultater/Lærermod.csv')
-# TilbudEtterspørsel.round(0).astype(int).to_excel('resultater/Lærermod.xlsx')
+# TilbudEtterspørsel.round(0).astype(int).to_csv('utdata/Lærermod.csv')
+# TilbudEtterspørsel.round(0).astype(int).to_excel('utdata/Lærermod.xlsx')
 print(TilbudEtterspørsel.round(0).astype(int).to_string())
 
-print('\nLærermod er nå ferdig, velkommen tilbake.\n')
-
-totaltid = time.time() - starttid
-
-print(f'Og det tok {totaltid:.2f} sekunder.')
-print()
+print('\nLærermod er nå ferdig, velkommen tilbake.\n\n')

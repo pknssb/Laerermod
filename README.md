@@ -7,4 +7,4 @@ Modellen LÆRERMOD beregner tilbud av og etterspørsel for følgende 7 grupper a
 - Yrkesfaglærere
 - PPU Yrkesfag
 
-Dette er årgang 2025 av modellen.
+Dette er årgang 2024 av modellen.
