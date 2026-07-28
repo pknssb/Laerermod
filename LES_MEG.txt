@@ -1,0 +1,19 @@
+LÆRERMOD analyseportal – publisering
+====================================
+
+Last opp hele innholdet i denne mappen til roten av GitHub Pages-prosjektet:
+
+- index.html
+- manifest.webmanifest
+- favicon.png
+- apple-touch-icon.png
+- mappen icons/
+
+På iPhone:
+1. Slett en eventuell gammel LÆRERMOD-snarvei fra Hjem-skjermen.
+2. Åpne nettsiden på nytt i Safari.
+3. Velg Del → Legg til på Hjem-skjerm.
+4. Kontroller at «Åpne som nettapp» er slått på.
+
+iOS kan mellomlagre gamle ikoner. Dersom det gamle ikonet fortsatt vises,
+slett snarveien, lukk Safari helt og legg den deretter til på nytt.
