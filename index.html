@@ -321,10 +321,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:9px 8px;b
  </div>
 
  
-<div class="open-note" id="openNote">
-  <strong>Tips for iPad:</strong> Åpne filen i Safari for full interaktivitet.
-  Standardtallene vises også når JavaScript er blokkert.
-</div>
+
 
 <section class="filters">
    <div class="field"><label>Lærerutdanning</label><select id="teacher">
@@ -471,139 +468,115 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:9px 8px;b
 <script>
 const SERIES={"Barnehagelærere": [{"year": 2024, "supply": 50983, "demand": 50983, "balance": 0}, {"year": 2025, "supply": 51443, "demand": 50771, "balance": 672}, {"year": 2026, "supply": 51917, "demand": 50485, "balance": 1432}, {"year": 2027, "supply": 52346, "demand": 50534, "balance": 1813}, {"year": 2028, "supply": 52765, "demand": 50588, "balance": 2177}, {"year": 2029, "supply": 53153, "demand": 51038, "balance": 2115}, {"year": 2030, "supply": 53493, "demand": 51500, "balance": 1993}, {"year": 2031, "supply": 53755, "demand": 51894, "balance": 1861}, {"year": 2032, "supply": 53951, "demand": 52225, "balance": 1726}, {"year": 2033, "supply": 54054, "demand": 52508, "balance": 1546}, {"year": 2034, "supply": 54061, "demand": 52800, "balance": 1261}, {"year": 2035, "supply": 54005, "demand": 53127, "balance": 878}, {"year": 2036, "supply": 53873, "demand": 53478, "balance": 395}, {"year": 2037, "supply": 53701, "demand": 53856, "balance": -155}, {"year": 2038, "supply": 53503, "demand": 54123, "balance": -620}, {"year": 2039, "supply": 53301, "demand": 54358, "balance": -1057}, {"year": 2040, "supply": 53133, "demand": 54523, "balance": -1390}, {"year": 2041, "supply": 53008, "demand": 54642, "balance": -1634}, {"year": 2042, "supply": 52920, "demand": 54706, "balance": -1786}, {"year": 2043, "supply": 52873, "demand": 54741, "balance": -1868}, {"year": 2044, "supply": 52853, "demand": 54737, "balance": -1884}, {"year": 2045, "supply": 52839, "demand": 54690, "balance": -1851}, {"year": 2046, "supply": 52797, "demand": 54597, "balance": -1800}, {"year": 2047, "supply": 52727, "demand": 54458, "balance": -1731}, {"year": 2048, "supply": 52629, "demand": 54277, "balance": -1648}, {"year": 2049, "supply": 52469, "demand": 54056, "balance": -1587}, {"year": 2050, "supply": 52253, "demand": 53803, "balance": -1550}, {"year": 2051, "supply": 51990, "demand": 53526, "balance": -1537}, {"year": 2052, "supply": 51693, "demand": 53238, "balance": -1546}, {"year": 2053, "supply": 51361, "demand": 52954, "balance": -1593}, {"year": 2054, "supply": 51016, "demand": 52688, "balance": -1672}, {"year": 2055, "supply": 50677, "demand": 52446, "balance": -1769}, {"year": 2056, "supply": 50338, "demand": 52241, "balance": -1903}, {"year": 2057, "supply": 50001, "demand": 52078, "balance": -2076}, {"year": 2058, "supply": 49667, "demand": 51962, "balance": -2294}, {"year": 2059, "supply": 49318, "demand": 51893, "balance": -2575}, {"year": 2060, "supply": 48976, "demand": 51870, "balance": -2894}], "Grunnskolelærere": [{"year": 2024, "supply": 54826, "demand": 54826, "balance": 0}, {"year": 2025, "supply": 54726, "demand": 54672, "balance": 53}, {"year": 2026, "supply": 55060, "demand": 54288, "balance": 772}, {"year": 2027, "supply": 55378, "demand": 53733, "balance": 1645}, {"year": 2028, "supply": 55704, "demand": 53417, "balance": 2287}, {"year": 2029, "supply": 56018, "demand": 52828, "balance": 3190}, {"year": 2030, "supply": 56293, "demand": 52346, "balance": 3947}, {"year": 2031, "supply": 56523, "demand": 51934, "balance": 4590}, {"year": 2032, "supply": 56692, "demand": 51600, "balance": 5091}, {"year": 2033, "supply": 56796, "demand": 51367, "balance": 5429}, {"year": 2034, "supply": 56824, "demand": 51329, "balance": 5495}, {"year": 2035, "supply": 56799, "demand": 51395, "balance": 5404}, {"year": 2036, "supply": 56725, "demand": 51520, "balance": 5205}, {"year": 2037, "supply": 56633, "demand": 51758, "balance": 4875}, {"year": 2038, "supply": 56549, "demand": 51888, "balance": 4661}, {"year": 2039, "supply": 56445, "demand": 52278, "balance": 4167}, {"year": 2040, "supply": 56368, "demand": 52701, "balance": 3667}, {"year": 2041, "supply": 56302, "demand": 53107, "balance": 3196}, {"year": 2042, "supply": 56266, "demand": 53526, "balance": 2740}, {"year": 2043, "supply": 56253, "demand": 53870, "balance": 2383}, {"year": 2044, "supply": 56239, "demand": 54149, "balance": 2090}, {"year": 2045, "supply": 56269, "demand": 54389, "balance": 1880}, {"year": 2046, "supply": 56315, "demand": 54595, "balance": 1720}, {"year": 2047, "supply": 56365, "demand": 54762, "balance": 1602}, {"year": 2048, "supply": 56433, "demand": 54892, "balance": 1541}, {"year": 2049, "supply": 56517, "demand": 54973, "balance": 1543}, {"year": 2050, "supply": 56617, "demand": 55000, "balance": 1617}, {"year": 2051, "supply": 56698, "demand": 54969, "balance": 1728}, {"year": 2052, "supply": 56752, "demand": 54874, "balance": 1878}, {"year": 2053, "supply": 56770, "demand": 54747, "balance": 2023}, {"year": 2054, "supply": 56745, "demand": 54586, "balance": 2159}, {"year": 2055, "supply": 56671, "demand": 54388, "balance": 2282}, {"year": 2056, "supply": 56541, "demand": 54163, "balance": 2377}, {"year": 2057, "supply": 56372, "demand": 53915, "balance": 2457}, {"year": 2058, "supply": 56167, "demand": 53650, "balance": 2517}, {"year": 2059, "supply": 55937, "demand": 53378, "balance": 2559}, {"year": 2060, "supply": 55684, "demand": 53108, "balance": 2576}], "Lektorutdannede": [{"year": 2024, "supply": 5653, "demand": 5653, "balance": 0}, {"year": 2025, "supply": 6163, "demand": 5696, "balance": 468}, {"year": 2026, "supply": 6685, "demand": 5716, "balance": 969}, {"year": 2027, "supply": 7200, "demand": 5705, "balance": 1495}, {"year": 2028, "supply": 7709, "demand": 5676, "balance": 2033}, {"year": 2029, "supply": 8204, "demand": 5626, "balance": 2579}, {"year": 2030, "supply": 8709, "demand": 5571, "balance": 3138}, {"year": 2031, "supply": 9198, "demand": 5529, "balance": 3669}, {"year": 2032, "supply": 9689, "demand": 5495, "balance": 4195}, {"year": 2033, "supply": 10174, "demand": 5477, "balance": 4698}, {"year": 2034, "supply": 10649, "demand": 5445, "balance": 5204}, {"year": 2035, "supply": 11124, "demand": 5406, "balance": 5717}, {"year": 2036, "supply": 11606, "demand": 5372, "balance": 6234}, {"year": 2037, "supply": 12077, "demand": 5350, "balance": 6727}, {"year": 2038, "supply": 12523, "demand": 5364, "balance": 7159}, {"year": 2039, "supply": 12976, "demand": 5351, "balance": 7625}, {"year": 2040, "supply": 13399, "demand": 5347, "balance": 8052}, {"year": 2041, "supply": 13840, "demand": 5340, "balance": 8500}, {"year": 2042, "supply": 14230, "demand": 5374, "balance": 8856}, {"year": 2043, "supply": 14666, "demand": 5415, "balance": 9251}, {"year": 2044, "supply": 15090, "demand": 5457, "balance": 9633}, {"year": 2045, "supply": 15448, "demand": 5492, "balance": 9956}, {"year": 2046, "supply": 15829, "demand": 5520, "balance": 10309}, {"year": 2047, "supply": 16190, "demand": 5541, "balance": 10649}, {"year": 2048, "supply": 16541, "demand": 5561, "balance": 10980}, {"year": 2049, "supply": 16846, "demand": 5580, "balance": 11266}, {"year": 2050, "supply": 17169, "demand": 5597, "balance": 11573}, {"year": 2051, "supply": 17420, "demand": 5611, "balance": 11809}, {"year": 2052, "supply": 17713, "demand": 5622, "balance": 12091}, {"year": 2053, "supply": 17853, "demand": 5626, "balance": 12227}, {"year": 2054, "supply": 18063, "demand": 5622, "balance": 12442}, {"year": 2055, "supply": 18230, "demand": 5611, "balance": 12619}, {"year": 2056, "supply": 18335, "demand": 5599, "balance": 12736}, {"year": 2057, "supply": 18537, "demand": 5584, "balance": 12953}, {"year": 2058, "supply": 18577, "demand": 5567, "balance": 13010}, {"year": 2059, "supply": 18638, "demand": 5548, "balance": 13090}, {"year": 2060, "supply": 18623, "demand": 5526, "balance": 13097}], "PPU": [{"year": 2024, "supply": 32063, "demand": 32063, "balance": 0}, {"year": 2025, "supply": 31877, "demand": 32297, "balance": -420}, {"year": 2026, "supply": 31918, "demand": 32419, "balance": -500}, {"year": 2027, "supply": 31957, "demand": 32401, "balance": -444}, {"year": 2028, "supply": 31966, "demand": 32318, "balance": -352}, {"year": 2029, "supply": 31970, "demand": 32149, "balance": -179}, {"year": 2030, "supply": 31967, "demand": 31964, "balance": 3}, {"year": 2031, "supply": 31929, "demand": 31830, "balance": 100}, {"year": 2032, "supply": 31857, "demand": 31725, "balance": 133}, {"year": 2033, "supply": 31757, "demand": 31682, "balance": 75}, {"year": 2034, "supply": 31629, "demand": 31589, "balance": 41}, {"year": 2035, "supply": 31473, "demand": 31471, "balance": 2}, {"year": 2036, "supply": 31284, "demand": 31371, "balance": -87}, {"year": 2037, "supply": 31097, "demand": 31318, "balance": -221}, {"year": 2038, "supply": 30907, "demand": 31400, "balance": -493}, {"year": 2039, "supply": 30720, "demand": 31381, "balance": -661}, {"year": 2040, "supply": 30538, "demand": 31395, "balance": -857}, {"year": 2041, "supply": 30361, "demand": 31399, "balance": -1038}, {"year": 2042, "supply": 30196, "demand": 31558, "balance": -1363}, {"year": 2043, "supply": 30037, "demand": 31744, "balance": -1707}, {"year": 2044, "supply": 29879, "demand": 31929, "balance": -2050}, {"year": 2045, "supply": 29718, "demand": 32088, "balance": -2370}, {"year": 2046, "supply": 29549, "demand": 32216, "balance": -2666}, {"year": 2047, "supply": 29394, "demand": 32320, "balance": -2927}, {"year": 2048, "supply": 29220, "demand": 32418, "balance": -3198}, {"year": 2049, "supply": 29047, "demand": 32510, "balance": -3464}, {"year": 2050, "supply": 28864, "demand": 32593, "balance": -3728}, {"year": 2051, "supply": 28673, "demand": 32662, "balance": -3989}, {"year": 2052, "supply": 28474, "demand": 32717, "balance": -4243}, {"year": 2053, "supply": 28255, "demand": 32739, "balance": -4484}, {"year": 2054, "supply": 28030, "demand": 32729, "balance": -4699}, {"year": 2055, "supply": 27812, "demand": 32692, "balance": -4880}, {"year": 2056, "supply": 27603, "demand": 32648, "balance": -5045}, {"year": 2057, "supply": 27412, "demand": 32591, "balance": -5179}, {"year": 2058, "supply": 27238, "demand": 32525, "balance": -5287}, {"year": 2059, "supply": 27092, "demand": 32447, "balance": -5356}, {"year": 2060, "supply": 26981, "demand": 32361, "balance": -5380}], "Praktiske og estetiske fag": [{"year": 2024, "supply": 9733, "demand": 9733, "balance": 0}, {"year": 2025, "supply": 9680, "demand": 9779, "balance": -99}, {"year": 2026, "supply": 9730, "demand": 9792, "balance": -62}, {"year": 2027, "supply": 9762, "demand": 9773, "balance": -10}, {"year": 2028, "supply": 9774, "demand": 9754, "balance": 20}, {"year": 2029, "supply": 9773, "demand": 9712, "balance": 61}, {"year": 2030, "supply": 9766, "demand": 9671, "balance": 95}, {"year": 2031, "supply": 9740, "demand": 9641, "balance": 99}, {"year": 2032, "supply": 9702, "demand": 9620, "balance": 83}, {"year": 2033, "supply": 9650, "demand": 9612, "balance": 37}, {"year": 2034, "supply": 9593, "demand": 9606, "balance": -12}, {"year": 2035, "supply": 9529, "demand": 9600, "balance": -70}, {"year": 2036, "supply": 9466, "demand": 9600, "balance": -134}, {"year": 2037, "supply": 9400, "demand": 9612, "balance": -212}, {"year": 2038, "supply": 9351, "demand": 9640, "balance": -289}, {"year": 2039, "supply": 9315, "demand": 9664, "balance": -348}, {"year": 2040, "supply": 9292, "demand": 9693, "balance": -401}, {"year": 2041, "supply": 9273, "demand": 9720, "balance": -446}, {"year": 2042, "supply": 9275, "demand": 9771, "balance": -496}, {"year": 2043, "supply": 9275, "demand": 9823, "balance": -549}, {"year": 2044, "supply": 9281, "demand": 9871, "balance": -590}, {"year": 2045, "supply": 9293, "demand": 9913, "balance": -620}, {"year": 2046, "supply": 9303, "demand": 9947, "balance": -645}, {"year": 2047, "supply": 9315, "demand": 9976, "balance": -660}, {"year": 2048, "supply": 9327, "demand": 10000, "balance": -674}, {"year": 2049, "supply": 9346, "demand": 10021, "balance": -676}, {"year": 2050, "supply": 9366, "demand": 10038, "balance": -672}, {"year": 2051, "supply": 9381, "demand": 10049, "balance": -668}, {"year": 2052, "supply": 9407, "demand": 10055, "balance": -648}, {"year": 2053, "supply": 9428, "demand": 10053, "balance": -624}, {"year": 2054, "supply": 9432, "demand": 10044, "balance": -612}, {"year": 2055, "supply": 9443, "demand": 10030, "balance": -588}, {"year": 2056, "supply": 9442, "demand": 10013, "balance": -571}, {"year": 2057, "supply": 9445, "demand": 9993, "balance": -549}, {"year": 2058, "supply": 9436, "demand": 9971, "balance": -535}, {"year": 2059, "supply": 9427, "demand": 9947, "balance": -520}, {"year": 2060, "supply": 9420, "demand": 9922, "balance": -502}], "Yrkesfaglærere": [{"year": 2024, "supply": 2456, "demand": 2456, "balance": 0}, {"year": 2025, "supply": 2603, "demand": 2491, "balance": 111}, {"year": 2026, "supply": 2763, "demand": 2517, "balance": 245}, {"year": 2027, "supply": 2908, "demand": 2527, "balance": 381}, {"year": 2028, "supply": 3053, "demand": 2517, "balance": 536}, {"year": 2029, "supply": 3195, "demand": 2501, "balance": 694}, {"year": 2030, "supply": 3332, "demand": 2479, "balance": 854}, {"year": 2031, "supply": 3459, "demand": 2463, "balance": 996}, {"year": 2032, "supply": 3583, "demand": 2451, "balance": 1133}, {"year": 2033, "supply": 3699, "demand": 2447, "balance": 1252}, {"year": 2034, "supply": 3815, "demand": 2428, "balance": 1387}, {"year": 2035, "supply": 3926, "demand": 2403, "balance": 1523}, {"year": 2036, "supply": 4027, "demand": 2378, "balance": 1648}, {"year": 2037, "supply": 4128, "demand": 2359, "balance": 1769}, {"year": 2038, "supply": 4228, "demand": 2367, "balance": 1861}, {"year": 2039, "supply": 4333, "demand": 2350, "balance": 1983}, {"year": 2040, "supply": 4419, "demand": 2338, "balance": 2081}, {"year": 2041, "supply": 4504, "demand": 2324, "balance": 2179}, {"year": 2042, "supply": 4581, "demand": 2337, "balance": 2244}, {"year": 2043, "supply": 4656, "demand": 2358, "balance": 2299}, {"year": 2044, "supply": 4737, "demand": 2380, "balance": 2357}, {"year": 2045, "supply": 4806, "demand": 2399, "balance": 2406}, {"year": 2046, "supply": 4871, "demand": 2413, "balance": 2458}, {"year": 2047, "supply": 4930, "demand": 2424, "balance": 2507}, {"year": 2048, "supply": 4983, "demand": 2434, "balance": 2549}, {"year": 2049, "supply": 5026, "demand": 2444, "balance": 2582}, {"year": 2050, "supply": 5069, "demand": 2455, "balance": 2614}, {"year": 2051, "supply": 5115, "demand": 2466, "balance": 2649}, {"year": 2052, "supply": 5146, "demand": 2476, "balance": 2669}, {"year": 2053, "supply": 5174, "demand": 2482, "balance": 2692}, {"year": 2054, "supply": 5200, "demand": 2484, "balance": 2716}, {"year": 2055, "supply": 5217, "demand": 2482, "balance": 2735}, {"year": 2056, "supply": 5234, "demand": 2480, "balance": 2754}, {"year": 2057, "supply": 5248, "demand": 2477, "balance": 2772}, {"year": 2058, "supply": 5264, "demand": 2473, "balance": 2791}, {"year": 2059, "supply": 5271, "demand": 2467, "balance": 2804}, {"year": 2060, "supply": 5281, "demand": 2461, "balance": 2821}], "PPU Yrkesfag": [{"year": 2024, "supply": 13889, "demand": 13889, "balance": 0}, {"year": 2025, "supply": 13659, "demand": 14040, "balance": -381}, {"year": 2026, "supply": 13553, "demand": 14146, "balance": -593}, {"year": 2027, "supply": 13438, "demand": 14182, "balance": -743}, {"year": 2028, "supply": 13318, "demand": 14154, "balance": -836}, {"year": 2029, "supply": 13171, "demand": 14097, "balance": -926}, {"year": 2030, "supply": 13017, "demand": 14020, "balance": -1003}, {"year": 2031, "supply": 12853, "demand": 13969, "balance": -1116}, {"year": 2032, "supply": 12690, "demand": 13930, "balance": -1241}, {"year": 2033, "supply": 12517, "demand": 13923, "balance": -1406}, {"year": 2034, "supply": 12354, "demand": 13867, "balance": -1513}, {"year": 2035, "supply": 12193, "demand": 13787, "balance": -1594}, {"year": 2036, "supply": 12042, "demand": 13712, "balance": -1670}, {"year": 2037, "supply": 11901, "demand": 13658, "balance": -1757}, {"year": 2038, "supply": 11764, "demand": 13698, "balance": -1933}, {"year": 2039, "supply": 11636, "demand": 13652, "balance": -2017}, {"year": 2040, "supply": 11521, "demand": 13625, "balance": -2104}, {"year": 2041, "supply": 11398, "demand": 13592, "balance": -2194}, {"year": 2042, "supply": 11294, "demand": 13655, "balance": -2361}, {"year": 2043, "supply": 11194, "demand": 13742, "balance": -2548}, {"year": 2044, "supply": 11099, "demand": 13834, "balance": -2735}, {"year": 2045, "supply": 11010, "demand": 13913, "balance": -2903}, {"year": 2046, "supply": 10916, "demand": 13974, "balance": -3058}, {"year": 2047, "supply": 10827, "demand": 14023, "balance": -3196}, {"year": 2048, "supply": 10750, "demand": 14070, "balance": -3320}, {"year": 2049, "supply": 10680, "demand": 14118, "balance": -3438}, {"year": 2050, "supply": 10610, "demand": 14165, "balance": -3554}, {"year": 2051, "supply": 10540, "demand": 14208, "balance": -3668}, {"year": 2052, "supply": 10467, "demand": 14249, "balance": -3782}, {"year": 2053, "supply": 10396, "demand": 14272, "balance": -3875}, {"year": 2054, "supply": 10330, "demand": 14278, "balance": -3948}, {"year": 2055, "supply": 10264, "demand": 14271, "balance": -4007}, {"year": 2056, "supply": 10199, "demand": 14261, "balance": -4062}, {"year": 2057, "supply": 10143, "demand": 14247, "balance": -4105}, {"year": 2058, "supply": 10097, "demand": 14229, "balance": -4132}, {"year": 2059, "supply": 10055, "demand": 14204, "balance": -4150}, {"year": 2060, "supply": 10026, "demand": 14175, "balance": -4148}]};
 const META={"Barnehagelærere": {"label": "Barnehagelærere", "total2024": 50983, "sectors": [59, 16, 1, 1, 5, 18], "students": 2148, "completion": 74.5, "study": 3, "finding": "Etterspørselen overstiger tilbudet fra 2037. Underskuddet i 2060 er nær 2 900 årsverk."}, "Grunnskolelærere": {"label": "Grunnskolelærere", "total2024": 54826, "sectors": [1, 70, 4, 2, 6, 17], "students": 2298, "completion": 71.1, "study": 5, "finding": "Tilbudet overstiger etterspørselen gjennom hele perioden. Overskuddet i 2060 er om lag 2 600 årsverk."}, "Lektorutdannede": {"label": "Lektorutdannede 8–13", "total2024": 5653, "sectors": [0, 36, 41, 6, 3, 15], "students": 990, "completion": 57.1, "study": 5, "finding": "Tilbudet vokser kraftig fra en ung utgangspopulasjon og når over 18 600 årsverk i 2060."}, "PPU": {"label": "Praktisk-pedagogisk utdanning", "total2024": 32063, "sectors": [1, 28, 27, 7, 9, 29], "students": 1077, "completion": 80.4, "study": 1, "finding": "Etter en kort periode nær balanse øker underskuddet og når om lag 5 400 årsverk i 2060."}, "Praktiske og estetiske fag": {"label": "Praktiske og estetiske fag", "total2024": 9733, "sectors": [2, 33, 16, 4, 11, 35], "students": 394, "completion": 74.0, "study": 5, "finding": "Etterspørselen overstiger tilbudet i store deler av perioden. Underskuddet i 2060 er rundt 500 årsverk."}, "Yrkesfaglærere": {"label": "Yrkesfaglærere", "total2024": 2456, "sectors": [1, 11, 59, 2, 6, 22], "students": 266, "completion": 80.1, "study": 3, "finding": "Tilbudet mer enn dobles og gir et beregnet overskudd på om lag 2 800 årsverk i 2060."}, "PPU Yrkesfag": {"label": "PPU innen yrkesfag", "total2024": 13889, "sectors": [1, 15, 38, 6, 7, 35], "students": 554, "completion": 70.7, "study": 1, "finding": "Tilbudet faller gjennom hele perioden. Underskuddet i 2060 er litt over 4 100 årsverk."}};
-const names=Object.keys(SERIES);
-let state={teacher:names[0],year:2060};
-const fmt=n=>Math.round(n).toLocaleString("nb-NO");
-const $=s=>document.querySelector(s);
-const teacher=$("#teacher"),year=$("#year");
-teacher.innerHTML=names.map(n=>`<option value="${n}">${META[n].label}</option>`).join("");
-year.innerHTML=SERIES[names[0]].map(d=>`<option>${d.year}</option>`).join("");year.value=2060;
+var names=Object.keys(SERIES);
+var state={teacher:names[0],year:2060};
+function fmt(n){return Math.round(n).toLocaleString("nb-NO");}
+function $(s){return document.querySelector(s);}
+var teacher=$("#teacher"),year=$("#year"),view=$("#view");
 
-function current(){return SERIES[state.teacher].find(d=>d.year===state.year)}
-function first(){return SERIES[state.teacher][0]}
+function fillFilters(){
+  var teacherOptions="";
+  for(var i=0;i<names.length;i++){
+    teacherOptions+='<option value="'+names[i]+'">'+META[names[i]].label+'</option>';
+  }
+  teacher.innerHTML=teacherOptions;
+  var yearOptions="";
+  var baseSeries=SERIES[names[0]];
+  for(var j=0;j<baseSeries.length;j++) yearOptions+='<option value="'+baseSeries[j].year+'">'+baseSeries[j].year+'</option>';
+  year.innerHTML=yearOptions;
+  teacher.value=state.teacher;
+  year.value=String(state.year);
+}
+function current(){
+  var data=SERIES[state.teacher];
+  for(var i=0;i<data.length;i++) if(data[i].year===state.year) return data[i];
+  return data[data.length-1];
+}
+function first(){return SERIES[state.teacher][0];}
 function renderKpis(){
- const d=current(),f=first(),m=META[state.teacher];
- const change=(d.supply/f.supply-1)*100;
- const cards=[
+ var d=current(),f=first(),m=META[state.teacher];
+ var change=(d.supply/f.supply-1)*100;
+ var cards=[
   ["Tilbud",fmt(d.supply),"årsverk i "+d.year,""],
   ["Etterspørsel",fmt(d.demand),"årsverk i "+d.year,""],
   ["Balanse",(d.balance<0?"−":"+")+fmt(Math.abs(d.balance)),d.balance<0?"underskudd":"overskudd",d.balance<0?"negative":"positive"],
   ["Endring i tilbud",(change>=0?"+":"")+change.toFixed(1).replace(".",",")+" %","fra 2024",""],
   ["Utgangspopulasjon",fmt(m.total2024),"årsverk i 2024",""]
  ];
- $("#kpis").innerHTML=cards.map(c=>`<div class="card kpi"><div class="kpi-title">${c[0]}</div><div class="kpi-value ${c[3]}">${c[1]}</div><div class="small">${c[2]}</div></div>`).join("");
+ var html="";
+ for(var i=0;i<cards.length;i++) html+='<div class="card kpi"><div class="kpi-title">'+cards[i][0]+'</div><div class="kpi-value '+cards[i][3]+'">'+cards[i][1]+'</div><div class="small">'+cards[i][2]+'</div></div>';
+ $("#overviewSection").innerHTML=html;
 }
-function svg(name,attrs={}){const e=document.createElementNS("http://www.w3.org/2000/svg",name);for(const [k,v] of Object.entries(attrs))e.setAttribute(k,v);return e}
+function svg(name,attrs){
+ var e=document.createElementNS("http://www.w3.org/2000/svg",name); attrs=attrs||{};
+ for(var k in attrs) if(Object.prototype.hasOwnProperty.call(attrs,k)) e.setAttribute(k,attrs[k]);
+ return e;
+}
 function axes(el,w,h,p,min,max,data){
  el.innerHTML="";
- for(let i=0;i<=5;i++){const y=p.t+(h-p.t-p.b)*i/5;el.appendChild(svg("line",{x1:p.l,y1:y,x2:w-p.r,y2:y,class:"gridline"}));const tx=svg("text",{x:4,y:y+4,class:"axistext"});tx.textContent=fmt(max-(max-min)*i/5);el.appendChild(tx)}
- data.forEach((d,i)=>{if(i%4===0||i===data.length-1){const x=p.l+(w-p.l-p.r)*i/(data.length-1);const tx=svg("text",{x:x-14,y:h-8,class:"axistext"});tx.textContent=d.year;el.appendChild(tx)}})
+ for(var i=0;i<=5;i++){
+   var y=p.t+(h-p.t-p.b)*i/5;
+   el.appendChild(svg("line",{x1:p.l,y1:y,x2:w-p.r,y2:y,"class":"gridline"}));
+   var tx=svg("text",{x:4,y:y+4,"class":"axistext"}); tx.textContent=fmt(max-(max-min)*i/5); el.appendChild(tx);
+ }
+ for(var j=0;j<data.length;j++) if(j%4===0||j===data.length-1){
+   var x=p.l+(w-p.l-p.r)*j/(data.length-1),tx2=svg("text",{x:x-14,y:h-8,"class":"axistext"}); tx2.textContent=data[j].year; el.appendChild(tx2);
+ }
 }
-function tip(e,text){const t=$("#tooltip");t.textContent=text;t.style.left=e.clientX+"px";t.style.top=e.clientY+"px";t.style.opacity=1}
-function untip(){$("#tooltip").style.opacity=0}
+function tip(e,text){var t=$("#tooltip");t.textContent=text;t.style.left=e.clientX+"px";t.style.top=e.clientY+"px";t.style.opacity=1;}
+function untip(){$("#tooltip").style.opacity=0;}
 function lineChart(){
- const el=$("#lineChart"),data=SERIES[state.teacher],w=900,h=325,p={l:72,r:15,t:18,b:35};
- const vals=data.flatMap(d=>[d.supply,d.demand]),min=Math.min(...vals)*.93,max=Math.max(...vals)*1.07;axes(el,w,h,p,min,max,data);
- [["supply","#07535a",""],["demand","#28a39a","7 5"]].forEach(([key,color,dash])=>{
-  const pts=data.map((d,i)=>[p.l+(w-p.l-p.r)*i/(data.length-1),p.t+(h-p.t-p.b)*(1-(d[key]-min)/(max-min)),d]);
-  el.appendChild(svg("polyline",{points:pts.map(x=>x[0]+","+x[1]).join(" "),fill:"none",stroke:color,"stroke-width":3,"stroke-dasharray":dash}));
-  pts.forEach(([x,y,d])=>{const c=svg("circle",{cx:x,cy:y,r:3.4,fill:color});c.onmousemove=e=>tip(e,`${d.year}: ${key==="supply"?"Tilbud":"Etterspørsel"} ${fmt(d[key])}`);c.onmouseleave=untip;el.appendChild(c)})
- });
+ var el=$("#lineChart"),data=SERIES[state.teacher],w=900,h=325,p={l:72,r:15,t:18,b:35},vals=[];
+ for(var i=0;i<data.length;i++){vals.push(data[i].supply);vals.push(data[i].demand);}
+ var min=Math.min.apply(null,vals)*.93,max=Math.max.apply(null,vals)*1.07; axes(el,w,h,p,min,max,data);
+ var seriesDefs=[["supply","#07535a",""],["demand","#28a39a","7 5"]];
+ for(var sidx=0;sidx<seriesDefs.length;sidx++){
+   (function(def){
+     var key=def[0],color=def[1],dash=def[2],pts=[];
+     for(var i=0;i<data.length;i++) pts.push([p.l+(w-p.l-p.r)*i/(data.length-1),p.t+(h-p.t-p.b)*(1-(data[i][key]-min)/(max-min)),data[i]]);
+     var pointText=""; for(var j=0;j<pts.length;j++) pointText+= (j?" ":"")+pts[j][0]+","+pts[j][1];
+     el.appendChild(svg("polyline",{points:pointText,fill:"none",stroke:color,"stroke-width":3,"stroke-dasharray":dash}));
+     for(var j=0;j<pts.length;j++)(function(pt){var c=svg("circle",{cx:pt[0],cy:pt[1],r:3.4,fill:color});c.onmousemove=function(e){tip(e,pt[2].year+": "+(key==="supply"?"Tilbud":"Etterspørsel")+" "+fmt(pt[2][key]));};c.onmouseleave=untip;el.appendChild(c);})(pts[j]);
+   })(seriesDefs[sidx]);
+ }
+ el.setAttribute("aria-label","Tilbud og etterspørsel for "+META[state.teacher].label);
 }
 function balanceChart(){
- const el=$("#balanceChart"),data=SERIES[state.teacher],w=900,h=250,p={l:72,r:15,t:15,b:35};
- const vals=data.map(d=>d.balance),min=Math.min(-500,...vals)*1.12,max=Math.max(500,...vals)*1.12;axes(el,w,h,p,min,max,data);
- const zero=p.t+(h-p.t-p.b)*(1-(0-min)/(max-min)),bw=(w-p.l-p.r)/data.length*.72;
- data.forEach((d,i)=>{const x=p.l+(w-p.l-p.r)*i/(data.length-1),y=p.t+(h-p.t-p.b)*(1-(d.balance-min)/(max-min));const r=svg("rect",{x:x-bw/2,y:Math.min(y,zero),width:bw,height:Math.max(1,Math.abs(y-zero)),rx:2,fill:d.balance>=0?"#238b57":"#cf4141"});r.onmousemove=e=>tip(e,`${d.year}: ${d.balance<0?"−":"+"}${fmt(Math.abs(d.balance))}`);r.onmouseleave=untip;el.appendChild(r)})
+ var el=$("#balanceChart"),data=SERIES[state.teacher],w=900,h=250,p={l:72,r:15,t:15,b:35},vals=[];
+ for(var i=0;i<data.length;i++) vals.push(data[i].balance);
+ var min=Math.min.apply(null,[-500].concat(vals))*1.12,max=Math.max.apply(null,[500].concat(vals))*1.12; axes(el,w,h,p,min,max,data);
+ var zero=p.t+(h-p.t-p.b)*(1-(0-min)/(max-min)),bw=(w-p.l-p.r)/data.length*.72;
+ for(var j=0;j<data.length;j++)(function(d,i){var x=p.l+(w-p.l-p.r)*i/(data.length-1),y=p.t+(h-p.t-p.b)*(1-(d.balance-min)/(max-min));var r=svg("rect",{x:x-bw/2,y:Math.min(y,zero),width:bw,height:Math.max(1,Math.abs(y-zero)),rx:2,fill:d.balance>=0?"#238b57":"#cf4141"});r.onmousemove=function(e){tip(e,d.year+": "+(d.balance<0?"−":"+")+fmt(Math.abs(d.balance)));};r.onmouseleave=untip;el.appendChild(r);})(data[j],j);
+ el.setAttribute("aria-label","Balanse for "+META[state.teacher].label);
 }
-function sectors(){
- const labels=["Barnehage","Grunnskole","VGO","Høyere utdanning","Annet i sektoren","Utenfor sektoren"],vals=META[state.teacher].sectors;
- $("#sectors").innerHTML=labels.map((l,i)=>`<div class="sector-row"><span>${l}</span><div class="bar-bg"><div class="bar" style="width:${vals[i]}%"></div></div><b>${vals[i]} %</b></div>`).join("");
-}
-function candidates(){
- const m=META[state.teacher];
- $("#candidateTable").innerHTML=`<thead><tr><th>Indikator</th><th>Verdi</th></tr></thead><tbody><tr><td>Nye førsteårsstudenter</td><td>${fmt(m.students)}</td></tr><tr><td>Fullføringsprosent</td><td>${m.completion.toFixed(1).replace(".",",")} %</td></tr><tr><td>Studielengde</td><td>${m.study} år</td></tr></tbody>`;
-}
-function teacherGrid(){
- $("#teacherGrid").innerHTML=names.map(n=>{const d=SERIES[n].at(-1);return `<div class="teacher-card ${n===state.teacher?"active":""}" data-name="${n}"><div class="teacher-name">${META[n].label}</div><div class="teacher-balance ${d.balance<0?"negative":"positive"}">${d.balance<0?"−":"+"}${fmt(Math.abs(d.balance))}</div><div class="small">balanse i 2060</div></div>`}).join("");
- document.querySelectorAll(".teacher-card").forEach(x=>x.onclick=()=>{state.teacher=x.dataset.name;teacher.value=state.teacher;render()})
-}
+function sectors(){var labels=["Barnehage","Grunnskole","VGO","Høyere utdanning","Annet i sektoren","Utenfor sektoren"],vals=META[state.teacher].sectors,html="";for(var i=0;i<labels.length;i++)html+='<div class="sector-row"><span>'+labels[i]+'</span><div class="bar-bg"><div class="bar" style="width:'+vals[i]+'%"></div></div><b>'+vals[i]+' %</b></div>';$("#sectors").innerHTML=html;}
+function candidates(){var m=META[state.teacher];$("#candidateTable").innerHTML='<thead><tr><th>Indikator</th><th>Verdi</th></tr></thead><tbody><tr><td>Nye førsteårsstudenter</td><td>'+fmt(m.students)+'</td></tr><tr><td>Fullføringsprosent</td><td>'+m.completion.toFixed(1).replace(".",",")+' %</td></tr><tr><td>Studielengde</td><td>'+m.study+' år</td></tr></tbody>';}
+function teacherGrid(){var html="";for(var i=0;i<names.length;i++){var n=names[i],arr=SERIES[n],d=arr[arr.length-1];html+='<div class="teacher-card '+(n===state.teacher?'active':'')+'" data-name="'+n+'"><div class="teacher-name">'+META[n].label+'</div><div class="teacher-balance '+(d.balance<0?'negative':'positive')+'">'+(d.balance<0?'−':'+')+fmt(Math.abs(d.balance))+'</div><div class="small">balanse i 2060</div></div>';}$("#teacherGrid").innerHTML=html;var cards=document.querySelectorAll(".teacher-card");for(var j=0;j<cards.length;j++)cards[j].onclick=function(){state.teacher=this.getAttribute("data-name");teacher.value=state.teacher;render();};}
 function render(){
- renderKpis();lineChart();balanceChart();sectors();candidates();teacherGrid();
- $("#findingTitle").textContent=META[state.teacher].label;
- $("#finding").textContent=META[state.teacher].finding;
+ try{
+  renderKpis(); lineChart(); balanceChart(); sectors(); candidates(); teacherGrid();
+  $("#findingTitle").textContent=META[state.teacher].label; $("#finding").textContent=META[state.teacher].finding;
+  document.title="LÆRERMOD – "+META[state.teacher].label+" – "+state.year;
+ }catch(err){
+  var f=$("#finding"); if(f) f.textContent="Teknisk feil ved oppdatering: "+err.message;
+  if(window.console&&console.error) console.error(err);
+ }
 }
-teacher.onchange=e=>{state.teacher=e.target.value;render()};
-year.onchange=e=>{state.year=+e.target.value;render()};
-$("#reset").onclick=()=>{state={teacher:names[0],year:2060};teacher.value=state.teacher;year.value=2060;render()};
-$("#csv").onclick=()=>{const d=SERIES[state.teacher],rows=[["Utdanning","År","Tilbud","Etterspørsel","Differanse"],...d.map(x=>[META[state.teacher].label,x.year,x.supply,x.demand,x.balance])];const csv=rows.map(r=>r.join(";")).join("\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="laerermod_"+state.teacher.replaceAll(" ","_")+".csv";a.click();URL.revokeObjectURL(a.href)};
+function onTeacherChange(){state.teacher=teacher.value;render();}
+function onYearChange(){state.year=parseInt(year.value,10);render();}
+teacher.addEventListener("change",onTeacherChange,false); teacher.addEventListener("input",onTeacherChange,false);
+year.addEventListener("change",onYearChange,false); year.addEventListener("input",onYearChange,false);
+if(view){view.addEventListener("change",function(){var targets={"Tilbud og etterspørsel":"supplyDemandSection","Balanse":"balanceSection","Sektorfordeling":"sectorSection"};var target=document.getElementById(targets[view.value]);if(target)target.scrollIntoView({behavior:"smooth",block:"start"});},false);}
+$("#reset").onclick=function(){state={teacher:names[0],year:2060};teacher.value=state.teacher;year.value="2060";render();};
+$("#csv").onclick=function(){var d=SERIES[state.teacher],rows=[["Utdanning","År","Tilbud","Etterspørsel","Differanse"]];for(var i=0;i<d.length;i++)rows.push([META[state.teacher].label,d[i].year,d[i].supply,d[i].demand,d[i].balance]);var lines=[];for(var j=0;j<rows.length;j++)lines.push(rows[j].join(";"));var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([lines.join("\n")],{type:"text/csv;charset=utf-8"}));a.download="laerermod_"+state.teacher.split(" ").join("_")+".csv";document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(a.href);},0);};
 
-const mobileMenuButton=document.getElementById("mobileMenuButton");
-const sidebarEl=document.getElementById("sidebar");
-const mobileBackdrop=document.getElementById("mobileBackdrop");
-function closeMobileMenu(){
-  sidebarEl.classList.remove("open");
-  mobileBackdrop.classList.remove("show");
-}
-mobileMenuButton.addEventListener("click",()=>{
-  sidebarEl.classList.toggle("open");
-  mobileBackdrop.classList.toggle("show");
-});
-mobileBackdrop.addEventListener("click",closeMobileMenu);
-document.querySelectorAll("#sidebar nav button").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    if(window.innerWidth<=680) closeMobileMenu();
-  });
-});
-window.addEventListener("resize",()=>{
-  if(window.innerWidth>680) closeMobileMenu();
-});
+var mobileMenuButton=document.getElementById("mobileMenuButton"),sidebarEl=document.getElementById("sidebar"),mobileBackdrop=document.getElementById("mobileBackdrop");
+function closeMobileMenu(){sidebarEl.classList.remove("open");mobileBackdrop.classList.remove("show");}
+mobileMenuButton.onclick=function(){sidebarEl.classList.toggle("open");mobileBackdrop.classList.toggle("show");}; mobileBackdrop.onclick=closeMobileMenu;
+var sideButtons=document.querySelectorAll("#sidebar nav button");for(var sb=0;sb<sideButtons.length;sb++)sideButtons[sb].onclick=function(){var targetId=this.getAttribute("data-target");var target=targetId?document.getElementById(targetId):null;if(target){target.scrollIntoView(true);target.classList.remove("section-flash");void target.offsetWidth;target.classList.add("section-flash");}for(var k=0;k<sideButtons.length;k++)sideButtons[k].classList.remove("active");this.classList.add("active");if(window.innerWidth<=680)closeMobileMenu();};
+window.onresize=function(){if(window.innerWidth>680)closeMobileMenu();};
 
-const navButtons=[...document.querySelectorAll("#mainNav button[data-target]")];
-
-function activateNavButton(button){
-  navButtons.forEach(b=>b.classList.remove("active"));
-  button.classList.add("active");
-}
-
-function goToSection(button){
-  const target=document.getElementById(button.dataset.target);
-  if(!target) return;
-
-  activateNavButton(button);
-  target.scrollIntoView({behavior:"smooth",block:"start"});
-  target.classList.remove("section-flash");
-  void target.offsetWidth;
-  target.classList.add("section-flash");
-
-  if(window.innerWidth<=680) closeMobileMenu();
-}
-
-navButtons.forEach(button=>{
-  button.addEventListener("click",()=>goToSection(button));
-});
-
-const observedSections=navButtons
-  .map(button=>document.getElementById(button.dataset.target))
-  .filter(Boolean);
-
-if("IntersectionObserver" in window){
-  const observer=new IntersectionObserver(entries=>{
-    const visible=entries
-      .filter(entry=>entry.isIntersecting)
-      .sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
-
-    if(!visible) return;
-    const button=navButtons.find(b=>b.dataset.target===visible.target.id);
-    if(button) activateNavButton(button);
-  },{rootMargin:"-15% 0px -65% 0px",threshold:[0,.1,.25,.5]});
-
-  observedSections.forEach(section=>observer.observe(section));
-}
-
-
-render();
-const note=document.getElementById("openNote"); if(note) note.style.display="none";
+fillFilters(); render();
 </script>
 </body>
 </html>
