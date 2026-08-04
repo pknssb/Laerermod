@@ -48,6 +48,9 @@ h1{font-size:clamp(28px,3vw,42px);letter-spacing:-.045em;margin:0}.lead{color:va
 .open-note{background:#fff6d9;border:1px solid #ead697;color:#62531f;padding:11px 14px;border-radius:12px;margin-bottom:13px;font-size:12px}.filters{display:grid;grid-template-columns:1.5fr .7fr 1fr auto;gap:13px;background:var(--card2);padding:15px;border:1px solid var(--line);border-radius:17px;margin-bottom:16px}
 .field label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
 select{width:100%;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:11px}
+.year-slider{display:grid;grid-template-columns:minmax(120px,1fr) 58px;gap:10px;align-items:center;min-height:43px}
+.year-slider input[type="range"]{width:100%;accent-color:var(--teal);cursor:pointer}
+.year-slider output{display:grid;place-items:center;min-height:39px;padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font-weight:800;font-variant-numeric:tabular-nums}
 .reset{display:flex;align-items:end}
 .kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:13px;margin-bottom:16px}
 .card,.panel{background:var(--card);border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow)}
@@ -681,7 +684,7 @@ body.modal-open{overflow:hidden}
     <button data-target="candidateSection"><b class="nav-icon">✦</b><span>Kandidatproduksjon</span></button>
     <button data-target="assumptionsSection"><b class="nav-icon">≡</b><span>Forutsetninger</span></button>
   </nav>
-  <div class="side-note">Referansebane 2024–2060<br>SSB Rapporter 2025/30<br><br>Tallene i løsningen er hentet fra rapportens vedlegg A, tabell 2.1 og tabell 3.1.</div>
+  <div class="side-note">Referansebane 2024–2060<br>SSB Rapporter 2025/30<br><br>Tallene er hentet fra rapportens vedlegg A, B, C, D og E, tabell 2.1 og tabell 3.1.</div>
   <button class="model-visual-button" id="openModelVisual" type="button"><b class="nav-icon" aria-hidden="true">◉</b><span>Slik virker LÆRERMOD</span></button>
 </aside>
 
@@ -713,18 +716,7 @@ body.modal-open{overflow:hidden}
 <option value="Yrkesfaglærere">Yrkesfaglærere</option>
 <option value="PPU Yrkesfag">PPU innen yrkesfag</option>
 </select></div>
-   <div class="field"><label>År</label><select id="year">
-<option>2024</option><option>2025</option><option>2026</option><option>2027</option>
-<option>2028</option><option>2029</option><option>2030</option><option>2031</option>
-<option>2032</option><option>2033</option><option>2034</option><option>2035</option>
-<option>2036</option><option>2037</option><option>2038</option><option>2039</option>
-<option>2040</option><option>2041</option><option>2042</option><option>2043</option>
-<option>2044</option><option>2045</option><option>2046</option><option>2047</option>
-<option>2048</option><option>2049</option><option>2050</option><option>2051</option>
-<option>2052</option><option>2053</option><option>2054</option><option>2055</option>
-<option>2056</option><option>2057</option><option>2058</option><option>2059</option>
-<option selected>2060</option>
-</select></div>
+   <div class="field"><label for="year">År</label><div class="year-slider"><input id="year" type="range" min="2024" max="2060" step="1" value="2060" aria-describedby="yearValue"><output id="yearValue" for="year">2060</output></div></div>
    <div class="field">
   <label>Scenario</label>
   <select id="scenarioSelect" aria-label="Velg scenario">
@@ -795,7 +787,7 @@ body.modal-open{overflow:hidden}
    </div>
 
    <div class="panel" id="educationGroupsSection">
-    <div class="panel-head"><div><h2>Alle syv lærerutdanninger i 2060</h2><div class="subtitle">Klikk på en gruppe for å åpne den</div></div></div>
+    <div class="panel-head"><div><h2 id="teacherGridTitle">Lærerutdanninger i 2060</h2><div class="subtitle" id="teacherGridSubtitle">Klikk på en gruppe for å åpne den</div></div></div>
     <div class="teacher-grid" id="teacherGrid">
 <div class="teacher-card active" data-name="Barnehagelærere"><div class="teacher-name">Barnehagelærere</div><div class="teacher-balance negative">−2 894</div><div class="small">balanse i 2060</div></div>
 <div class="teacher-card" data-name="Grunnskolelærere"><div class="teacher-name">Grunnskolelærere</div><div class="teacher-balance positive">+2 576</div><div class="small">balanse i 2060</div></div>
@@ -903,7 +895,7 @@ body.modal-open{overflow:hidden}
 <footer class="portal-footer">
   <div class="footer-brand">
     <strong>LÆRERMOD Analyseportal</strong>
-    <span>Versjon 1.0</span>
+    <span>Versjon 1.1</span>
   </div>
   <div class="footer-sources">
     <span>Basert på</span>
@@ -936,7 +928,7 @@ var names=Object.keys(SERIES);
 var state={teacher:names[0],year:2060};
 function fmt(n){return Math.round(n).toLocaleString("nb-NO");}
 function $(s){return document.querySelector(s);}
-var teacher=$("#teacher"),year=$("#year");
+var teacher=$("#teacher"),year=$("#year"),yearValue=$("#yearValue");
 
 function fillFilters(){
   var teacherOptions="";
@@ -946,12 +938,13 @@ function fillFilters(){
     teacherOptions+='<option value="'+teacherName+'"'+(available?'':' disabled')+'>'+META[teacherName].label+'</option>';
   }
   teacher.innerHTML=teacherOptions;
-  var yearOptions="";
   var baseSeries=SERIES[names[0]];
-  for(var j=0;j<baseSeries.length;j++) yearOptions+='<option value="'+baseSeries[j].year+'">'+baseSeries[j].year+'</option>';
-  year.innerHTML=yearOptions;
+  year.min=String(baseSeries[0].year);
+  year.max=String(baseSeries[baseSeries.length-1].year);
+  year.step="1";
   teacher.value=state.teacher;
   year.value=String(state.year);
+  yearValue.textContent=String(state.year);
   updateScenarioAvailability();
 }
 function updateScenarioAvailability(){
@@ -1120,7 +1113,19 @@ function balanceChart(){
 }
 function sectors(){var labels=["Barnehage","Grunnskole","VGO","Høyere utdanning","Annet i sektoren","Utenfor sektoren"],vals=META[state.teacher].sectors,html="";for(var i=0;i<labels.length;i++)html+='<div class="sector-row"><span>'+labels[i]+'</span><div class="bar-bg"><div class="bar" style="width:'+vals[i]+'%"></div></div><b>'+vals[i]+' %</b></div>';$("#sectors").innerHTML=html;}
 function candidates(){var m=META[state.teacher];$("#candidateTable").innerHTML='<thead><tr><th>Indikator</th><th>Verdi</th></tr></thead><tbody><tr><td>Nye førsteårsstudenter</td><td>'+fmt(m.students)+'</td></tr><tr><td>Fullføringsprosent</td><td>'+m.completion.toFixed(1).replace(".",",")+' %</td></tr><tr><td>Studielengde</td><td>'+m.study+' år</td></tr></tbody>';}
-function teacherGrid(){var html="";for(var i=0;i<names.length;i++){var n=names[i],arr=SERIES[n],d=arr[arr.length-1];html+='<div class="teacher-card '+(n===state.teacher?'active':'')+'" data-name="'+n+'"><div class="teacher-name">'+META[n].label+'</div><div class="teacher-balance '+(d.balance<0?'negative':'positive')+'">'+(d.balance<0?'−':'+')+fmt(Math.abs(d.balance))+'</div><div class="small">balanse i 2060</div></div>';}$("#teacherGrid").innerHTML=html;var cards=document.querySelectorAll(".teacher-card");for(var j=0;j<cards.length;j++)cards[j].onclick=function(){state.teacher=this.getAttribute("data-name");teacher.value=state.teacher;render();};}
+function teacherGrid(){
+ var html="";
+ for(var i=0;i<names.length;i++){
+  var n=names[i],arr=SERIES[n],d=arr[0];
+  for(var r=0;r<arr.length;r++)if(arr[r].year===state.year){d=arr[r];break;}
+  html+='<div class="teacher-card '+(n===state.teacher?'active':'')+'" data-name="'+n+'"><div class="teacher-name">'+META[n].label+'</div><div class="teacher-balance '+(d.balance<0?'negative':'positive')+'">'+(d.balance<0?'−':'+')+fmt(Math.abs(d.balance))+'</div><div class="small">balanse i '+state.year+'</div></div>';
+ }
+ $("#teacherGrid").innerHTML=html;
+ $("#teacherGridTitle").textContent="Lærerutdanninger i "+state.year;
+ $("#teacherGridSubtitle").textContent=activeScenario+" · Klikk på en gruppe for å åpne den";
+ var cards=document.querySelectorAll(".teacher-card");
+ for(var j=0;j<cards.length;j++)cards[j].onclick=function(){state.teacher=this.getAttribute("data-name");teacher.value=state.teacher;updateScenarioAvailability();render();};
+}
 
 function buildFinding(){
  var rows=SERIES[state.teacher];
@@ -1187,10 +1192,7 @@ function render(){
     ?"Sysselsatte årsverk, referansebanen"
     :"Sysselsatte årsverk, "+activeScenario.toLowerCase()+" sammenlignet med referansebanen";
   var note=document.querySelector(".side-note");
-  if(note){
-   var appendix=activeScenario==="Korrigert for sykefravær"?"D":activeScenario==="Korrigert for initial lærermangel"?"E":"A, B og C";
-   note.innerHTML=activeScenario+" 2024–2060<br>SSB Rapporter 2025/30<br><br>Tallene er hentet fra rapportens vedlegg "+appendix+", tabell 2.1 og tabell 3.1.";
-  }
+  if(note)note.innerHTML=activeScenario+" 2024–2060<br>SSB Rapporter 2025/30<br><br>Tallene er hentet fra rapportens vedlegg A, B, C, D og E, tabell 2.1 og tabell 3.1.";
 
   $("#findingTitle").textContent=META[state.teacher].label+" – "+activeScenario;
   $("#finding").textContent=buildFinding();
@@ -1218,7 +1220,7 @@ function onTeacherChange(){
  updateScenarioAvailability();
  render();
 }
-function onYearChange(){state.year=parseInt(year.value,10);render();}
+function onYearChange(){state.year=parseInt(year.value,10);yearValue.textContent=String(state.year);render();}
 var scenarioSelect=$("#scenarioSelect");
 if(scenarioSelect){
  scenarioSelect.value=activeScenario;
@@ -1314,10 +1316,18 @@ function pdfReport(){
      pale2=[0.93,0.965,0.96], red=[0.82,0.22,0.22], green=[0.10,0.55,0.34],
      grey=[0.57,0.61,0.62], white=[1,1,1];
 
- var pages=[],cmd=[],teacher=META[state.teacher],data=SERIES[state.teacher],
+ var pages=[],cmd=[],teacher=META[state.teacher],data=SERIES[state.teacher],selectedIndex=0,
      refData=SCENARIOS["Referansebanen"][state.teacher],
-     selected=data[data.length-1],base=data[0],
-     balance=selected.balance,change=(selected.supply/base.supply-1)*100;
+     selected=null,base=data[0],balance=0,change=0,pdfSupplyChanged=false,pdfDemandChanged=false;
+ for(var si=0;si<data.length;si++)if(data[si].year===state.year){selectedIndex=si;break;}
+ for(var ci=0;ci<data.length;ci++){
+  if(data[ci].supply!==refData[ci].supply)pdfSupplyChanged=true;
+  if(data[ci].demand!==refData[ci].demand)pdfDemandChanged=true;
+ }
+ var pdfReferenceKey=pdfSupplyChanged&&!pdfDemandChanged?"supply":"demand";
+ selected=data[selectedIndex];
+ balance=selected.balance;
+ change=(selected.supply/base.supply-1)*100;
 
  function c(arr,stroke){cmd.push(arr.join(" ")+" "+(stroke?"RG":"rg"));}
  function lineWidth(v){cmd.push(v+" w");}
@@ -1392,10 +1402,22 @@ function pdfReport(){
  }
  function streamPage(){pages.push(cmd.join("\n"));cmd=[];}
  function balanceColor(v){return v<0?red:v>0?green:grey;}
- function statusLabel(v){return v<0?"Underskudd":"Overskudd";}
+ function statusLabel(v){return v<0?"Underskudd":v>0?"Overskudd":"Balanse";}
+ function pdfFinding(){
+  var result=balance<0
+   ?"I "+state.year+" er etterspørselen "+pdfNumber(Math.abs(balance))+" årsverk høyere enn tilbudet."
+   :balance>0
+    ?"I "+state.year+" er tilbudet "+pdfNumber(balance)+" årsverk høyere enn etterspørselen."
+    :"I "+state.year+" er tilbud og etterspørsel i balanse.";
+  if(activeScenario!=="Referansebanen"){
+   var refBalance=refData[selectedIndex].balance,difference=balance-refBalance;
+   result+=" Sammenlignet med referansebanen er balansen "+pdfNumber(Math.abs(difference))+" årsverk "+(difference<0?"lavere":difference>0?"høyere":"uendret")+".";
+  }
+  return result;
+ }
 
  // ================= PAGE 1 =================
- topHeader(teacher.label,activeScenario+" | 2024-2060",1);
+ topHeader(teacher.label,activeScenario+" | "+state.year,1);
 
  text(38,H-84,22,"Tilbud og etterspørsel etter lærere",true,ink);
  text(38,H-101,9.2,"Resultatoversikt for "+teacher.label.toLowerCase()+".",false,muted);
@@ -1406,8 +1428,8 @@ function pdfReport(){
 
  // KPI cards: lower, cleaner, less decorative
  var kpis=[
-  ["Tilbud",pdfNumber(selected.supply),"årsverk i 2060",ink],
-  ["Etterspørsel",pdfNumber(selected.demand),"årsverk i 2060",ink],
+  ["Tilbud",pdfNumber(selected.supply),"årsverk i "+state.year,ink],
+  ["Etterspørsel",pdfNumber(selected.demand),"årsverk i "+state.year,ink],
   ["Balanse",(balance<0?"-":"+")+pdfNumber(Math.abs(balance)),balance<0?"underskudd":"overskudd",balanceColor(balance)],
   ["Endring i tilbud",(change>=0?"+":"")+change.toFixed(1).replace(".",",")+" %","fra 2024",ink],
   ["Utgangspopulasjon",pdfNumber(base.supply),"årsverk i 2024",ink]
@@ -1433,7 +1455,7 @@ function pdfReport(){
  var px=cx+58,py=cy+45,pw=cw-92,ph=166,vals=[];
  for(var i=0;i<data.length;i++){
   vals.push(data[i].supply,data[i].demand);
-  if(activeScenario!=="Referansebanen")vals.push(refData[i].demand);
+  if(activeScenario!=="Referansebanen")vals.push(refData[i][pdfReferenceKey]);
  }
  var ymin=Math.floor(Math.min.apply(null,vals)*.95/500)*500;
  var ymax=Math.ceil(Math.max.apply(null,vals)*1.05/500)*500;
@@ -1450,9 +1472,10 @@ function pdfReport(){
   var idx=tickYears[ty]-2024,xx=px+idx*pw/(data.length-1);
   text(xx,py-16,6.5,String(tickYears[ty]),false,muted,"center");
  }
- // 2060 guide
+ // guide for selected year
  c([0.88,0.91,0.91],true);lineWidth(.5);dash("[2 3] 0 d");
- lineSeg(px+pw,py,px+pw,py+ph);dash("[] 0 d");
+ var selectedX=px+selectedIndex*pw/(data.length-1);
+ lineSeg(selectedX,py,selectedX,py+ph);dash("[] 0 d");
 
  function plot(rows,key,color,dashValue,width){
   c(color,true);lineWidth(width||2.2);dash(dashValue||"[] 0 d");
@@ -1468,29 +1491,30 @@ function pdfReport(){
  var supplyPts=plot(data,"supply",teal,"[] 0 d",2.5);
  var demandPts=plot(data,"demand",teal2,"[6 4] 0 d",2.5);
  var refPts=null;
- if(activeScenario!=="Referansebanen")refPts=plot(refData,"demand",grey,"[1.2 3.3] 0 d",1.6);
+ if(activeScenario!=="Referansebanen")refPts=plot(refData,pdfReferenceKey,grey,"[1.2 3.3] 0 d",1.6);
 
- // direct labels at 2060
- var sx=supplyPts[supplyPts.length-1][0],sy=supplyPts[supplyPts.length-1][1];
- var dx=demandPts[demandPts.length-1][0],dy=demandPts[demandPts.length-1][1];
+ // direct labels at selected year
+ var sx=supplyPts[selectedIndex][0],sy=supplyPts[selectedIndex][1];
+ var dx=demandPts[selectedIndex][0],dy=demandPts[selectedIndex][1];
  c(teal,false);circle(sx,sy,3.1,true,false);
  c(teal2,false);circle(dx,dy,3.1,true,false);
- text(sx-8,sy-13,7.4,"Tilbud  "+pdfNumber(selected.supply),true,teal,"right");
- text(dx-8,dy+8,7.4,"Etterspørsel  "+pdfNumber(selected.demand),true,teal2,"right");
+ var selectedLabelRight=selectedIndex>18,selectedLabelX=selectedLabelRight?sx-8:sx+8,selectedLabelAlign=selectedLabelRight?"right":undefined;
+ text(selectedLabelX,sy-13,7.4,"Tilbud  "+pdfNumber(selected.supply),true,teal,selectedLabelAlign);
+ text(selectedLabelX,dy+8,7.4,"Etterspørsel  "+pdfNumber(selected.demand),true,teal2,selectedLabelAlign);
  if(refPts){
-  var rxp=refPts[refPts.length-1][0],ryp=refPts[refPts.length-1][1];
+  var rxp=refPts[selectedIndex][0],ryp=refPts[selectedIndex][1];
   c(grey,false);circle(rxp,ryp,2.4,true,false);
-  text(rxp-8,ryp+8,6.9,"Referanse  "+pdfNumber(refData[refData.length-1].demand),false,grey,"right");
+  text(selectedLabelRight?rxp-8:rxp+8,ryp+8,6.9,"Referanse  "+pdfNumber(refData[selectedIndex][pdfReferenceKey]),false,grey,selectedLabelAlign);
  }
 
  // minimalist legend only as line-style key
  var ly=cy+18,lx=cx+20;
- c(teal,true);lineWidth(2.3);lineSeg(lx,ly,lx+18,ly);text(lx+24,ly-3,7,"Tilbud",false,muted);
- c(teal2,true);lineWidth(2.3);dash("[6 4] 0 d");lineSeg(lx+75,ly,lx+93,ly);dash("[] 0 d");
- text(lx+99,ly-3,7,"Valgt scenario",false,muted);
+ c(teal,true);lineWidth(2.3);lineSeg(lx,ly,lx+18,ly);text(lx+24,ly-3,7,pdfSupplyChanged?"Valgt tilbud":"Tilbud",false,muted);
+ c(teal2,true);lineWidth(2.3);dash("[6 4] 0 d");lineSeg(lx+145,ly,lx+163,ly);dash("[] 0 d");
+ text(lx+169,ly-3,7,pdfDemandChanged?"Valgt etterspørsel":"Etterspørsel",false,muted);
  if(activeScenario!=="Referansebanen"){
-  c(grey,true);lineWidth(1.5);dash("[1.2 3.3] 0 d");lineSeg(lx+190,ly,lx+208,ly);dash("[] 0 d");
-  text(lx+214,ly-3,7,"Referansebane",false,muted);
+  c(grey,true);lineWidth(1.5);dash("[1.2 3.3] 0 d");lineSeg(lx+335,ly,lx+353,ly);dash("[] 0 d");
+  text(lx+359,ly-3,7,pdfReferenceKey==="supply"?"Referansetilbud":"Referanseetterspørsel",false,muted);
  }
 
  // Executive insight panel using the exact same text as the portal
@@ -1499,7 +1523,7 @@ function pdfReport(){
  smallCaps(rx+16,351,"Hovedfunn",teal);
  text(rx+16,329,12.5,"Kort oppsummert",true,ink);
  c(teal2,false);rect(rx+16,247,3,61,true,false,1);
- paragraph(rx+28,305,7.65,buildFinding(),38,10.2,muted,false,6);
+ paragraph(rx+28,305,7.65,pdfFinding(),38,10.2,muted,false,6);
 
  // Sector bars with more whitespace
  card(rx,88,rw,127,white);
@@ -1518,7 +1542,7 @@ function pdfReport(){
  footer(1);streamPage();
 
  // ================= PAGE 2 =================
- topHeader("Detaljer og forutsetninger",teacher.label+" | "+activeScenario,2);
+ topHeader("Detaljer og forutsetninger",teacher.label+" | "+activeScenario+" | "+state.year,2);
 
  // balance chart wider but callout inside
  card(38,314,512,209,white);
@@ -1550,7 +1574,7 @@ function pdfReport(){
  }
  // internal callout at top right, no overlap
  c(balanceColor(balance),false);rect(401,459,127,21,true,false,10);
- text(464.5,466,7.5,(balance<0?"-":"+")+pdfNumber(Math.abs(balance))+" i 2060",true,white,"center");
+ text(464.5,466,7.5,(balance<0?"-":"+")+pdfNumber(Math.abs(balance))+" i "+state.year,true,white,"center");
 
  // candidate production cleaner
  card(566,314,238,209,pale);
@@ -1570,7 +1594,7 @@ function pdfReport(){
 
  // results table with slim indicator, not pills
  card(38,84,512,212,white);
- text(58,271,14.5,"Tilgjengelige lærerutdanninger i 2060",true,ink);
+ text(58,271,14.5,"Tilgjengelige lærerutdanninger i "+state.year,true,ink);
  text(58,255,7.8,"Balanse i valgt scenario",false,muted);
 
  c(pale2,false);rect(58,226,472,21,true,false,5);
@@ -1579,7 +1603,7 @@ function pdfReport(){
  text(513,233,7,"STATUS",true,teal,"right");
 
  for(var gi=0;gi<names.length;gi++){
-  var gd=SCENARIOS[activeScenario][names[gi]],gb=gd[gd.length-1].balance;
+  var gd=SCENARIOS[activeScenario][names[gi]],gb=gd[selectedIndex].balance;
   var gy3=207-gi*19.5;
   if(gi%2===1){c([0.977,0.985,0.983],false);rect(58,gy3-5,472,17.5,true,false,2);}
   c(balanceColor(gb),false);rect(64,gy3-2,3,11.5,true,false,1.5);
@@ -1592,8 +1616,13 @@ function pdfReport(){
  // numbered assumptions
  card(566,82,238,214,pale);
  smallCaps(584,271,"Sentrale forutsetninger",teal);
+ var firstAssumption=activeScenario==="Korrigert for sykefravær"
+  ?["Korrigert for sykefravær","Tilbudet er redusert med rapportens sykefravær."]
+  :activeScenario==="Korrigert for initial lærermangel"
+   ?["Initial lærermangel","Etterspørselen inkluderer mangelen i 2024."]
+   :["Utgangsår 2024","Tilbud settes lik etterspørsel."];
  var assumptions=[
-  ["Utgangsår 2024","Tilbud settes lik etterspørsel."],
+  firstAssumption,
   ["Konstant kandidatproduksjon","2024-nivå gjennom hele perioden."],
   ["Demografidrevet etterspørsel","Dagens lærertetthet holdes konstant."],
   ["Konstant sektorfordeling","Fordelingen fra 2024 videreføres."]
@@ -1633,7 +1662,7 @@ function downloadProfessionalPdf(){
   var bytes=pdfReport(),blob=new Blob([bytes],{type:"application/pdf"});
   var link=document.createElement("a");
   link.href=URL.createObjectURL(blob);
-  link.download="LAERERMOD_"+state.teacher.replace(/\s+/g,"_")+"_"+activeScenario.replace(/\s+/g,"_")+"_2060.pdf";
+  link.download="LAERERMOD_"+state.teacher.replace(/\s+/g,"_")+"_"+activeScenario.replace(/\s+/g,"_")+"_"+state.year+".pdf";
   document.body.appendChild(link);
   link.click();
   setTimeout(function(){URL.revokeObjectURL(link.href);link.remove();},1000);
