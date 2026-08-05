@@ -1019,6 +1019,14 @@ function lineChart(){
  var min=Math.min.apply(null,vals)*.93,max=Math.max.apply(null,vals)*1.07;
  axes(el,w,h,p,min,max,data);
 
+ var selectedYearIndex=0;
+ for(var yi=0;yi<data.length;yi++)if(data[yi].year===state.year){selectedYearIndex=yi;break;}
+ var selectedYearX=p.l+(w-p.l-p.r)*selectedYearIndex/(data.length-1);
+ el.appendChild(svg("line",{x1:selectedYearX,y1:p.t,x2:selectedYearX,y2:h-p.b,stroke:"#a9d7d1","stroke-width":2,"stroke-dasharray":"4 5"}));
+ var selectedYearLabel=svg("text",{x:selectedYearX,y:p.t+12,"text-anchor":"middle",fill:"#087b79","font-size":11,"font-weight":800});
+ selectedYearLabel.textContent=String(state.year);
+ el.appendChild(selectedYearLabel);
+
  var seriesDefs=[
   {data:data,key:"supply",color:"#07535a",dash:"",width:3,label:supplyChanged?"Tilbud – "+activeScenario:"Tilbud"},
   {data:data,key:"demand",color:"#28a39a",dash:"7 5",width:3,label:demandChanged?"Etterspørsel – "+activeScenario:"Etterspørsel"}
@@ -1072,11 +1080,14 @@ function lineChart(){
    }));
 
    for(var j=0;j<pts.length;j++)(function(pt){
+    var isSelectedYear=pt[2].year===state.year;
     var c=svg("circle",{
      cx:pt[0],
      cy:pt[1],
-     r:def.key==="supply"?3.4:3,
-     fill:def.color
+     r:isSelectedYear?6.5:(def.key==="supply"?3.4:3),
+     fill:def.color,
+     stroke:isSelectedYear?"#ffffff":"none",
+     "stroke-width":isSelectedYear?2.5:0
     });
     c.onmousemove=function(e){
      tip(e,pt[2].year+": "+def.label+" "+fmt(pt[2][def.key]));
@@ -1108,7 +1119,7 @@ function balanceChart(){
  for(var i=0;i<data.length;i++) vals.push(data[i].balance);
  var min=Math.min.apply(null,[-500].concat(vals))*1.12,max=Math.max.apply(null,[500].concat(vals))*1.12; axes(el,w,h,p,min,max,data);
  var zero=p.t+(h-p.t-p.b)*(1-(0-min)/(max-min)),bw=(w-p.l-p.r)/data.length*.72;
- for(var j=0;j<data.length;j++)(function(d,i){var x=p.l+(w-p.l-p.r)*i/(data.length-1),y=p.t+(h-p.t-p.b)*(1-(d.balance-min)/(max-min));var r=svg("rect",{x:x-bw/2,y:Math.min(y,zero),width:bw,height:Math.max(1,Math.abs(y-zero)),rx:2,fill:d.balance>=0?"#238b57":"#cf4141"});r.onmousemove=function(e){tip(e,d.year+": "+(d.balance<0?"−":"+")+fmt(Math.abs(d.balance)));};r.onmouseleave=untip;el.appendChild(r);})(data[j],j);
+ for(var j=0;j<data.length;j++)(function(d,i){var x=p.l+(w-p.l-p.r)*i/(data.length-1),y=p.t+(h-p.t-p.b)*(1-(d.balance-min)/(max-min)),isSelectedYear=d.year===state.year;var r=svg("rect",{x:x-bw/2,y:Math.min(y,zero),width:bw,height:Math.max(1,Math.abs(y-zero)),rx:2,fill:d.balance>=0?"#238b57":"#cf4141",stroke:isSelectedYear?"#073f42":"none","stroke-width":isSelectedYear?2.5:0});r.onmousemove=function(e){tip(e,d.year+": "+(d.balance<0?"−":"+")+fmt(Math.abs(d.balance)));};r.onmouseleave=untip;el.appendChild(r);})(data[j],j);
  el.setAttribute("aria-label","Balanse for "+META[state.teacher].label);
 }
 function sectors(){var labels=["Barnehage","Grunnskole","VGO","Høyere utdanning","Annet i sektoren","Utenfor sektoren"],vals=META[state.teacher].sectors,html="";for(var i=0;i<labels.length;i++)html+='<div class="sector-row"><span>'+labels[i]+'</span><div class="bar-bg"><div class="bar" style="width:'+vals[i]+'%"></div></div><b>'+vals[i]+' %</b></div>';$("#sectors").innerHTML=html;}
